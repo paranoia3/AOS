@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 10 End-Term Review Quiz — Memory, File Systems & Security</title>
+  <style>
+    :root{
+      --bg:#fafaf8;--fg:#1a1a1a;--muted:#6b6b6b;--accent:#2b6cb0;--accent-fg:#ffffff;
+      --line:#e5e5e0;--card:#ffffff;--code-bg:#f3f3ee;
+      --ok:#2f855a;--ok-bg:#e6f4ea;--ok-line:#c6e7d2;
+      --bad:#c53030;--bad-bg:#fde8e8;--bad-line:#f5c6c6;
+      --sel-bg:#ebf5ff;--shadow:rgba(0,0,0,.06);
+    }
+    html[data-theme="dark"]{
+      --bg:#15171a;--fg:#e7e9ec;--muted:#9aa0a6;--accent:#5aa2ff;--accent-fg:#0b1220;
+      --line:#2c3137;--card:#1e2125;--code-bg:#2a2f35;
+      --ok:#5fd39a;--ok-bg:#16271d;--ok-line:#234d38;
+      --bad:#ff8c8c;--bad-bg:#2a1718;--bad-line:#5a2a2c;
+      --sel-bg:#16304d;--shadow:rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.6;font-size:16px;-webkit-text-size-adjust:100%}
+    .wrap{max-width:860px;margin:0 auto;padding:32px 20px 96px}
+    header{border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:24px}
+    .head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+    h1{font-size:28px;font-weight:600;margin:0;letter-spacing:-.01em}
+    .sub{color:var(--muted);font-size:14px;margin-top:10px}
+    .theme-btn{flex-shrink:0;padding:8px 14px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+    .theme-btn:hover{border-color:var(--accent)}
+    .menu-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:22px}
+    .menu-block{display:flex;flex-direction:column;gap:10px}
+    .menu-label{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+    .menu-hint{font-size:13px;color:var(--muted)}
+    .seg{display:flex;gap:8px;flex-wrap:wrap}
+    .seg-col{flex-direction:column}
+    .seg-btn{flex:1;min-width:110px;padding:12px 14px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:9px;font:inherit;font-size:14px;font-weight:500;cursor:pointer;text-align:center;transition:all .12s}
+    .seg-col .seg-btn{text-align:left}
+    .seg-btn:hover{border-color:var(--accent)}
+    .seg-btn.active{border-color:var(--accent);background:var(--sel-bg);color:var(--accent);font-weight:600}
+    #topbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:18px;box-shadow:0 1px 6px var(--shadow)}
+    .topbar-info{display:flex;flex-direction:column;flex:1;min-width:120px}
+    #topLabel{font-weight:600;font-size:14px}
+    #progress{color:var(--muted);font-size:13px}
+    #timer{font-family:"JetBrains Mono",Consolas,monospace;font-size:18px;font-weight:700;color:var(--accent);padding:4px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+    #timer.warn{color:var(--bad);border-color:var(--bad)}
+    .question{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0}
+    .qhead{display:flex;gap:10px;margin-bottom:14px}
+    .qnum{font-size:12px;letter-spacing:.06em;color:var(--muted);font-weight:600;padding:3px 8px;background:var(--code-bg);border-radius:6px;flex-shrink:0;height:fit-content}
+    .qtext{font-weight:500;line-height:1.5}
+    .options{display:flex;flex-direction:column;gap:8px}
+    .option{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%;transition:all .12s}
+    .option:hover:not(.locked){border-color:var(--accent)}
+    .option.selected{border-color:var(--accent);background:var(--sel-bg)}
+    .option.locked{cursor:default}
+    .option.correct{border-color:var(--ok);background:var(--ok-bg)}
+    .option.wrong{border-color:var(--bad);background:var(--bad-bg)}
+    .letter{font-family:"JetBrains Mono",Consolas,monospace;font-weight:600;color:var(--muted);flex-shrink:0;width:18px}
+    .option.correct .letter{color:var(--ok)}
+    .option.wrong .letter{color:var(--bad)}
+    .feedback{margin-top:12px;padding:12px 14px;border-radius:8px;font-size:14px;display:none}
+    .feedback.shown{display:block}
+    .feedback.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+    .feedback.bad{background:var(--bad-bg);color:var(--bad);border:1px solid var(--bad-line)}
+    .feedback .explain{color:var(--fg);margin-top:8px;line-height:1.55}
+    .actions{display:flex;gap:10px;margin-top:24px;justify-content:center;flex-wrap:wrap}
+    button.btn{padding:12px 24px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);border-radius:8px;font:inherit;font-weight:600;cursor:pointer;font-size:15px}
+    button.btn:hover{filter:brightness(1.06)}
+    button.btn.secondary{background:var(--card);color:var(--accent)}
+    button.btn.small{padding:8px 14px;font-size:13px}
+    #score{display:none;background:var(--card);border:2px solid var(--accent);border-radius:12px;padding:26px;text-align:center;margin:22px 0}
+    #score.shown{display:block}
+    .score-main{font-size:40px;font-weight:700;color:var(--accent);letter-spacing:-.02em}
+    .score-pct{font-size:18px;color:var(--muted);margin-top:4px}
+    .score-note{font-size:13px;color:var(--muted);margin-top:10px}
+    footer{margin-top:50px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;text-align:center}
+    [hidden]{display:none !important}
+    @media (max-width:600px){
+      .wrap{padding:20px 14px 80px}
+      h1{font-size:22px}
+      .menu-card{padding:16px}
+      .question{padding:14px}
+      button.btn:not(.small){width:100%}
+      .actions{flex-direction:column}
+      #timer{font-size:16px}
+      .theme-btn{padding:7px 10px;font-size:12px}
+    }
+  </style>
+</head>
+<body>
+<script>(function(){try{var t=localStorage.getItem('aos_quiz_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<div class="wrap">
+  <a class="home-link" href="index.html" style="display:inline-block;margin-bottom:20px;font-size:14px;font-weight:600;color:var(--accent);text-decoration:none">← На главную</a>
+  <header>
+    <div class="head-row">
+      <div>
+        <div class="eyebrow">Advanced Operating Systems · End-Term Review</div>
+        <h1>Week 10 — End-Term Test Review</h1>
+      </div>
+      <button class="theme-btn" id="themeBtn" type="button">Тёмная тема</button>
+    </div>
+    <div class="sub">81 вопросов · 3 варианта по 27 · варианты ответов перемешиваются при каждом запуске</div>
+  </header>
+
+  <div id="menu">
+    <div class="menu-card">
+      <div class="menu-block">
+        <div class="menu-label">Вариант</div>
+        <div class="seg" id="variantSeg">
+          <button type="button" class="seg-btn active" data-v="0">Вариант 1</button>
+          <button type="button" class="seg-btn" data-v="1">Вариант 2</button>
+          <button type="button" class="seg-btn" data-v="2">Вариант 3</button>
+        </div>
+        <div class="menu-hint" id="variantHint">27 вопросов</div>
+      </div>
+      <div class="menu-block">
+        <div class="menu-label">Режим</div>
+        <div class="seg seg-col" id="modeSeg">
+          <button type="button" class="seg-btn active" data-m="practice">Практика — проверка сразу после ответа</button>
+          <button type="button" class="seg-btn" data-m="exam">Экзамен — проверка в конце · таймер 15 минут</button>
+        </div>
+      </div>
+      <button class="btn" id="startBtn" type="button">Начать</button>
+    </div>
+  </div>
+
+  <div id="quizarea" hidden>
+    <div id="topbar">
+      <button class="btn secondary small" id="backBtn" type="button">← В меню</button>
+      <div class="topbar-info">
+        <span id="topLabel"></span>
+        <span id="progress"></span>
+      </div>
+      <div id="timer" hidden>15:00</div>
+    </div>
+    <div id="quiz"></div>
+    <div id="score"></div>
+    <div class="actions">
+      <button class="btn" id="submitBtn" type="button" hidden>Завершить и проверить</button>
+      <button class="btn secondary" id="restartBtn" type="button">Пройти заново</button>
+    </div>
+  </div>
+
+  <footer>Advanced Operating Systems · Week 10 · практика</footer>
+</div>
+
+<script>
+  const questions = [
+    {q:"An advantage of virtual memory is that:",
+      options:["All of the above.","The programmers can concentrate on programming the problem instead of worrying about the amount of physical memory available.","It provides a way to execute a program that is only partially loaded in memory.","A program can be much larger than the size of physical memory."],
+      correct:0,
+      explanation:"All three are genuine benefits of virtual memory: a program can exceed physical RAM, only part of it needs to be resident, and programmers are freed from managing physical-memory limits."},
+
+    {q:"An address generated by a CPU is referred to as a ____.",
+      options:["Post-relocation register address","Logical address","Physical address","Memory-Management Unit (MMU) generated address"],
+      correct:1,
+      explanation:"The CPU generates logical (virtual) addresses. The MMU translates a logical address into the physical address used to access main memory."},
+
+    {q:"The x86-64 architecture provides support for:",
+      options:["Four different page sizes using a 4-level paging hierarchy.","Four different page sizes using a 3-level paging hierarchy.","Three different page sizes using a 3-level paging hierarchy.","Three different page sizes using a 4-level paging hierarchy."],
+      correct:3,
+      explanation:"x86-64 uses a four-level paging hierarchy and supports three page sizes: 4 KB, 2 MB, and 1 GB."},
+
+    {q:"A system uses 2-level paging with a TLB hit ratio of 90%. A TLB access takes 15 ns and a main-memory access takes 85 ns. What is the effective memory access time (ns)?",
+      options:["117","30.5","108.5","22"],
+      correct:0,
+      explanation:"TLB hit (90%): 15 + 85 = 100 ns. TLB miss (10%) with 2-level paging: 15 + 2×85 (walk the page table) + 85 (the data) = 270 ns. EAT = 0.9×100 + 0.1×270 = 90 + 27 = 117 ns."},
+
+    {q:"In the swapping technique, individual pages of a process are swapped in or out.",
+      options:["False","True"],
+      correct:0,
+      explanation:"Standard swapping moves an ENTIRE process between memory and backing store. Moving individual pages is 'swapping with paging' (paging), not the basic swapping technique."},
+
+    {q:"The most preferred method of swapping a process is:",
+      options:["To copy an entire file to swap space at process startup and then perform demand paging from the swap space.","None of the above.","To swap using the file system.","To demand-page from the file system initially, but to write the pages to swap space as they are replaced."],
+      correct:3,
+      explanation:"Modern systems demand-page directly from the file system (the executable) and only write pages out to swap space when they are replaced — avoiding copying the whole image to swap up front."},
+
+    {q:"Memory compression is a useful alternative to paging:",
+      options:["Even when the system has faster SSDs.","When the system has slow magnetic disks but not faster SSDs.","When the speed of the compression algorithm is fastest.","When the compression algorithm can achieve the best possible compression ratio."],
+      correct:0,
+      explanation:"Compressing frames in RAM avoids secondary-storage I/O entirely, so it beats paging out — even to a fast SSD. That is why mobile OSes use compression instead of swapping."},
+
+    {q:"Page reference string 1 2 3 4 2 3 4 1 2 1 1 3 1 4 with three frames, using FIFO replacement. What is the final configuration of the three frames?",
+      options:["3, 1, 4","4, 1, 3","3, 4, 2","4, 2, 3"],
+      correct:2,
+      explanation:"Tracking FIFO slot-by-slot through the faults: [1,2,3] → [4,2,3] → [4,1,3] → [4,1,2] → [3,1,2] → [3,4,2]. The final frame contents are 3, 4, 2."},
+
+    {q:"Stack algorithms can never exhibit Belady's anomaly.",
+      options:["False","True"],
+      correct:1,
+      explanation:"Stack algorithms (e.g., LRU, OPT) guarantee that the set of pages in n frames is always a subset of the set in n+1 frames, so adding frames never increases faults — no Belady's anomaly."},
+
+    {q:"____ is the algorithm implemented on most systems.",
+      options:["Most frequently used","LRU","FIFO","Least frequently used"],
+      correct:1,
+      explanation:"LRU — or an LRU approximation such as the second-chance/clock algorithm — is the page-replacement policy used by most real systems because it approximates OPT well."},
+
+    {q:"Counting-based page replacement algorithms are not commonly used, because:",
+      options:["They are expensive to implement, even though they incur the least number of page faults.","They only approximate LRU.","They do not approximate OPT replacement very well, and their implementation is expensive.","They do not approximate OPT replacement very well, even though they are easy to implement."],
+      correct:2,
+      explanation:"Neither LFU nor MFU is common: they are expensive to implement AND they do not approximate OPT replacement well."},
+
+    {q:"Windows uses both a local and a global page-replacement policy.",
+      options:["False","True"],
+      correct:1,
+      explanation:"Windows manages per-process working sets (local), but the balance-set manager also trims working sets globally under memory pressure — so it uses both."},
+
+    {q:"The current best practice to avoid thrashing is to include enough physical memory.",
+      options:["False","True"],
+      correct:1,
+      explanation:"With RAM now cheap and plentiful, the practical defense against thrashing is simply to provision enough physical memory for the workload."},
+
+    {q:"The working set strategy:",
+      options:["Swaps out a process if the OS cannot allocate enough pages to accommodate its working set.","All of the above.","Swaps in a new process if there is enough memory available to accommodate its working set.","Keeps the degree of multiprogramming as high as possible while preventing thrashing."],
+      correct:1,
+      explanation:"The working-set model does all of these: it admits a process only if its working set fits, suspends a process when memory is insufficient, and maximizes multiprogramming without thrashing."},
+
+    {q:"Reentrant code cannot be shared.",
+      options:["True","False"],
+      correct:1,
+      explanation:"Reentrant (pure) code does not modify itself, so a single physical copy can be safely shared among many processes. The statement is false."},
+
+    {q:"Reentrant code is easier to share when paging is used, because:",
+      options:["Each process can modify that code in its own way.","The code doesn't change during execution.","All of the above.","The code changes are identical for each process."],
+      correct:1,
+      explanation:"Because reentrant code never changes during execution, one read-only copy in physical memory can be mapped (via paging) into the address space of every process that uses it."},
+
+    {q:"Anonymous memory of a process refers to:",
+      options:["The pages not associated with the binary executable file of the process.","The pages associated with the static data of the process.","The pages associated with the binary executable file of the process.","The pages that cannot be swapped out of physical memory."],
+      correct:0,
+      explanation:"Anonymous memory is memory not backed by any file — the heap, stack, and uninitialized data. It is not associated with the executable file on disk."},
+
+    {q:"Writes to a memory-mapped file are not necessarily immediate writes to the file on disk.",
+      options:["False","True"],
+      correct:1,
+      explanation:"Memory-mapped writes update in-memory pages; the changes are written back to disk later (on page eviction, msync, or unmap), not necessarily right away."},
+
+    {q:"In a(n) ____ write, the data are stored in the cache, and control returns to the caller.",
+      options:["Buffered","Non-buffered","Synchronous","Asynchronous"],
+      correct:3,
+      explanation:"An asynchronous write places the data in the cache and returns control immediately; the actual disk write happens later. A synchronous write would block until the data reach the disk."},
+
+    {q:"UNIX systems consider each file to be a sequence of ____.",
+      options:["8-bit bytes","Bit words whose length is defined by the users","32-bit words","16-bit words"],
+      correct:0,
+      explanation:"UNIX treats a file as an unstructured sequence of 8-bit bytes and attaches no meaning to its contents; interpretation is left to applications."},
+
+    {q:"What pointer is used for writing a file?",
+      options:["Seek pointer","Current-file-position pointer","Memory pointer","Shared-file pointer"],
+      correct:1,
+      explanation:"Each open file has a current-file-position pointer that marks where the next read or write occurs; a write uses (and advances) this pointer."},
+
+    {q:"Sequential access to a file is based on a disk model of a file.",
+      options:["False","True"],
+      correct:0,
+      explanation:"Sequential access is based on a TAPE model (read/write the next record, in order). Direct (relative) access is the one based on a disk model."},
+
+    {q:"What steps are necessary to create a file?",
+      options:["Allocating space in the file system","Making an entry for the file in the directory","None of the above","All of the above"],
+      correct:3,
+      explanation:"Creating a file requires both finding/allocating space in the file system and adding an entry for the file in the appropriate directory."},
+
+    {q:"A relative path name defines a path from ____.",
+      options:["The MFD (master file directory)","The root directory","The UFD (user file directory)","The current directory"],
+      correct:3,
+      explanation:"A relative path name is interpreted starting from the current (working) directory, whereas an absolute path name starts from the root."},
+
+    {q:"In the two-level directory, if a user refers to a particular file, then ____.",
+      options:["First the UFD is searched, then the MFD","Only the MFD is searched","Only his/her own UFD is searched","First the MFD is searched, then the UFD"],
+      correct:2,
+      explanation:"In a two-level directory each user has a private UFD. When a user names a file, only that user's own UFD is searched."},
+
+    {q:"In a tree-structured directory, the search path always contains \"the current directory.\"",
+      options:["True","False"],
+      correct:1,
+      explanation:"The current directory need not be on the search path; whether '.' is included is configurable (and including it can be a security risk). So the statement is false."},
+
+    {q:"The current directory is:",
+      options:["Represented by the symbol \"..\"","None of the above","May be included in the search path","Always included in the search path"],
+      correct:2,
+      explanation:"The current directory is denoted by '.' (\"..\" is the parent). It MAY be included in the search path, but it is not necessarily always present."},
+
+    {q:"In the case of UNIX, where sharing is implemented by symbolic links, ____.",
+      options:["The deletion of the link does not affect the original file","Both of the above","None of the above","The deletion of the original file does not remove the link, but it is left dangling"],
+      correct:1,
+      explanation:"Both statements hold for symbolic links: deleting the link leaves the original file intact, and deleting the original file leaves a dangling link that points to nothing."},
+
+    {q:"Because all file systems suffer from internal fragmentation, the following relation is true:",
+      options:["The larger the block size, the greater the internal fragmentation","There is no relation between block size and internal fragmentation","The smaller the block size, the greater the internal fragmentation","The larger the block size, the smaller the internal fragmentation"],
+      correct:0,
+      explanation:"Files rarely fill their last block exactly. Bigger blocks waste more space in that final partial block, so a larger block size means greater internal fragmentation."},
+
+    {q:"The addresses of a given number of free blocks can be found faster with a linked list than with grouping.",
+      options:["False","True"],
+      correct:0,
+      explanation:"With a plain free list you must follow it block by block. Grouping (and counting) stores the addresses of many free blocks together, so it locates a batch of free blocks faster. The statement is false."},
+
+    {q:"The FAT method ____.",
+      options:["Incorporates free-block accounting into the allocation data structure.","Employs space maps to manage information about free blocks.","Keeps information about the block where the bit vector is stored.","Does not store information about free blocks."],
+      correct:0,
+      explanation:"The File Allocation Table doubles as free-space management: a table entry of 0 marks a free block, so free-block accounting is built into the same structure used for allocation."},
+
+    {q:"With ____ locking, once a process acquires an exclusive lock, the operating system will prevent any other process from accessing the locked file.",
+      options:["Exclusive","Mandatory","Temporary","Shared"],
+      correct:1,
+      explanation:"Under mandatory locking the OS enforces the lock and blocks other accesses. Under advisory locking it is up to cooperating processes to check the lock themselves."},
+
+    {q:"A file may be associated with several (possibly different) images at the same time in:",
+      options:["File systems consistent with Windows Semantics.","File systems consistent with Session Semantics.","File systems consistent with NFS (Network File System) Semantics.","File systems consistent with UNIX Semantics."],
+      correct:1,
+      explanation:"Under session semantics (e.g., the Andrew File System), writes are not visible to others until the file is closed, so a file can be temporarily associated with several different images at once. UNIX semantics, by contrast, makes writes immediately visible (a single image)."},
+
+    {q:"The NFS protocol:",
+      options:["May provide concurrency-control mechanisms.","Does not provide concurrency-control mechanisms except file locking.","Does not provide concurrency-control mechanisms.","Provides concurrency-control mechanisms."],
+      correct:2,
+      explanation:"The NFS protocol itself provides no concurrency-control mechanisms; locking was handled by a separate, companion protocol rather than by NFS."},
+
+    {q:"WAFL (write-anywhere file layout):",
+      options:["Can provide files via NFS, but not via CIFS.","Is a distributed file system.","Is a file system dedicated to single-user operating systems.","Cannot provide files via NFS."],
+      correct:1,
+      explanation:"WAFL powers network file servers and serves clients over both NFS and CIFS, so it operates as a distributed file system. The other options are false."},
+
+    {q:"The purpose of denial-of-service attacks is to gain information or steal resources.",
+      options:["False","True"],
+      correct:0,
+      explanation:"A denial-of-service attack aims to disrupt or prevent legitimate use of a system, not to steal information or resources. The statement is false."},
+
+    {q:"Using a firewall, the following connection is allowed:",
+      options:["From the Internet to the DMZ (demilitarized zone)","From the Internet to the company's computers","From computers in the DMZ (demilitarized zone) to company computers","None of the above"],
+      correct:0,
+      explanation:"A firewall typically permits traffic from the Internet into the DMZ (e.g., to reach a public web server) but blocks the Internet — and the DMZ itself — from reaching the internal company computers."},
+
+    {q:"The file protection can be provided by:",
+      options:["Access-control list","Knowledge of the existence and name of a file","Password","All of the above"],
+      correct:3,
+      explanation:"Protection can combine all three: an access-control list per file, password-based access, and limiting knowledge of a file's existence/name. The textbook lists all of these as protection approaches."},
+
+    {q:"A UNIX inode is an example of:",
+      options:["An index file","An indexed allocation","A linked allocation","A contiguous allocation"],
+      correct:1,
+      explanation:"The UNIX inode holds direct and indirect block pointers — a classic indexed allocation scheme, where one index block (the inode) gathers the addresses of a file's data blocks."},
+
+    {q:"The I/O control level consists of device drivers and interrupt handlers to transfer information between the main memory and the disk system.",
+      options:["False","True"],
+      correct:1,
+      explanation:"In the layered file system, the lowest layer — I/O control — is made up of device drivers and interrupt handlers that move data between main memory and the disk."},
+
+    {q:"Hashed page tables are commonly used for addressing beyond 32 bits.",
+      options:["False","True"],
+      correct:1,
+      explanation:"Hashed page tables handle sparse, large address spaces well, so they are common for address spaces larger than 32 bits."},
+
+    {q:"Address Space Layout Randomization (ASLR) protects an operating system against:",
+      options:["A code-injection attack","Denial of Service","A macro virus","A zero-day attack"],
+      correct:0,
+      explanation:"ASLR randomizes the locations of code, stack, and libraries, making it hard for an attacker to predict addresses — defeating code-injection/buffer-overflow style attacks."},
+
+    {q:"The protection bit in a page table:",
+      options:["All of the above.","Marks a frame as read-only or read-write.","Provides protection against unauthorized updates in the page table.","Marks a page table as read-only or read-write."],
+      correct:1,
+      explanation:"A protection bit attached to each page-table entry marks the corresponding frame as read-only or read-write (execute, etc.); a violation traps to the OS."},
+
+    {q:"The ____ binding scheme facilitates swapping.",
+      options:["Assembly time","Interrupt time","Load time","Execution time"],
+      correct:3,
+      explanation:"Execution-time (dynamic) binding lets a process be moved in memory during its run, which is exactly what swapping requires. Compile/load-time binding fixes addresses too early."},
+
+    {q:"Unified virtual memory uses ____ to cache both process pages and file data.",
+      options:["Double caching","Page caching","Disk block caching","Buffer caching"],
+      correct:1,
+      explanation:"Unified virtual memory uses a single page cache for both memory-mapped/process pages and ordinary file I/O, avoiding the double caching of a separate buffer cache."},
+
+    {q:"In Linux, a slab is either full or empty.",
+      options:["True","False"],
+      correct:1,
+      explanation:"A slab can be full, empty, OR partial. The allocator prefers partial slabs to satisfy requests, so 'either full or empty' is false."},
+
+    {q:"The buddy system for allocating kernel memory is very likely to cause fragmentation within the allocated segments.",
+      options:["True","False"],
+      correct:0,
+      explanation:"The buddy system rounds each request up to a power of two, so requests that are not exact powers of two waste space — internal fragmentation within the allocated block."},
+
+    {q:"Stack algorithms are a class of page-replacement algorithms that:",
+      options:["Are implemented using stacks.","Are guaranteed to incur the least number of page faults.","Do not suffer from Belady's anomaly.","Are guaranteed to incur no more page faults than the FIFO page-replacement algorithm."],
+      correct:2,
+      explanation:"A stack algorithm guarantees the pages in n frames are always a subset of the pages in n+1 frames, so adding frames never increases faults — they never exhibit Belady's anomaly."},
+
+    {q:"User authentication can be based on:",
+      options:["The user's possession of something","The user's knowledge of something","All of the above","An attribute of the user"],
+      correct:2,
+      explanation:"The three classic authentication factors are something you know (password), something you have (token/card), and something you are (biometric attribute) — all of the above."},
+
+    {q:"The NFS (Network File System) protocol:",
+      options:["Is consistent with Immutable-Shared-Files Semantics.","Is consistent with Session Semantics.","Is consistent with UNIX Semantics.","Is not fully consistent with UNIX Semantics."],
+      correct:3,
+      explanation:"Because of client caching and the delay before writes propagate, NFS does not fully guarantee UNIX consistency semantics (immediate visibility of writes to all clients)."},
+
+    {q:"Address translation from a logical address to a physical address in the IA-32 architecture is comprised of:",
+      options:["A paging unit that translates the logical address to its physical address.","A segmentation unit followed by a paging unit that translates the logical address to its physical address.","A paging unit followed by a segmentation unit that translates the logical address to its physical address.","A segmentation unit that translates the logical address to its physical address."],
+      correct:1,
+      explanation:"IA-32 first applies the segmentation unit (logical → linear address), then the paging unit (linear → physical address)."},
+
+    {q:"Transport Layer Security (TLS) uses the server's certificate issued by a certification authority (CA).",
+      options:["True","False"],
+      correct:0,
+      explanation:"In TLS the server presents an X.509 certificate signed by a trusted certification authority; the client verifies it before establishing the encrypted session."},
+
+    {q:"If the starting address changes, in which of the following cases must the program be recompiled?",
+      options:["Load-time binding.","Both compile and load-time bindings.","Compile-time binding.","Execution-time binding."],
+      correct:2,
+      explanation:"With compile-time binding, absolute addresses are baked into the code, so if the starting location changes the program must be recompiled. Load- and execution-time binding tolerate relocation."},
+
+    {q:"____ encrypts the information on the target computer and renders it inaccessible to the owner.",
+      options:["Spyware","All of the above","Logic bomb","Ransomware"],
+      correct:3,
+      explanation:"Ransomware encrypts the victim's files and demands payment for the decryption key, making the data inaccessible until (supposedly) the ransom is paid."},
+
+    {q:"Assume the base and limit registers hold 1200 and 350, respectively. Which of the following addresses is legal?",
+      options:["355","1551","1200","All of the above"],
+      correct:2,
+      explanation:"Legal addresses satisfy base ≤ address < base + limit, i.e. 1200 ≤ address < 1550. Only 1200 falls in this range (355 is below, 1551 is at/above the upper bound)."},
+
+    {q:"Some operating systems maintain a pool of free frames to reduce the frequency of page faults.",
+      options:["False","True"],
+      correct:1,
+      explanation:"Keeping a reserve pool of free frames lets the OS satisfy a fault immediately (and even pre-zero or pre-fetch pages), reducing fault-handling latency."},
+
+    {q:"A reaper starts reclaiming pages as soon as the number of free frames falls below the maximum threshold.",
+      options:["True","False"],
+      correct:1,
+      explanation:"The reaper begins reclaiming when free frames drop below the MINIMUM threshold, and it keeps reclaiming until free memory rises back to the maximum threshold. So 'below the maximum' is false."},
+
+    {q:"The x86-64 architecture provides support for:",
+      options:["48-bit physical addresses","64-bit physical addresses","32-bit physical addresses","52-bit physical addresses"],
+      correct:3,
+      explanation:"x86-64 implements 48-bit virtual addresses and up to 52-bit physical addresses (with a four-level paging hierarchy)."},
+
+    {q:"A file's ____ is a unique tag that identifies the file within the file system.",
+      options:["Name","Type","Location","Identifier"],
+      correct:3,
+      explanation:"The identifier is a unique non-human-readable tag (e.g., an inode number) that names the file within the file system; the name is the human-readable label."},
+
+    {q:"Inverted page tables require each process to have its own page table.",
+      options:["False","True"],
+      correct:0,
+      explanation:"An inverted page table is a single, system-wide table with one entry per physical frame — shared by all processes, not one per process. So the statement is false."},
+
+    {q:"If the current directory is /home/user/jane, then the proposed path to the file /home/user/mike/prog.c is:",
+      options:["../../mike/prog.c","/mike/prog.c","../mike/prog.c","./mike/prog.c"],
+      correct:2,
+      explanation:"From /home/user/jane, go up one level (..) to /home/user, then down into mike/prog.c — giving ../mike/prog.c."},
+
+    {q:"In file systems consistent with UNIX semantics:",
+      options:["A file cannot be opened by one user only.","Writes to a file by a user are immediately visible to other users who have this file open.","Users cannot share the pointer of the current location into a file.","Writes performed by one user are not seen by other users."],
+      correct:1,
+      explanation:"UNIX semantics give a single image of a file: a write by one user is immediately visible to all other users who have the file open."},
+
+    {q:"A large page size results in:",
+      options:["Larger page-table overhead","Efficient disk I/O","All of the above","Lower internal fragmentation"],
+      correct:1,
+      explanation:"Large pages transfer bigger chunks per I/O (efficient disk I/O) and SHRINK the page table. They actually INCREASE internal fragmentation, so 'all of the above' and the other options are wrong."},
+
+    {q:"When a user logs on, Windows 10 creates a list of files that can be used by the user.",
+      options:["False","True"],
+      correct:0,
+      explanation:"At logon Windows creates a security access token representing the user's identity and privileges — not a list of usable files. The statement is false."},
+
+    {q:"Vulnerability scans can check:",
+      options:["Hidden network daemons","All of the above","Unauthorized programs in system directories","Unexpected long-running processes"],
+      correct:1,
+      explanation:"A vulnerability scan looks for many weaknesses at once: open/hidden network daemons, unauthorized programs in system directories, suspicious long-running processes, weak passwords, and more — all of the above."},
+
+    {q:"The root partition:",
+      options:["Contains an operating system kernel, and it is not necessary to be mounted.","Contains a list of the operating systems that may be booted.","Does not contain the operating system kernel, but it is the first mounted file system during boot time.","Contains an operating system kernel, and it is mounted during boot time."],
+      correct:3,
+      explanation:"The root partition contains the OS kernel (and core system files) and is mounted at boot time; other volumes can be mounted automatically afterward."},
+
+    {q:"In the Additional-Reference-Bits algorithm:",
+      options:["A page that has been referenced most recently is identified.","The least-recently-used page is identified very efficiently on a page fault.","A group of pages that have not been used recently is efficiently identified.","None of the above."],
+      correct:2,
+      explanation:"By keeping a few history bits per page (a shift register of reference bits), the algorithm can efficiently identify a GROUP of pages not used recently — an LRU approximation, not an exact single LRU page."},
+
+    {q:"External fragmentation is:",
+      options:["When the amount of available memory is less than the size of a process.","When a process is broken up into smaller parts for memory allocation.","When there is enough total memory space to satisfy a request, but the available spaces are not contiguous.","When there is some unused memory that cannot be allocated to a process."],
+      correct:2,
+      explanation:"External fragmentation means total free memory is sufficient but it is split into non-contiguous holes, so no single hole is large enough for the request."},
+
+    {q:"Which of the following techniques is well-suited to support a very large address space, e.g., a 64-bit address space?",
+      options:["Hierarchical page tables","All of the above","Clustered page tables","Inverted page tables"],
+      correct:3,
+      explanation:"Inverted page tables have one entry per physical frame regardless of virtual-address-space size, so their size does not explode with 64-bit address spaces (unlike hierarchical tables)."},
+
+    {q:"Contiguous allocation of a file is defined by the address of the first block and the length (in block units) of the file.",
+      options:["True","False"],
+      correct:0,
+      explanation:"Contiguous allocation stores each file in consecutive blocks, so it is fully described by just the starting block address and the length in blocks."},
+
+    {q:"In which of the following cases may performance be improved?",
+      options:["Designing an array access pattern based on whether the arrays are stored in row-major or column-major order.","Placing frequently interacting components close to one another.","All of the above.","Avoiding placing functions across page boundaries."],
+      correct:2,
+      explanation:"All of these improve locality of reference — matching array traversal to storage order, co-locating interacting code/data, and keeping functions within page boundaries all reduce cache/TLB misses and page faults."},
+
+    {q:"The File Allocation Table (FAT) has one entry for each block and is indexed by block number.",
+      options:["True","False"],
+      correct:0,
+      explanation:"FAT contains one entry per disk block, indexed by block number; each entry points to the next block of the file (or marks the block free or end-of-file)."},
+
+    {q:"Is the set of a file's attributes the same for every operating system?",
+      options:["False","True"],
+      correct:0,
+      explanation:"Different operating systems keep different file attributes (name, type, ACLs, timestamps, extended attributes, etc.), so the attribute set varies by OS."},
+
+    {q:"You can access a file in an unmounted file system.",
+      options:["False","True"],
+      correct:0,
+      explanation:"A file system must be mounted into the directory hierarchy before its files become accessible; files on an unmounted file system cannot be reached."},
+
+    {q:"The basic file system:",
+      options:["Reads and writes physical blocks on the storage device.","Is responsible for protection.","Manages the directory structure.","Tracks unallocated blocks and provides them when they are required."],
+      correct:0,
+      explanation:"The basic file system layer issues generic read/write commands for physical blocks to the device driver. Protection/metadata is the logical file system; free-block tracking is the file-organization module."},
+
+    {q:"The logical file system module includes the free-space manager.",
+      options:["True","False"],
+      correct:1,
+      explanation:"The free-space manager belongs to the file-organization module, not the logical file system. The logical file system manages metadata, directory structure, and FCBs. So the statement is false."},
+
+    {q:"Page reference string 1 2 3 4 2 3 4 1 2 1 1 3 1 4 with three frames, using LRU replacement. What is the final configuration of the three frames?",
+      options:["4, 2, 3","3, 1, 4","1, 2, 3","4, 1, 2"],
+      correct:1,
+      explanation:"Tracking LRU by frame slot, the faults resolve to [4,2,3] → [4,1,3] → [4,1,2] → [3,1,2] → [3,1,4]. The final frames hold pages 3, 1, 4 (the set {1,3,4})."},
+
+    {q:"Some operating systems provide a raw disk interface, allowing special applications to bypass the file system when accessing secondary storage.",
+      options:["True","False"],
+      correct:0,
+      explanation:"Raw I/O lets applications such as databases read/write disk blocks directly, bypassing the file system and its caching/structure. So the statement is true."},
+
+    {q:"Some binary files can include a magic number. This mechanism is used by:",
+      options:["macOS","MS-Windows","UNIX","Java VM"],
+      correct:2,
+      explanation:"UNIX uses a 'magic number' (bytes at the start of a file) to recognize a file's type; Windows instead relies primarily on the file-name extension."},
+
+    {q:"____ is the method of binding instructions and data to memory performed by most general-purpose operating systems.",
+      options:["Load-time binding","Interrupt-time binding","Execution-time binding","Compile-time binding"],
+      correct:2,
+      explanation:"General-purpose operating systems use execution-time (dynamic) binding, relying on MMU hardware to translate addresses at run time so processes can be relocated and swapped."},
+
+    {q:"Fragmentation does not occur in a paging system.",
+      options:["False","True"],
+      correct:0,
+      explanation:"Paging removes EXTERNAL fragmentation, but INTERNAL fragmentation still occurs (the last page of a process is usually only partly full). So fragmentation does occur — the statement is false."}
+  ];
+
+  (function(){
+    // split all questions into 3 balanced variants (round-robin)
+    const variants = [[],[],[]];
+    questions.forEach((q,i)=>variants[i%3].push(q));
+
+    const el = id => document.getElementById(id);
+    const menu = el('menu'), quizarea = el('quizarea'), quizEl = el('quiz'), scoreEl = el('score');
+    const themeBtn = el('themeBtn'), startBtn = el('startBtn'), backBtn = el('backBtn'),
+            restartBtn = el('restartBtn'), submitBtn = el('submitBtn'), timerEl = el('timer'),
+            topLabel = el('topLabel'), progressEl = el('progress'),
+            variantSeg = el('variantSeg'), modeSeg = el('modeSeg'), variantHint = el('variantHint');
+
+    let selectedVariant = 0, selectedMode = 'practice';
+    let current = [], mode = 'practice';
+    let answered = 0, correct = 0, finished = false;
+    let timerId = null, timeLeft = 0;
+
+    // ---- theme ----
+    function applyThemeLabel(){
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      themeBtn.textContent = dark ? 'Светлая тема' : 'Тёмная тема';
+    }
+    applyThemeLabel();
+    themeBtn.addEventListener('click', () => {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const next = dark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('aos_quiz_theme', next); } catch(e){}
+      applyThemeLabel();
+    });
+
+    // ---- menu selectors ----
+    variantSeg.addEventListener('click', e => {
+      const b = e.target.closest('.seg-btn'); if(!b) return;
+      variantSeg.querySelectorAll('.seg-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      selectedVariant = parseInt(b.dataset.v);
+      variantHint.textContent = variants[selectedVariant].length + ' вопросов';
+    });
+    modeSeg.addEventListener('click', e => {
+      const b = e.target.closest('.seg-btn'); if(!b) return;
+      modeSeg.querySelectorAll('.seg-btn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      selectedMode = b.dataset.m;
+    });
+
+    // ---- shuffling ----
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+      }
+      return arr;
+    }
+    function prepare(q){
+      const pinned = [], free = [];
+      q.options.forEach((opt, i) => {
+        const t = opt.toLowerCase();
+        if(t.indexOf('all of the above') >= 0 || t.indexOf('none of the above') >= 0) pinned.push(i);
+        else free.push(i);
+      });
+      shuffle(free);
+      const order = free.concat(pinned);
+      return { q:q.q, options: order.map(i => q.options[i]), correct: order.indexOf(q.correct), explanation: q.explanation };
+    }
+
+    function render(){
+      quizEl.innerHTML = '';
+      current.forEach((q, i) => {
+        const node = document.createElement('div');
+        node.className = 'question';
+        node.dataset.q = i;
+        node.innerHTML = `<div class="qhead"><span class="qnum">Q${i+1}</span><span class="qtext">${q.q}</span></div><div class="options">${q.options.map((opt, j) => `<button class="option" data-i="${j}" type="button"><span class="letter">${'ABCD'[j]}.</span><span>${opt}</span></button>`).join('')}</div><div class="feedback"></div>`;
+        quizEl.appendChild(node);
+      });
+    }
+
+    function updateProgress(){
+      if(mode === 'practice') progressEl.textContent = `Отвечено ${answered} / ${current.length} · верно ${correct}`;
+      else progressEl.textContent = `Выбрано ${quizEl.querySelectorAll('.option.selected').length} / ${current.length}`;
+    }
+
+    function grade(card, q, chosen){
+      card.querySelectorAll('.option').forEach((o, j) => {
+        o.classList.add('locked');
+        if(j === q.correct) o.classList.add('correct');
+        if(j === chosen && j !== q.correct) o.classList.add('wrong');
+      });
+      const fb = card.querySelector('.feedback');
+      if(chosen === q.correct){
+        fb.innerHTML = '<b>✓ Верно.</b>';
+        fb.classList.add('shown','ok');
+      } else {
+        const your = (chosen === null) ? '<b>Без ответа.</b> ' : `<b>Ваш ответ: ${'ABCD'[chosen]}.</b> `;
+        fb.innerHTML = `<b>✗ ${your}Правильный ответ: ${'ABCD'[q.correct]}.</b><div class="explain">${q.explanation}</div>`;
+        fb.classList.add('shown','bad');
+      }
+    }
+
+    function showScore(){
+      const pct = Math.round(correct / current.length * 100);
+      const g = pct >= 90 ? 'Отлично' : pct >= 70 ? 'Хорошо' : pct >= 50 ? 'Зачёт' : 'Нужно повторить';
+      scoreEl.innerHTML = `<div class="score-main">${correct} / ${current.length}</div><div class="score-pct">${pct}% — ${g}</div><div class="score-note">Разберите красные ответы выше — у каждого есть пояснение.</div>`;
+      scoreEl.classList.add('shown');
+      scoreEl.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+
+    // ---- answering ----
+    quizEl.addEventListener('click', e => {
+      const opt = e.target.closest('.option'); if(!opt) return;
+      const card = opt.closest('.question');
+      const q = current[parseInt(card.dataset.q)];
+      const chosen = parseInt(opt.dataset.i);
+      if(mode === 'practice'){
+        if(card.dataset.done) return;
+        card.dataset.done = '1';
+        answered++;
+        if(chosen === q.correct) correct++;
+        grade(card, q, chosen);
+        updateProgress();
+        if(answered === current.length) showScore();
+      } else {
+        if(finished) return;
+        card.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        card.dataset.chosen = chosen;
+        updateProgress();
+      }
+    });
+
+    function finishExam(){
+      if(finished) return;
+      finished = true;
+      stopTimer();
+      correct = 0;
+      current.forEach((q, i) => {
+        const card = quizEl.querySelector(`.question[data-q="${i}"]`);
+        const ch = (card.dataset.chosen != null) ? parseInt(card.dataset.chosen) : null;
+        if(ch === q.correct) correct++;
+        grade(card, q, ch);
+      });
+      submitBtn.hidden = true;
+      showScore();
+    }
+
+    // ---- timer (exam mode) ----
+    function fmt(s){ const m = Math.floor(s / 60), x = s % 60; return m + ':' + (x < 10 ? '0' : '') + x; }
+    function startTimer(){
+      timeLeft = 15 * 60;
+      timerEl.textContent = fmt(timeLeft);
+      timerEl.hidden = false;
+      timerEl.classList.remove('warn');
+      timerId = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = fmt(Math.max(timeLeft, 0));
+        if(timeLeft <= 60) timerEl.classList.add('warn');
+        if(timeLeft <= 0){ stopTimer(); finishExam(); }
+      }, 1000);
+    }
+    function stopTimer(){ if(timerId){ clearInterval(timerId); timerId = null; } }
+
+    // ---- start / back ----
+    function start(){
+      mode = selectedMode;
+      current = shuffle(variants[selectedVariant].map(prepare));
+      answered = 0; correct = 0; finished = false;
+      scoreEl.classList.remove('shown'); scoreEl.innerHTML = '';
+      render();
+      topLabel.textContent = 'Вариант ' + (selectedVariant + 1) + ' · ' + (mode === 'practice' ? 'Практика' : 'Экзамен');
+      updateProgress();
+      menu.hidden = true; quizarea.hidden = false;
+      if(mode === 'exam'){ submitBtn.hidden = false; startTimer(); }
+      else { submitBtn.hidden = true; timerEl.hidden = true; }
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+    function backToMenu(){
+      stopTimer();
+      quizarea.hidden = true; menu.hidden = false;
+      timerEl.hidden = true; submitBtn.hidden = true;
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    startBtn.addEventListener('click', start);
+    restartBtn.addEventListener('click', start);
+    backBtn.addEventListener('click', backToMenu);
+    submitBtn.addEventListener('click', () => {
+      const left = current.length - quizEl.querySelectorAll('.option.selected').length;
+      if(left > 0 && !confirm('Без ответа: ' + left + '. Завершить тест?')) return;
+      finishExam();
+    });
+  })();
+</script>
+</body>
+</html>

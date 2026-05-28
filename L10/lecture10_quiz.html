@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 10 Quiz — Network and Distributed Systems</title>
+    <style>
+        :root{--bg:#fafaf8;--fg:#1a1a1a;--muted:#6b6b6b;--accent:#2b6cb0;--line:#e5e5e0;--card:#ffffff;--code-bg:#f3f3ee;--ok:#2f855a;--ok-bg:#e6f4ea;--bad:#c53030;--bad-bg:#fde8e8;--sel-bg:#ebf5ff;--ok-line:#c6e7d2;--bad-line:#f5c6c6}
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.6;font-size:16px}
+        .wrap{max-width:860px;margin:0 auto;padding:48px 24px 96px}
+        header{border-bottom:1px solid var(--line);padding-bottom:24px;margin-bottom:32px}
+        .eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+        h1{font-size:30px;font-weight:600;margin:0 0 6px;letter-spacing:-.01em}
+        .sub{color:var(--muted);font-size:15px}
+        .instr{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:18px 0 28px;font-size:14px;color:var(--muted)}
+        .question{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:16px 0}
+        .qhead{display:flex;gap:10px;margin-bottom:12px}
+        .qnum{font-size:12px;letter-spacing:.08em;color:var(--muted);font-weight:600;padding:3px 8px;background:var(--code-bg);border-radius:6px;flex-shrink:0;height:fit-content}
+        .qtext{font-weight:500;line-height:1.5}
+        .options{display:flex;flex-direction:column;gap:8px}
+        .option{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%;transition:all .12s}
+        .option:hover:not(.locked){border-color:var(--accent);background:var(--card)}
+        .option.selected{border-color:var(--accent);background:var(--sel-bg)}
+        .option.locked{cursor:default}
+        .option.correct{border-color:var(--ok);background:var(--ok-bg)}
+        .option.wrong{border-color:var(--bad);background:var(--bad-bg)}
+        .letter{font-family:"JetBrains Mono",Consolas,monospace;font-weight:600;color:var(--muted);flex-shrink:0;width:18px}
+        .option.correct .letter,.option.wrong .letter{color:inherit}
+        .feedback{margin-top:12px;padding:12px 14px;border-radius:8px;font-size:14px;display:none}
+        .feedback.shown{display:block}
+        .feedback.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+        .feedback.bad{background:var(--bad-bg);color:var(--bad);border:1px solid var(--bad-line)}
+        .feedback .explain{color:var(--fg);margin-top:8px;line-height:1.55}
+        .actions{display:flex;gap:10px;margin-top:28px;justify-content:center}
+        button.btn{padding:11px 24px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;font-size:15px}
+        button.btn:hover{filter:brightness(1.05)}
+        button.btn.secondary{background:var(--card);color:var(--accent)}
+        #reset{display:none}
+        #score{display:none;background:var(--card);border:2px solid var(--accent);border-radius:12px;padding:28px;text-align:center;margin:24px 0}
+        #score.shown{display:block}
+        .score-main{font-size:42px;font-weight:700;color:var(--accent);letter-spacing:-.02em}
+        .score-pct{font-size:18px;color:var(--muted);margin-top:4px}
+        .score-note{font-size:13px;color:var(--muted);margin-top:10px}
+        footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;text-align:center}
+    </style>
+    <style>
+        html[data-theme="dark"]{--bg:#15171a;--fg:#e7e9ec;--muted:#9aa0a6;--accent:#5aa2ff;--line:#2c3137;--border:#2c3137;--card:#1e2125;--code-bg:#2a2f35;--ok:#5fd39a;--ok-bg:#16271d;--ok-line:#234d38;--bad:#ff8c8c;--bad-bg:#2a1718;--bad-line:#5a2a2c;--sel-bg:#16304d;--shadow:rgba(0,0,0,.45)}
+        .theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border:1px solid var(--line,#e5e5e0);background:var(--card,#fff);color:var(--fg,#1a1a1a);border-radius:8px;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+        .theme-toggle:hover{border-color:var(--accent,#2b6cb0)}
+    </style>
+</head>
+<body>
+<script>
+    (function(){try{var t=localStorage.getItem("aos_quiz_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+        function lbl(){return document.documentElement.getAttribute("data-theme")==="dark"?"Светлая тема":"Тёмная тема";}
+        document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.className="theme-toggle";b.type="button";b.textContent=lbl();b.addEventListener("click",function(){var d=document.documentElement.getAttribute("data-theme")==="dark";var n=d?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("aos_quiz_theme",n);}catch(e){}b.textContent=lbl();});document.body.appendChild(b);});})();
+</script>
+
+<div class="wrap">
+    <a class="home-link" href="../index.html" style="display:inline-block;margin-bottom:20px;font-size:14px;font-weight:600;color:var(--accent);text-decoration:none">← На главную</a>
+    <header>
+        <div class="eyebrow">Advanced Operating Systems · Lecture 10 Quiz</div>
+        <h1>Network and Distributed Systems</h1>
+        <div class="sub">30 multiple-choice questions · instant feedback the moment you answer</div>
+    </header>
+
+    <div class="instr">Click an answer and you'll immediately see whether it's right. Wrong answers reveal the correct choice and a short explanation. A running score sits at the top; your final score appears once every question is answered.</div>
+
+    <div id="quiz"></div>
+    <div id="score"></div>
+
+    <div class="actions">
+        <button class="btn secondary" id="reset" style="display:inline-block">Restart Quiz</button>
+    </div>
+
+    <footer>Advanced Operating Systems · Lecture 10 · Practice quiz</footer>
+</div>
+
+<script>
+    const questions = [
+        {q:"A defining property of a distributed system is that its nodes:",
+            options:["Share a common clock","Share main memory","Communicate ONLY via message passing","Run identical operating systems"],
+            correct:2,
+            explanation:"A distributed system is a collection of loosely coupled nodes with no shared memory and no shared clock. Coordination happens entirely through message passing."},
+
+        {q:"Ethernet is defined by which IEEE standard?",
+            options:["802.11","802.3","802.16","802.5"],
+            correct:1,
+            explanation:"802.3 is Ethernet. 802.11 is Wi-Fi. 802.16 is WiMAX. 802.5 was Token Ring."},
+
+        {q:"ARP (Address Resolution Protocol) maps:",
+            options:["Domain names to IP addresses","IP addresses to MAC addresses","MAC addresses to ports","URLs to IP addresses"],
+            correct:1,
+            explanation:"ARP discovers the MAC address corresponding to an IP on the local network. DNS maps names to IPs (a different layer)."},
+
+        {q:"UDP is best described as:",
+            options:["Reliable, connection-oriented byte stream","Unreliable, connectionless, datagram-based","An encrypted version of TCP","An application-layer protocol"],
+            correct:1,
+            explanation:"UDP adds only port numbers on top of IP — no ordering, no delivery guarantees, no connection setup. UDP packets are called datagrams. Lost or reordered packets are the application's problem."},
+
+        {q:"The TCP three-way handshake is used to:",
+            options:["Detect MAC addresses","Establish a reliable connection (synchronize sequence numbers)","Compress data","Encrypt payloads"],
+            correct:1,
+            explanation:"SYN → SYN-ACK → ACK establishes the connection and synchronizes initial sequence numbers. Closing the connection uses a separate series of FIN/ACK packets."},
+
+        {q:"Which port is reserved (well-known) for HTTP?",
+            options:["21","22","25","80"],
+            correct:3,
+            explanation:"Well-known ports: FTP=21, SSH=22, SMTP=25, HTTP=80, HTTPS=443. These are part of the IANA-registered range."},
+
+        {q:"In a distributed OS, transferring the computation (not the data) is typically done via:",
+            options:["Page faults","Remote Procedure Calls (RPC)","Direct memory access","DNS lookups"],
+            correct:1,
+            explanation:"RPC (or message systems) move computation: ask a remote machine to run a procedure and return the result. The opposite is data migration — bring the data to the computation."},
+
+        {q:"A fundamental difficulty of distributed failure detection is:",
+            options:["Hosts always announce when they fail","The detector cannot tell whether the link failed, the remote site failed, or the message was simply lost","The detector gets instant feedback from the OS","The OS handles it transparently"],
+            correct:1,
+            explanation:"After heartbeats stop, all you know is 'no reply.' The exact cause — site down, link down, alternate link down, or message lost — is ambiguous from the observer's point of view."},
+
+        {q:"LOCATION TRANSPARENCY in a DFS means:",
+            options:["The file name doesn't change when the file moves","The file name doesn't reveal where the file is physically stored","Files are always replicated","The OS hides the entire network topology"],
+            correct:1,
+            explanation:"Location *transparency* hides where the file is right now. Location *independence* additionally means the name doesn't have to change when the file is migrated. Most DFSes are transparent but not fully independent."},
+
+        {q:"In GFS (Google File System), a file is:",
+            options:["Stored as one contiguous block on a single server","Split into chunks, replicated across data servers, with a master holding the mapping","Encrypted by default","Limited to 4 GB"],
+            correct:1,
+            explanation:"GFS splits files into chunks; each chunk is replicated across multiple data servers. A master metadata server tracks chunk locations plus the directory/file hierarchy."},
+
+        {q:"NFS:",
+            options:["Is fully compliant with UNIX semantics","Is NOT fully consistent with UNIX semantics","Is stateless in v4","Is designed for Windows"],
+            correct:1,
+            explanation:"NFS's caching plus its stateless v3 design break exact UNIX immediate-visibility semantics. Programs that depend on those semantics (e.g., file locks, immediate-write visibility) may behave differently over NFS."},
+
+        {q:"The write-on-close cache policy is MOST attractive for:",
+            options:["Files briefly opened for one write","Files held open for a long time and modified frequently","Read-only workloads","Database transactions needing immediate durability"],
+            correct:1,
+            explanation:"write-on-close batches updates until close — ideal when the file is open for a long time and many writes accumulate, since most intermediate state never travels to the server."},
+
+        {q:"GFS design assumes hardware failures are:",
+            options:["Rare exceptions","The NORM — to be expected routinely","Impossible at scale","Caused only by user error"],
+            correct:1,
+            explanation:"GFS was designed for clusters of commodity hardware. The expectation that components fail constantly drove design choices: replication of chunks, automatic re-replication, and fast recovery."},
+
+        {q:"The OSI Network layer (Layer 3) is responsible for:",
+            options:["Raw bit-level transmission","Routing packets between networks","Establishing user sessions","Character-set conversion"],
+            correct:1,
+            explanation:"Layer 3 (Network) handles routing/addressing across networks (e.g., IP). Layer 1 = Physical (bits). Layer 4 = Transport (port-level delivery). Layer 5 = Session."},
+
+        {q:"The single biggest weakness of a pure client-server DFS like NFS is:",
+            options:["No way to access remote files","The server is a single point of failure and a bottleneck","Lack of caching","High security overhead"],
+            correct:1,
+            explanation:"All metadata and data flow through one (or few) servers — making them the SPOF and a scalability bottleneck. Cluster-based designs (GFS/HDFS) spread metadata and data to mitigate this."},
+
+        {q:"In file systems consistent with UNIX semantics:",
+            options:["Writes to a file by a user become visible only after close","Writes to a file by a user are immediately visible to other users who have the file open","Concurrent writes are forbidden","Each opener sees a private snapshot"],
+            correct:1,
+            explanation:"UNIX semantics: a write is immediately visible to other openers of the same file. AFS uses session semantics; immutable-shared-files semantics disallows modification altogether."},
+
+        {q:"WAFL (Write-Anywhere File Layout):",
+            options:["Is a distributed file system designed for clusters","Is the local file system used by NetApp storage appliances","Is a kernel-level memory allocator","Is a Windows ACL feature"],
+            correct:1,
+            explanation:"WAFL is the local file system at the heart of NetApp's storage appliances. It supports snapshots and efficient writes by always writing to new blocks. (Note: many course materials describe it as a 'distributed' FS because it underpins network-attached storage, but technically WAFL itself is the on-appliance FS.)"},
+
+        {q:"In OSI terminology, a SITE is:",
+            options:["A specific running process","The physical LOCATION of a machine — a NODE is the specific system at that site","An IP address","A user account"],
+            correct:1,
+            explanation:"Site = physical location; node = specific system. The textbook draws this distinction to separate 'where' from 'which machine.'"},
+
+        {q:"In a PEER-TO-PEER network, each node:",
+            options:["Is strictly a server","Is strictly a client","Acts as both client AND server","Cannot reach others"],
+            correct:2,
+            explanation:"P2P abolishes the strict client/server split. Each node can request or provide services. Examples: BitTorrent, Skype, Gnutella."},
+
+        {q:"OSI Layer 2 (Data-link) is responsible for:",
+            options:["Routing packets between networks","FRAMES and any error detection/recovery from the physical layer","User-facing applications","Encryption"],
+            correct:1,
+            explanation:"Layer 2 organizes raw bits into frames, handles MAC addressing within a LAN, and recovers from physical-layer errors. Ethernet operates at this layer."},
+
+        {q:"OSI Layer 7 (Application) handles:",
+            options:["Bit-level transmission","Frames","Routing","File transfer, remote login, email, and distributed database schemas"],
+            correct:3,
+            explanation:"Layer 7 is closest to the user — FTP, SMTP, HTTP, DNS protocols live here. Layer 6 (Presentation) handles format conversion below it."},
+
+        {q:"The TCP/IP stack, compared to OSI, has:",
+            options:["More layers","FEWER layers (combining several functions per layer)","Exactly the same number","No layering"],
+            correct:1,
+            explanation:"TCP/IP has fewer layers — it combines several OSI functions per layer. In practice it has displaced OSI as the universal Internet protocol stack."},
+
+        {q:"In TCP, a CUMULATIVE ACK lets the receiver:",
+            options:["Acknowledge every packet individually","Acknowledge multiple packets at once — 'everything through sequence number X has been received'","Reject a connection","Open a new connection"],
+            correct:1,
+            explanation:"Cumulative ACKs allow pipelining and reduce ACK overhead. Combined with flow and congestion control, they let TCP achieve high throughput on reliable streams."},
+
+        {q:"Process migration in a distributed OS may be motivated by:",
+            options:["Load balancing","Computation speedup","Hardware or software preference, or data access","All of the above"],
+            correct:3,
+            explanation:"The textbook lists all four reasons: balance load, exploit parallelism, run on a specific HW/SW resource, or run near the data."},
+
+        {q:"After heartbeats stop and site A's 'Are-you-up?' goes unanswered, what CAN'T site A determine?",
+            options:["The current time","Whether site B is down, the direct link is down, the alternate link is down, or the message was simply lost","Whether to terminate processes","Its own IP address"],
+            correct:1,
+            explanation:"Site A only knows 'no reply' — the actual failure cause is ambiguous. This fundamental ambiguity is at the heart of distributed-systems design."},
+
+        {q:"In a CLUSTER-BASED DFS like GFS, file chunks are typically:",
+            options:["Not replicated","REPLICATED n times across data servers, with the master tracking locations","Stored only at the master","Stored only on the client"],
+            correct:1,
+            explanation:"GFS keeps n copies of each chunk on different data servers. The master tracks chunk-to-server mappings. Replication is the main way GFS tolerates the constant hardware failures it assumes."},
+
+        {q:"DELAYED-write (write-back) caching:",
+            options:["Is more reliable than write-through","Is FASTER but loses data if the client crashes before flushing","Always commits immediately","Doesn't use a cache"],
+            correct:1,
+            explanation:"Write-back batches writes locally and propagates later. Faster (especially for repeated writes), but a crash before flush loses the unsynced data. Write-through is safer but slower."},
+
+        {q:"LDAP, DNS, NIS, and Active Directory are examples of:",
+            options:["Distributed FSes","Distributed INFORMATION systems — providing unified access to user/host/auth info","Encryption protocols","Compression formats"],
+            correct:1,
+            explanation:"These services let clients across a distributed system look up names, hosts, users, and authentication info. CIFS in particular uses Active Directory + Kerberos."},
+
+        {q:"In NUMA-aware distributed scheduling, an application's process is best run on:",
+            options:["Any random CPU","A CPU near the memory the process uses","The slowest CPU","Always the master"],
+            correct:1,
+            explanation:"On NUMA systems, memory access time varies by CPU. A NUMA-aware scheduler keeps a process on a CPU close to its memory, preserving both cache and memory locality."},
+
+        {q:"GFS chose its design assumptions based on:",
+            options:["Datacenters where failures are rare","Commodity hardware where failures are the NORM and files are very large with append-mostly workloads","Personal-computer use","Database transactions"],
+            correct:1,
+            explanation:"GFS was designed for warehouse-scale clusters of commodity hardware. Failures are assumed routine; files are huge; writes are mostly appends. These shaped the chunk-and-replication architecture."}
+    ];
+
+    (function(){
+        const quiz = document.getElementById('quiz');
+        const total = questions.length;
+        let answered = 0, correct = 0;
+
+        const bar = document.createElement('div');
+        bar.id = 'livescore';
+        bar.style.cssText = 'position:sticky;top:0;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 16px;margin:0 0 16px;font-size:14px;font-weight:600;color:var(--muted);display:flex;justify-content:space-between;box-shadow:0 1px 6px rgba(0,0,0,.06)';
+        bar.innerHTML = `<span id="ls-prog">Answered 0 / ${total}</span><span id="ls-score">Score 0 / 0</span>`;
+        quiz.parentNode.insertBefore(bar, quiz);
+
+        questions.forEach((q, i) => {
+            const node = document.createElement('div');
+            node.className = 'question';
+            node.dataset.q = i;
+            node.innerHTML = `<div class="qhead"><span class="qnum">Q${i+1}</span><span class="qtext">${q.q}</span></div><div class="options">${q.options.map((opt, j) => `<button class="option" data-i="${j}" type="button"><span class="letter">${'ABCD'[j]}.</span><span>${opt}</span></button>`).join('')}</div><div class="feedback"></div>`;
+            quiz.appendChild(node);
+        });
+
+        quiz.addEventListener('click', e => {
+            const opt = e.target.closest('.option');
+            if (!opt) return;
+            const card = opt.closest('.question');
+            if (card.dataset.done) return;
+            card.dataset.done = '1';
+            const q = questions[parseInt(card.dataset.q)];
+            const chosen = parseInt(opt.dataset.i);
+            card.querySelectorAll('.option').forEach((o, j) => {
+                o.classList.add('locked');
+                if (j === q.correct) o.classList.add('correct');
+                if (j === chosen && j !== q.correct) o.classList.add('wrong');
+            });
+            const fb = card.querySelector('.feedback');
+            answered++;
+            if (chosen === q.correct) {
+                correct++;
+                fb.innerHTML = `<b>✓ Correct.</b>`;
+                fb.classList.add('shown','ok');
+            } else {
+                fb.innerHTML = `<b>✗ You chose ${'ABCD'[chosen]}. Correct answer: ${'ABCD'[q.correct]}.</b><div class="explain">${q.explanation}</div>`;
+                fb.classList.add('shown','bad');
+            }
+            document.getElementById('ls-prog').textContent = `Answered ${answered} / ${total}`;
+            document.getElementById('ls-score').textContent = `Score ${correct} / ${answered}`;
+            if (answered === total) {
+                const pct = Math.round(correct / total * 100);
+                const grade = pct >= 90 ? 'Excellent' : pct >= 70 ? 'Good' : pct >= 50 ? 'Passing' : 'Needs review';
+                const scoreEl = document.getElementById('score');
+                scoreEl.innerHTML = `<div class="score-main">${correct} / ${total}</div><div class="score-pct">${pct}% — ${grade}</div><div class="score-note">Review any red answers above for explanations, or click "Restart Quiz" to go again.</div>`;
+                scoreEl.classList.add('shown');
+                scoreEl.scrollIntoView({behavior:'smooth', block:'center'});
+            }
+        });
+
+        document.getElementById('reset').addEventListener('click', () => location.reload());
+    })();
+</script>
+</body>
+</html>

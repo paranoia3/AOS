@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 7 — File-System Interface</title>
+    <style>
+        :root{
+            --bg:#fafaf8;
+            --fg:#1a1a1a;
+            --muted:#6b6b6b;
+            --accent:#2b6cb0;
+            --line:#e5e5e0;
+            --card:#ffffff;
+            --code-bg:#f3f3ee;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
+            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+            line-height:1.65;font-size:16px;}
+        .wrap{max-width:880px;margin:0 auto;padding:64px 28px 96px}
+        header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:48px}
+        .eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+        h1{font-size:34px;font-weight:600;margin:0 0 8px;letter-spacing:-.01em}
+        .sub{color:var(--muted);font-size:16px}
+        nav.lang{display:flex;gap:8px;margin-top:24px}
+        nav.lang a{font-size:14px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;
+            text-decoration:none;color:var(--fg);background:var(--card)}
+        nav.lang a:hover{border-color:var(--accent);color:var(--accent)}
+        section.lang-section{margin-top:56px}
+        h2{font-size:24px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+        h3{font-size:18px;font-weight:600;margin:28px 0 10px;color:var(--fg)}
+        p{margin:10px 0}
+        ul{margin:10px 0 16px;padding-left:22px}
+        li{margin:5px 0}
+        .lede{font-size:17px;color:var(--muted);margin:0 0 24px}
+        .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:16px 0}
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}
+        .pill{display:inline-block;font-size:12px;padding:2px 10px;border:1px solid var(--line);
+            border-radius:999px;color:var(--muted);background:var(--card);margin-right:6px}
+        code,kbd{background:var(--code-bg);padding:1px 6px;border-radius:4px;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px}
+        pre{background:var(--code-bg);padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px;line-height:1.5;margin:14px 0}
+        table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px}
+        th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+        th{font-weight:600;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+        .divider{height:1px;background:var(--line);margin:64px 0}
+        .toc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:24px 0}
+        .toc h4{margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+        .toc ol{margin:0;padding-left:22px;color:var(--fg)}
+        .toc li{margin:3px 0}
+        .toc a{color:var(--fg);text-decoration:none}
+        .toc a:hover{color:var(--accent)}
+        .tree{font-family:"JetBrains Mono",Consolas,monospace;font-size:14px;line-height:1.5;
+            background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 22px;margin:14px 0;white-space:pre;overflow-x:auto}
+        .perm{font-family:"JetBrains Mono",Consolas,monospace;background:var(--code-bg);padding:2px 8px;border-radius:4px}
+        footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--line);
+            color:var(--muted);font-size:13px;text-align:center}
+        .lang-tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px;margin:24px 0 8px;width:fit-content}
+        .lang-tabs button{background:transparent;border:none;padding:8px 18px;font:inherit;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-radius:7px;transition:all .15s}
+        .lang-tabs button.active{background:var(--accent);color:#fff}
+        .lang-tabs button:hover:not(.active){color:var(--fg)}
+        section.lang{display:none}
+        section.lang.active{display:block}
+    </style>
+    <style>
+        html[data-theme="dark"]{--bg:#15171a;--fg:#e7e9ec;--muted:#9aa0a6;--accent:#5aa2ff;--line:#2c3137;--border:#2c3137;--card:#1e2125;--code-bg:#2a2f35;--ok:#5fd39a;--ok-bg:#16271d;--ok-line:#234d38;--bad:#ff8c8c;--bad-bg:#2a1718;--bad-line:#5a2a2c;--sel-bg:#16304d;--shadow:rgba(0,0,0,.45)}
+        html[data-theme="dark"] .key{background:#16304d;color:#9ec3ff}
+        .theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border:1px solid var(--line,#e5e5e0);background:var(--card,#fff);color:var(--fg,#1a1a1a);border-radius:8px;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+        .theme-toggle:hover{border-color:var(--accent,#2b6cb0)}
+    </style>
+</head>
+<body>
+<script>
+    (function(){try{var t=localStorage.getItem("aos_quiz_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+        function lbl(){return document.documentElement.getAttribute("data-theme")==="dark"?"Светлая тема":"Тёмная тема";}
+        document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.className="theme-toggle";b.type="button";b.textContent=lbl();b.addEventListener("click",function(){var d=document.documentElement.getAttribute("data-theme")==="dark";var n=d?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("aos_quiz_theme",n);}catch(e){}b.textContent=lbl();});document.body.appendChild(b);});})();
+</script>
+
+<div class="wrap">
+    <div class="lec-nav" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:22px;font-size:14px;font-weight:600">
+        <a href="../L6/lecture06_summary.html" style="color:var(--accent);text-decoration:none">← Лекция 6</a>
+        <a href="../index.html" style="color:var(--accent);text-decoration:none">На главную</a>
+        <a href="../L8/lecture08_summary.html" style="color:var(--accent);text-decoration:none">Лекция 8 →</a>
+    </div>
+
+    <header>
+        <div class="eyebrow">Advanced Operating Systems · Lecture 7</div>
+        <h1>File-System Interface</h1>
+        <div class="sub">Интерфейс файловой системы — резюме и пояснения</div>
+        <div class="lang-tabs">
+            <button class="active" data-lang="ru">Русский</button>
+            <button data-lang="en">English</button>
+        </div>
+    </header>
+
+    <!-- ===================== РУССКАЯ ВЕРСИЯ ===================== -->
+    <section id="ru" class="lang active">
+        <p class="lede">Эта лекция описывает <b>интерфейс файловой системы</b>: что такое файл как абстрактный тип данных, какие у него атрибуты и операции, как файлы организованы в каталогах (single-level → two-level → tree → acyclic-graph → general graph), как работают методы доступа (sequential, direct, index), как монтируются файловые системы, как делятся файлы между пользователями и по сети (NFS, CIFS, LDAP, DNS), и как обеспечивается защита через access-lists и группы прав <code>rwx</code>.</p>
+
+        <div class="toc">
+            <h4>Содержание</h4>
+            <ol>
+                <li><a href="#ru-1">Концепция файла</a></li>
+                <li><a href="#ru-2">Атрибуты файла</a></li>
+                <li><a href="#ru-3">Операции над файлами и таблица открытых файлов</a></li>
+                <li><a href="#ru-4">Блокировки файлов (File Locking)</a></li>
+                <li><a href="#ru-5">Типы файлов и структура</a></li>
+                <li><a href="#ru-6">Методы доступа</a></li>
+                <li><a href="#ru-7">Структура диска и тома</a></li>
+                <li><a href="#ru-8">Типы файловых систем</a></li>
+                <li><a href="#ru-9">Структуры каталогов</a></li>
+                <li><a href="#ru-10">Монтирование файловой системы</a></li>
+                <li><a href="#ru-11">Совместный доступ к файлам</a></li>
+                <li><a href="#ru-12">Удалённые ФС и семантика согласованности</a></li>
+                <li><a href="#ru-13">Защита и права доступа</a></li>
+            </ol>
+        </div>
+
+        <h2 id="ru-1">1. Концепция файла</h2>
+        <div class="card">
+            <b>Файл</b> — это <b>абстрактный тип данных</b>, определяемый и реализуемый ОС. Он представляет собой последовательность <b>логических записей</b> (logical records) в непрерывном логическом адресном пространстве.
+        </div>
+
+        <p>Логическая запись может быть:</p>
+        <ul>
+            <li>байтом,</li>
+            <li>строкой (фиксированной или переменной длины),</li>
+            <li>более сложным элементом данных.</li>
+        </ul>
+
+        <p>Поддержка тех или иных типов записей может быть в ОС или оставлена прикладной программе.</p>
+
+        <p><b>Задача ОС:</b> отобразить логическую концепцию файла на <b>физическое</b> устройство хранения (HDD, NVM). Так как физический размер записи устройства может отличаться от логического, ОС или приложение упаковывают логические записи в физические.</p>
+
+        <h3>Типы содержимого</h3>
+        <ul>
+            <li><b>Данные:</b> числовые, символьные, бинарные;</li>
+            <li><b>Программы.</b></li>
+        </ul>
+        <p>Содержание определяется <b>создателем</b> файла: примеры — text file, source file, executable file.</p>
+
+        <h2 id="ru-2">2. Атрибуты файла</h2>
+        <table>
+            <tr><th>Атрибут</th><th>Назначение</th></tr>
+            <tr><td><b>Name</b></td><td>Единственная информация в человекочитаемой форме.</td></tr>
+            <tr><td><b>Identifier</b></td><td>Уникальный тег (число), идентифицирующий файл внутри ФС.</td></tr>
+            <tr><td><b>Type</b></td><td>Нужен в системах с поддержкой разных типов файлов.</td></tr>
+            <tr><td><b>Location</b></td><td>Указатель на местоположение файла на устройстве.</td></tr>
+            <tr><td><b>Size</b></td><td>Текущий размер файла.</td></tr>
+            <tr><td><b>Protection</b></td><td>Кто может читать, писать, исполнять.</td></tr>
+            <tr><td><b>Time, date, user</b></td><td>Данные для защиты, безопасности, мониторинга использования.</td></tr>
+        </table>
+        <p>Информация о файлах хранится в <b>структуре каталога</b> на диске. Существуют расширенные атрибуты — например, контрольная сумма файла.</p>
+
+        <h2 id="ru-3">3. Операции над файлами и таблица открытых файлов</h2>
+        <p>Файл — это ADT. Базовые операции:</p>
+        <ul>
+            <li><b>Create</b> — создать;</li>
+            <li><b>Write</b> — записать по указателю записи;</li>
+            <li><b>Read</b> — прочитать по указателю чтения;</li>
+            <li><b>Reposition (seek)</b> — переместиться внутри файла;</li>
+            <li><b>Delete</b> — удалить;</li>
+            <li><b>Truncate</b> — обрезать (содержимое выкинуть, атрибуты оставить);</li>
+            <li><b>Open(F<sub>i</sub>)</b> — найти запись F<sub>i</sub> в каталоге на диске и подгрузить в память;</li>
+            <li><b>Close(F<sub>i</sub>)</b> — записать запись F<sub>i</sub> из памяти обратно в каталог.</li>
+        </ul>
+
+        <h3>Open File Table</h3>
+        <p>Чтобы управлять открытыми файлами, ОС хранит:</p>
+        <ul>
+            <li><b>Open-file table</b> — список открытых файлов;</li>
+            <li><b>File pointer</b> — указатель последнего чтения/записи, <i>свой у каждого процесса</i>;</li>
+            <li><b>File-open count</b> — счётчик, сколько процессов открыли файл (когда падает до 0 — запись удаляется из таблицы);</li>
+            <li><b>Disk location</b> — кэш сведений о месте файла на диске;</li>
+            <li><b>Access rights</b> — режим доступа, в каком файл открыт каждым процессом.</li>
+        </ul>
+
+        <h2 id="ru-4">4. Блокировки файлов (File Locking)</h2>
+        <p>Поддерживается некоторыми ОС/ФС, аналог reader-writer locks.</p>
+        <ul>
+            <li><b>Shared lock</b> — аналог reader lock: несколько процессов могут держать одновременно.</li>
+            <li><b>Exclusive lock</b> — аналог writer lock: только один.</li>
+        </ul>
+
+        <p><b>Типы:</b></p>
+        <ul>
+            <li><b>Mandatory</b> — ОС <i>запрещает</i> доступ по тому, какие блокировки заняты или запрашиваются.</li>
+            <li><b>Advisory</b> — ОС лишь сообщает статус блокировок; процессы сами решают, что делать.</li>
+        </ul>
+
+        <p><b>Пример: Java API.</b></p>
+        <pre>RandomAccessFile raf = new RandomAccessFile("file.txt", "rw");
+FileChannel ch = raf.getChannel();
+
+// эксклюзивная блокировка первой половины файла
+FileLock exclusiveLock = ch.lock(0, raf.length()/2, EXCLUSIVE);
+/* модифицируем данные… */
+exclusiveLock.release();
+
+// shared-блокировка второй половины
+FileLock sharedLock = ch.lock(raf.length()/2+1, raf.length(), SHARED);
+/* читаем данные… */
+sharedLock.release();</pre>
+
+        <h2 id="ru-5">5. Типы файлов и структура</h2>
+        <p>Тип файла обычно кодируется в имени (<b>расширении</b>): <code>.txt</code>, <code>.exe</code>, <code>.c</code>, <code>.html</code> и т.д. ОС или приложение по этому расширению понимает, как обрабатывать содержимое.</p>
+
+        <h3>Возможные структуры файла</h3>
+        <ul>
+            <li><b>None</b> — просто последовательность байт/слов.</li>
+            <li><b>Simple record structure</b> — строки фиксированной или переменной длины.</li>
+            <li><b>Complex structures</b> — форматированный документ, relocatable load file.</li>
+        </ul>
+        <p>Сложные структуры можно <b>симулировать</b> поверх простой последовательности байт, вставляя управляющие символы. Решение <b>«кто определяет структуру»</b> — ОС или сама программа.</p>
+
+        <h2 id="ru-6">6. Методы доступа</h2>
+
+        <h3>Sequential Access</h3>
+        <ul>
+            <li><code>read next</code> — прочитать следующую запись;</li>
+            <li><code>write next</code> — записать следующую;</li>
+            <li><code>reset</code> — вернуться в начало;</li>
+            <li><b>нельзя</b> читать после последней записи (только переписать).</li>
+        </ul>
+
+        <h3>Direct Access</h3>
+        <p>Файл — это набор <b>logical records фиксированной длины</b>:</p>
+        <ul>
+            <li><code>read n</code>, <code>write n</code>, <code>rewrite n</code>, <code>position to n</code>,</li>
+            <li>где <code>n</code> — <b>relative block number</b> (относительный номер блока).</li>
+        </ul>
+        <p>Относительные номера дают ОС свободу размещать блоки файла где угодно физически.</p>
+        <p>Sequential-доступ можно <b>симулировать</b> поверх direct-access ФС с помощью текущего указателя.</p>
+
+        <h3>Index Access</h3>
+        <ul>
+            <li>Поверх базовых методов строится <b>индекс</b> файла.</li>
+            <li>Индекс держат в памяти — быстро находим расположение данных (пример: UPC-код + запись об этом товаре).</li>
+            <li>Если индекс слишком большой — строится <b>индекс индекса</b>.</li>
+            <li>Классика: <b>IBM ISAM</b> (Indexed Sequential-Access Method) — маленький master-index, указывающий на блоки secondary-index; файл отсортирован по ключу. Всё ведёт ОС.</li>
+            <li><b>VMS</b> предоставляет index- и relative-файлы.</li>
+        </ul>
+
+        <h2 id="ru-7">7. Структура диска и тома</h2>
+        <ul>
+            <li>Диск можно разбить на <b>partitions</b> (= minidisks, slices).</li>
+            <li>Диски/разделы могут быть защищены <b>RAID</b>.</li>
+            <li>Раздел можно использовать <b>raw</b> (без ФС) или отформатировать под ФС.</li>
+            <li>Сущность, содержащая файловую систему, называется <b>томом (volume)</b>. Том ведёт <b>device directory</b> или <b>volume table of contents</b> с метаданными ФС.</li>
+        </ul>
+
+        <h2 id="ru-8">8. Типы файловых систем</h2>
+        <p>Обычно говорят о <i>general-purpose</i> ФС, но в одной системе их часто несколько — общего и специального назначения. Например, в Solaris:</p>
+        <ul>
+            <li><b>tmpfs</b> — ФС в памяти для быстрого временного I/O;</li>
+            <li><b>objfs</b> — доступ к памяти ядра для отладки символов;</li>
+            <li><b>ctfs</b> — contract file system для управления демонами;</li>
+            <li><b>lofs</b> — loopback FS, позволяет монтировать ФС в место другой;</li>
+            <li><b>procfs</b> — интерфейс к структурам процессов в ядре;</li>
+            <li><b>ufs, zfs</b> — общего назначения.</li>
+        </ul>
+
+        <h2 id="ru-9">9. Структуры каталогов</h2>
+        <p>Каталог — это набор узлов, содержащих информацию о всех файлах. И каталог, и сами файлы хранятся на диске.</p>
+
+        <h3>Операции над каталогом</h3>
+        <ul><li>поиск файла, создание/удаление файла, листинг каталога, переименование, обход всей ФС.</li></ul>
+
+        <h3>Цели организации</h3>
+        <ul>
+            <li><b>Efficiency</b> — быстрый поиск.</li>
+            <li><b>Naming</b> — удобство для пользователя: два разных файла у разных пользователей могут иметь одно имя; один файл — несколько имён.</li>
+            <li><b>Grouping</b> — логическая группировка (все Java-программы, все игры…).</li>
+        </ul>
+
+        <h3>Single-Level Directory</h3>
+        <ul>
+            <li>Один каталог на всех пользователей.</li>
+            <li><b>Проблемы:</b> конфликты имён, нет группировки.</li>
+        </ul>
+
+        <h3>Two-Level Directory</h3>
+        <ul>
+            <li>Свой каталог для каждого пользователя.</li>
+            <li>Появляется <b>path name</b>; разные пользователи могут иметь файлы с одинаковыми именами.</li>
+            <li>Эффективный поиск; <b>нет группировки</b>.</li>
+        </ul>
+
+        <h3>Tree-Structured Directories</h3>
+        <ul>
+            <li>Естественное обобщение: каждый каталог может содержать подкаталоги.</li>
+            <li>Эффективный поиск + полноценная группировка.</li>
+            <li><b>Current directory</b> (working directory): <code>cd /spell/mail/prog</code>.</li>
+            <li><b>Absolute</b> и <b>relative</b> path names.</li>
+            <li>Новый файл/подкаталог создаётся в текущей директории: <code>mkdir &lt;dir&gt;</code>, <code>rm &lt;file&gt;</code>.</li>
+            <li>Удаление каталога удаляет <b>всё поддерево</b>.</li>
+        </ul>
+
+        <div class="tree">/
+            ├── spell/
+            │   ├── mail/
+            │   │   ├── prog/
+            │   │   └── count
+            │   └── ...
+            ├── home/
+            │   ├── alice/
+            │   └── bob/
+            └── etc/</div>
+
+        <h3>Acyclic-Graph Directories</h3>
+        <ul>
+            <li>Позволяют <b>разделять</b> подкаталоги и файлы между ветвями.</li>
+            <li><b>Aliasing</b> — у одного файла несколько имён (links).</li>
+            <li>Усложняет поиск и удаление.</li>
+        </ul>
+        <p><b>Проблема:</b> если <i>dict</i> удалит <i>list</i>, остаются <b>dangling pointers</b>. Решения:</p>
+        <ul>
+            <li><b>Backpointers</b> — обратные ссылки, чтобы удалить все указатели; проблема — записи переменной длины.</li>
+            <li>Backpointers через daisy-chain.</li>
+            <li><b>Entry-hold-count</b> — счётчик ссылок, файл реально удаляется при достижении нуля.</li>
+            <li>Новый тип записи каталога — <b>link</b> (просто другой указатель на существующий файл); «разрешить link» = пройти по указателю.</li>
+        </ul>
+
+        <h3>General Graph Directory</h3>
+        <ul>
+            <li>Полная свобода в разделении, но возможны <b>циклы</b>.</li>
+            <li>Иногда требуется <b>garbage collection</b> для возврата неиспользованного места.</li>
+        </ul>
+        <p><b>Как избежать циклов?</b></p>
+        <ul>
+            <li>Разрешать ссылки только на файлы, не на каталоги;</li>
+            <li>Garbage collection;</li>
+            <li>При добавлении новой ссылки — алгоритм обнаружения цикла.</li>
+        </ul>
+
+        <h2 id="ru-10">10. Монтирование файловой системы</h2>
+        <ul>
+            <li>Файловая система должна быть <b>смонтирована</b>, прежде чем к ней можно обращаться.</li>
+            <li>Несмонтированная ФС подключается в <b>mount point</b> — точку в существующем дереве каталогов.</li>
+        </ul>
+
+        <h2 id="ru-11">11. Совместный доступ к файлам</h2>
+        <ul>
+            <li>На многопользовательских системах общий доступ к файлам желателен.</li>
+            <li>Регулируется <b>схемой защиты</b>.</li>
+            <li>В распределённых системах файлы могут шариться по сети. Стандарт UNIX — <b>NFS</b>.</li>
+        </ul>
+
+        <h3>Идентификация в многопользовательской системе</h3>
+        <ul>
+            <li><b>User ID</b> — идентификатор пользователя, по нему дают права.</li>
+            <li><b>Group ID</b> — членство в группе для групповых прав.</li>
+            <li>У каждого файла/каталога есть <b>owner</b> и <b>group</b>.</li>
+        </ul>
+
+        <h2 id="ru-12">12. Удалённые ФС и семантика согласованности</h2>
+
+        <h3>Remote File Systems</h3>
+        <ul>
+            <li>Доступ к файлам между системами по сети.</li>
+            <li>Способы: вручную (<b>FTP</b>), автоматически и прозрачно (распределённые ФС), полуавтоматически (Web).</li>
+            <li><b>Client-server</b>: клиент монтирует удалённую ФС, сервер может обслуживать многих клиентов.</li>
+            <li>Идентификация клиента/пользователя — небезопасна или сложна.</li>
+            <li><b>NFS</b> — стандартный UNIX-протокол, <b>CIFS</b> — Windows.</li>
+            <li>Обычные системные файловые вызовы переводятся в удалённые.</li>
+            <li><b>Distributed Information Systems</b> (LDAP, DNS, NIS, Active Directory) дают единообразный доступ к информации, нужной для удалённой работы.</li>
+        </ul>
+
+        <h3>Режимы отказов</h3>
+        <ul>
+            <li>У всех ФС бывают сбои — например, повреждение каталоговых структур или другой <b>metadata</b>.</li>
+            <li>У remote ФС добавляются новые: сбой сети, сбой сервера.</li>
+            <li>Восстановление может требовать хранения состояния каждого удалённого запроса.</li>
+            <li><b>Stateless</b>-протоколы (например, <b>NFS v3</b>) содержат всю информацию в каждом запросе — простое восстановление, но меньше безопасности.</li>
+        </ul>
+
+        <h3>Consistency Semantics</h3>
+        <p>Задаёт, как несколько пользователей видят одновременные изменения общего файла. Аналог процессной синхронизации, но обычно проще из-за латентности I/O и сети.</p>
+
+        <table>
+            <tr><th>Система</th><th>Семантика</th></tr>
+            <tr><td><b>UFS (Unix)</b></td><td>Записи в открытый файл <b>немедленно</b> видны другим открывшим. Указатель файла может разделяться, позволяя нескольким пользователям одновременно читать и писать.</td></tr>
+            <tr><td><b>AFS (Andrew)</b></td><td><b>Session semantics:</b> записи видны только тем сессиям, которые открыли файл <i>после</i> того, как он был закрыт.</td></tr>
+        </table>
+
+        <h2 id="ru-13">13. Защита и права доступа</h2>
+        <p>Владелец/создатель файла должен иметь возможность контролировать, <b>что можно делать</b> и <b>кому</b>.</p>
+
+        <h3>Типы доступа</h3>
+        <ul>
+            <li>Read, Write, Execute, Append, Delete, List.</li>
+        </ul>
+
+        <h3>Access Lists и группы (UNIX/Linux)</h3>
+        <p>Режимы доступа: <code>R</code>, <code>W</code>, <code>X</code>. Три класса пользователей:</p>
+        <table>
+            <tr><th>Класс</th><th>Биты</th><th>Восьмеричное</th></tr>
+            <tr><td><b>owner</b></td><td><span class="perm">rwx</span> = 111</td><td>7</td></tr>
+            <tr><td><b>group</b></td><td><span class="perm">rw-</span> = 110</td><td>6</td></tr>
+            <tr><td><b>public</b></td><td><span class="perm">--x</span> = 001</td><td>1</td></tr>
+        </table>
+        <p>Чтобы выдать групповой доступ:</p>
+        <ol>
+            <li>Попросить администратора создать группу с уникальным именем (скажем, <code>G</code>) и добавить в неё пользователей.</li>
+            <li>Для конкретного файла или подкаталога задать соответствующий режим.</li>
+            <li>Привязать группу к файлу: <code>chgrp G game</code>.</li>
+        </ol>
+
+        <h3>Windows ACL</h3>
+        <p>Windows 7 предоставляет полноценные <b>Access-Control Lists</b>: к каждому файлу/каталогу можно прикрепить список с правами для конкретных пользователей и групп — гораздо тоньше, чем модель owner/group/public.</p>
+
+        <div class="card">
+            <b>Главный вывод:</b> файл — это абстракция ОС с богатым набором атрибутов и операций. Каталоги нужны как для организации (одноуровневые → деревья → графы), так и для защиты и удобства именования. Методы доступа (sequential, direct, index) дают разные компромиссы между простотой и производительностью. Совместный доступ требует моделей пользователей/групп и (в распределённой среде) — отдельных протоколов вроде NFS/CIFS со своими семантиками согласованности. Защита реализуется через права <code>rwx</code> или полноценные ACL.
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ===================== ENGLISH VERSION ===================== -->
+    <section id="en" class="lang">
+        <p class="lede">This lecture describes the <b>file-system interface</b>: a file as an abstract data type, its attributes and operations, how files are organized in directories (single-level → two-level → tree → acyclic-graph → general graph), the access methods (sequential, direct, index), how file systems are mounted, how files are shared across users and over networks (NFS, CIFS, LDAP, DNS), and how protection is enforced via access lists and the <code>rwx</code> permission model.</p>
+
+        <div class="toc">
+            <h4>Contents</h4>
+            <ol>
+                <li><a href="#en-1">File concept</a></li>
+                <li><a href="#en-2">File attributes</a></li>
+                <li><a href="#en-3">File operations and the open-file table</a></li>
+                <li><a href="#en-4">File locking</a></li>
+                <li><a href="#en-5">File types and structure</a></li>
+                <li><a href="#en-6">Access methods</a></li>
+                <li><a href="#en-7">Disk structure and volumes</a></li>
+                <li><a href="#en-8">Types of file systems</a></li>
+                <li><a href="#en-9">Directory structures</a></li>
+                <li><a href="#en-10">File-system mounting</a></li>
+                <li><a href="#en-11">File sharing</a></li>
+                <li><a href="#en-12">Remote FS and consistency semantics</a></li>
+                <li><a href="#en-13">Protection and permissions</a></li>
+            </ol>
+        </div>
+
+        <h2 id="en-1">1. File concept</h2>
+        <div class="card">
+            A <b>file</b> is an <b>abstract data type</b> defined and implemented by the OS. It is a sequence of <b>logical records</b> in a contiguous logical address space.
+        </div>
+
+        <p>A logical record can be:</p>
+        <ul>
+            <li>a byte,</li>
+            <li>a line (fixed or variable length),</li>
+            <li>a more complex data item.</li>
+        </ul>
+
+        <p>The OS may explicitly support certain record types, or leave it to the application.</p>
+
+        <p><b>A central OS task:</b> map the logical file onto a <b>physical</b> storage device (HDD, NVM). Since physical record sizes may differ from logical ones, the OS or the application must pack logical records into physical ones.</p>
+
+        <h3>Content types</h3>
+        <ul>
+            <li><b>Data:</b> numeric, character, binary;</li>
+            <li><b>Programs.</b></li>
+        </ul>
+        <p>Content is defined by the file's <b>creator</b>: text file, source file, executable file, etc.</p>
+
+        <h2 id="en-2">2. File attributes</h2>
+        <table>
+            <tr><th>Attribute</th><th>Purpose</th></tr>
+            <tr><td><b>Name</b></td><td>The only attribute in human-readable form.</td></tr>
+            <tr><td><b>Identifier</b></td><td>A unique tag (number) identifying the file inside the FS.</td></tr>
+            <tr><td><b>Type</b></td><td>For systems that support multiple file types.</td></tr>
+            <tr><td><b>Location</b></td><td>Pointer to the file's location on the device.</td></tr>
+            <tr><td><b>Size</b></td><td>Current file size.</td></tr>
+            <tr><td><b>Protection</b></td><td>Controls who can read, write, execute.</td></tr>
+            <tr><td><b>Time, date, user</b></td><td>For protection, security, usage monitoring.</td></tr>
+        </table>
+        <p>File metadata lives in the <b>directory structure</b> on disk. Extended attributes (e.g., file checksum) are common.</p>
+
+        <h2 id="en-3">3. File operations and the open-file table</h2>
+        <p>A file is an ADT. Core operations:</p>
+        <ul>
+            <li><b>Create</b>;</li>
+            <li><b>Write</b> at the write pointer;</li>
+            <li><b>Read</b> at the read pointer;</li>
+            <li><b>Reposition (seek)</b> inside the file;</li>
+            <li><b>Delete</b>;</li>
+            <li><b>Truncate</b> — drop content but keep attributes;</li>
+            <li><b>Open(F<sub>i</sub>)</b> — find the directory entry F<sub>i</sub> on disk and pull it into memory;</li>
+            <li><b>Close(F<sub>i</sub>)</b> — write the memory copy of F<sub>i</sub> back to the directory structure.</li>
+        </ul>
+
+        <h3>Open-file table</h3>
+        <p>To manage open files the OS tracks:</p>
+        <ul>
+            <li><b>Open-file table</b> — list of currently open files;</li>
+            <li><b>File pointer</b> — last read/write position, <i>per process</i>;</li>
+            <li><b>File-open count</b> — how many processes have it open (drops to 0 → entry removed);</li>
+            <li><b>Disk location</b> — cached lookup info;</li>
+            <li><b>Access rights</b> — per-process access mode.</li>
+        </ul>
+
+        <h2 id="en-4">4. File locking</h2>
+        <p>Provided by some OSes and FSes, analogous to reader-writer locks.</p>
+        <ul>
+            <li><b>Shared lock</b> ≈ reader lock: multiple processes can hold it.</li>
+            <li><b>Exclusive lock</b> ≈ writer lock: only one process.</li>
+        </ul>
+
+        <p><b>Types:</b></p>
+        <ul>
+            <li><b>Mandatory</b> — the OS <i>denies</i> access based on which locks are held vs. requested.</li>
+            <li><b>Advisory</b> — the OS only reports lock status; processes decide what to do.</li>
+        </ul>
+
+        <p><b>Java API example:</b></p>
+        <pre>RandomAccessFile raf = new RandomAccessFile("file.txt", "rw");
+FileChannel ch = raf.getChannel();
+
+// exclusive lock on the first half
+FileLock exclusiveLock = ch.lock(0, raf.length()/2, EXCLUSIVE);
+/* modify the data… */
+exclusiveLock.release();
+
+// shared lock on the second half
+FileLock sharedLock = ch.lock(raf.length()/2+1, raf.length(), SHARED);
+/* read the data… */
+sharedLock.release();</pre>
+
+        <h2 id="en-5">5. File types and structure</h2>
+        <p>The file's type is usually encoded in the <b>name extension</b>: <code>.txt</code>, <code>.exe</code>, <code>.c</code>, <code>.html</code>, etc. The OS or application uses this to know how to handle the contents.</p>
+
+        <h3>Possible structures</h3>
+        <ul>
+            <li><b>None</b> — a sequence of bytes/words.</li>
+            <li><b>Simple record structure</b> — fixed or variable-length lines.</li>
+            <li><b>Complex structures</b> — formatted document, relocatable load file.</li>
+        </ul>
+        <p>Complex structures can be <b>simulated</b> on top of a flat byte stream by inserting control characters. <b>Who decides:</b> the OS or the program.</p>
+
+        <h2 id="en-6">6. Access methods</h2>
+
+        <h3>Sequential Access</h3>
+        <ul>
+            <li><code>read next</code>;</li>
+            <li><code>write next</code>;</li>
+            <li><code>reset</code> — back to the beginning;</li>
+            <li><b>no</b> read after the last write (only rewrite).</li>
+        </ul>
+
+        <h3>Direct Access</h3>
+        <p>The file is a set of <b>fixed-length logical records</b>:</p>
+        <ul>
+            <li><code>read n</code>, <code>write n</code>, <code>rewrite n</code>, <code>position to n</code>;</li>
+            <li>where <code>n</code> is the <b>relative block number</b>.</li>
+        </ul>
+        <p>Relative block numbers let the OS place file blocks anywhere physically.</p>
+        <p>Sequential access can be <b>simulated</b> on top of a direct-access FS using a current pointer.</p>
+
+        <h3>Index access</h3>
+        <ul>
+            <li>Built on top of the base methods, an <b>index</b> for the file is created.</li>
+            <li>The index is kept in memory for fast lookup (think UPC code + data record).</li>
+            <li>If the index is too big, an <b>index of the index</b> is built.</li>
+            <li>Classic: <b>IBM ISAM</b> (Indexed Sequential-Access Method) — a small master index points to secondary-index blocks; the file is sorted on a key. All managed by the OS.</li>
+            <li><b>VMS</b> provides index and relative files.</li>
+        </ul>
+
+        <h2 id="en-7">7. Disk structure and volumes</h2>
+        <ul>
+            <li>A disk can be split into <b>partitions</b> (= minidisks, slices).</li>
+            <li>Disks or partitions can be <b>RAID</b>-protected.</li>
+            <li>A partition can be used <b>raw</b> (no FS) or formatted with one.</li>
+            <li>An entity holding a file system is a <b>volume</b>. It maintains a <b>device directory</b> or <b>volume table of contents</b> with FS metadata.</li>
+        </ul>
+
+        <h2 id="en-8">8. Types of file systems</h2>
+        <p>We mostly talk about <i>general-purpose</i> FSes, but real systems typically run several — some general, some special. Solaris, for example:</p>
+        <ul>
+            <li><b>tmpfs</b> — RAM-backed, volatile FS for fast temporary I/O;</li>
+            <li><b>objfs</b> — interface into kernel memory for debug symbols;</li>
+            <li><b>ctfs</b> — contract file system for daemon management;</li>
+            <li><b>lofs</b> — loopback FS that mounts one FS in place of another;</li>
+            <li><b>procfs</b> — kernel interface to process structures;</li>
+            <li><b>ufs, zfs</b> — general-purpose.</li>
+        </ul>
+
+        <h2 id="en-9">9. Directory structures</h2>
+        <p>A directory is a collection of nodes holding info about all files. Both the directory and the files live on disk.</p>
+
+        <h3>Operations on a directory</h3>
+        <ul><li>search for a file, create/delete, list, rename, traverse the FS.</li></ul>
+
+        <h3>Design goals</h3>
+        <ul>
+            <li><b>Efficiency</b> — find a file fast.</li>
+            <li><b>Naming</b> — user-friendly: two users may have files with the same name; one file may have multiple names.</li>
+            <li><b>Grouping</b> — logical grouping (all Java programs, all games…).</li>
+        </ul>
+
+        <h3>Single-Level Directory</h3>
+        <ul>
+            <li>One directory for everyone.</li>
+            <li><b>Problems:</b> name collisions, no grouping.</li>
+        </ul>
+
+        <h3>Two-Level Directory</h3>
+        <ul>
+            <li>A separate directory per user.</li>
+            <li>Introduces <b>path names</b>; different users can have files with identical names.</li>
+            <li>Efficient search; <b>no grouping</b>.</li>
+        </ul>
+
+        <h3>Tree-Structured Directories</h3>
+        <ul>
+            <li>The natural generalization: each directory may hold subdirectories.</li>
+            <li>Efficient search + full grouping.</li>
+            <li><b>Current (working) directory</b>: <code>cd /spell/mail/prog</code>.</li>
+            <li><b>Absolute</b> and <b>relative</b> path names.</li>
+            <li>New files/subdirectories are created in the current directory: <code>mkdir &lt;dir&gt;</code>, <code>rm &lt;file&gt;</code>.</li>
+            <li>Deleting a directory deletes the <b>entire subtree</b>.</li>
+        </ul>
+
+        <div class="tree">/
+            ├── spell/
+            │   ├── mail/
+            │   │   ├── prog/
+            │   │   └── count
+            │   └── ...
+            ├── home/
+            │   ├── alice/
+            │   └── bob/
+            └── etc/</div>
+
+        <h3>Acyclic-Graph Directories</h3>
+        <ul>
+            <li>Allow <b>sharing</b> of subdirectories and files between branches.</li>
+            <li><b>Aliasing</b> — one file with multiple names (links).</li>
+            <li>Complicates search and deletion.</li>
+        </ul>
+        <p><b>Problem:</b> if <i>dict</i> deletes <i>list</i>, <b>dangling pointers</b> remain. Solutions:</p>
+        <ul>
+            <li><b>Back-pointers</b> — to delete all aliases; variable-size records are awkward.</li>
+            <li>Daisy-chain back-pointers.</li>
+            <li><b>Entry-hold-count</b> — a reference count; the file is removed only at zero.</li>
+            <li>A new entry type — <b>link</b> (just another pointer to an existing file); "resolve the link" = follow the pointer.</li>
+        </ul>
+
+        <h3>General Graph Directory</h3>
+        <ul>
+            <li>Full sharing freedom, but <b>cycles</b> become possible.</li>
+            <li>Sometimes requires <b>garbage collection</b> to reclaim unused space.</li>
+        </ul>
+        <p><b>Avoiding cycles:</b></p>
+        <ul>
+            <li>Only allow links to files, not to subdirectories;</li>
+            <li>Garbage collection;</li>
+            <li>Run a cycle-detection algorithm whenever a new link is added.</li>
+        </ul>
+
+        <h2 id="en-10">10. File-system mounting</h2>
+        <ul>
+            <li>A file system must be <b>mounted</b> before it can be accessed.</li>
+            <li>An unmounted FS is attached at a <b>mount point</b> — a node in the existing directory tree.</li>
+        </ul>
+
+        <h2 id="en-11">11. File sharing</h2>
+        <ul>
+            <li>Sharing on multi-user systems is desirable.</li>
+            <li>Governed by a <b>protection scheme</b>.</li>
+            <li>Across a network, files may be shared by distributed FSes. The UNIX standard is <b>NFS</b>.</li>
+        </ul>
+
+        <h3>Multi-user identification</h3>
+        <ul>
+            <li><b>User ID</b> — identifies a user; permissions are per-user.</li>
+            <li><b>Group ID</b> — group membership for group rights.</li>
+            <li>Every file/directory has an <b>owner</b> and a <b>group</b>.</li>
+        </ul>
+
+        <h2 id="en-12">12. Remote FS and consistency semantics</h2>
+
+        <h3>Remote File Systems</h3>
+        <ul>
+            <li>Network-based access to files across systems.</li>
+            <li>Modes: manually (<b>FTP</b>), automatically and seamlessly (distributed FSes), semi-automatically (the Web).</li>
+            <li><b>Client-server</b>: the client mounts the remote FS; one server can serve many clients.</li>
+            <li>Identification of client/user is insecure or complicated.</li>
+            <li><b>NFS</b> — the standard UNIX protocol; <b>CIFS</b> — the standard Windows one.</li>
+            <li>Ordinary file calls are translated into remote calls.</li>
+            <li><b>Distributed information systems</b> (LDAP, DNS, NIS, Active Directory) unify access to information needed for remote computing.</li>
+        </ul>
+
+        <h3>Failure modes</h3>
+        <ul>
+            <li>All FSes can fail — e.g., corruption of directory structures or other <b>metadata</b>.</li>
+            <li>Remote FSes add network failure and server failure.</li>
+            <li>Recovery may require keeping state about every remote request.</li>
+            <li><b>Stateless</b> protocols (such as <b>NFS v3</b>) carry all info in each request — easy recovery, weaker security.</li>
+        </ul>
+
+        <h3>Consistency Semantics</h3>
+        <p>Specifies how concurrent users see each other's writes to a shared file. Similar to process synchronization but usually simpler due to I/O and network latency.</p>
+
+        <table>
+            <tr><th>System</th><th>Semantics</th></tr>
+            <tr><td><b>UFS (Unix)</b></td><td>Writes to an open file are <b>immediately</b> visible to others who have the file open. The file pointer can be shared so several users read and write concurrently.</td></tr>
+            <tr><td><b>AFS (Andrew)</b></td><td><b>Session semantics:</b> writes become visible only to sessions opened <i>after</i> the file is closed.</td></tr>
+        </table>
+
+        <h2 id="en-13">13. Protection and permissions</h2>
+        <p>The owner/creator of a file should be able to control <b>what can be done</b> and <b>by whom</b>.</p>
+
+        <h3>Access types</h3>
+        <ul>
+            <li>Read, Write, Execute, Append, Delete, List.</li>
+        </ul>
+
+        <h3>Access lists and groups (UNIX/Linux)</h3>
+        <p>Modes: <code>R</code>, <code>W</code>, <code>X</code>. Three user classes:</p>
+        <table>
+            <tr><th>Class</th><th>Bits</th><th>Octal</th></tr>
+            <tr><td><b>owner</b></td><td><span class="perm">rwx</span> = 111</td><td>7</td></tr>
+            <tr><td><b>group</b></td><td><span class="perm">rw-</span> = 110</td><td>6</td></tr>
+            <tr><td><b>public</b></td><td><span class="perm">--x</span> = 001</td><td>1</td></tr>
+        </table>
+        <p>To grant group access:</p>
+        <ol>
+            <li>Ask the admin to create a uniquely-named group (say <code>G</code>) and add users.</li>
+            <li>Set the desired mode on the file or subdirectory.</li>
+            <li>Attach the group to the file: <code>chgrp G game</code>.</li>
+        </ol>
+
+        <h3>Windows ACLs</h3>
+        <p>Windows 7 provides full <b>Access-Control Lists</b>: each file/directory has a list assigning rights to specific users and groups — much finer than the owner/group/public model.</p>
+
+        <div class="card">
+            <b>Take-away:</b> a file is an OS abstraction with a rich set of attributes and operations. Directories organize files and support protection and naming — they grow from single-level into trees and ultimately graphs. Access methods (sequential, direct, indexed) trade simplicity for performance. Sharing requires a user/group model and, in distributed settings, protocols like NFS/CIFS with their own consistency semantics. Protection is enforced via <code>rwx</code> bits or full ACLs.
+        </div>
+    </section>
+
+    <footer>
+        Advanced Operating Systems · Lecture 7 · File-System Interface<br>
+        Adapted from <i>Operating System Concepts</i>, 10th Edition — Silberschatz, Galvin and Gagne ©2018
+    </footer>
+
+</div>
+<script>
+    (function(){var buttons=document.querySelectorAll(".lang-tabs button");var sections=document.querySelectorAll("section.lang");buttons.forEach(function(btn){btn.addEventListener("click",function(){var lang=btn.dataset.lang;buttons.forEach(function(b){b.classList.toggle("active",b===btn);});sections.forEach(function(s){s.classList.toggle("active",s.id===lang);});window.scrollTo({top:0,behavior:"smooth"});});});})();
+</script>
+</body>
+</html>

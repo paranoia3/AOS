@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 5 — CPU Scheduling</title>
+    <style>
+        :root{
+            --bg:#fafaf8;
+            --fg:#1a1a1a;
+            --muted:#6b6b6b;
+            --accent:#2b6cb0;
+            --line:#e5e5e0;
+            --card:#ffffff;
+            --code-bg:#f3f3ee;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
+            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+            line-height:1.65;font-size:16px;}
+        .wrap{max-width:880px;margin:0 auto;padding:64px 28px 96px}
+        header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:48px}
+        .eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+        h1{font-size:34px;font-weight:600;margin:0 0 8px;letter-spacing:-.01em}
+        .sub{color:var(--muted);font-size:16px}
+        nav.lang{display:flex;gap:8px;margin-top:24px}
+        nav.lang a{font-size:14px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;
+            text-decoration:none;color:var(--fg);background:var(--card)}
+        nav.lang a:hover{border-color:var(--accent);color:var(--accent)}
+        section.lang-section{margin-top:56px}
+        h2{font-size:24px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+        h3{font-size:18px;font-weight:600;margin:28px 0 10px;color:var(--fg)}
+        p{margin:10px 0}
+        ul{margin:10px 0 16px;padding-left:22px}
+        li{margin:5px 0}
+        .lede{font-size:17px;color:var(--muted);margin:0 0 24px}
+        .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:16px 0}
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}
+        .pill{display:inline-block;font-size:12px;padding:2px 10px;border:1px solid var(--line);
+            border-radius:999px;color:var(--muted);background:var(--card);margin-right:6px}
+        code,kbd{background:var(--code-bg);padding:1px 6px;border-radius:4px;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px}
+        pre{background:var(--code-bg);padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px;line-height:1.5;margin:14px 0}
+        table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px}
+        th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+        th{font-weight:600;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+        .divider{height:1px;background:var(--line);margin:64px 0}
+        .toc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:24px 0}
+        .toc h4{margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+        .toc ol{margin:0;padding-left:22px;color:var(--fg)}
+        .toc li{margin:3px 0}
+        .toc a{color:var(--fg);text-decoration:none}
+        .toc a:hover{color:var(--accent)}
+        .formula{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin:16px 0;text-align:center;font-family:"JetBrains Mono",Consolas,monospace;font-size:16px}
+        .gantt{display:flex;flex-wrap:wrap;margin:14px 0;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px}
+        .gantt .slot{padding:10px 14px;border:1px solid var(--line);background:var(--card);text-align:center;min-width:60px}
+        .gantt .slot small{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+        footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--line);
+            color:var(--muted);font-size:13px;text-align:center}
+        .lang-tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px;margin:24px 0 8px;width:fit-content}
+        .lang-tabs button{background:transparent;border:none;padding:8px 18px;font:inherit;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-radius:7px;transition:all .15s}
+        .lang-tabs button.active{background:var(--accent);color:#fff}
+        .lang-tabs button:hover:not(.active){color:var(--fg)}
+        section.lang{display:none}
+        section.lang.active{display:block}
+    </style>
+    <style>
+        html[data-theme="dark"]{--bg:#15171a;--fg:#e7e9ec;--muted:#9aa0a6;--accent:#5aa2ff;--line:#2c3137;--border:#2c3137;--card:#1e2125;--code-bg:#2a2f35;--ok:#5fd39a;--ok-bg:#16271d;--ok-line:#234d38;--bad:#ff8c8c;--bad-bg:#2a1718;--bad-line:#5a2a2c;--sel-bg:#16304d;--shadow:rgba(0,0,0,.45)}
+        html[data-theme="dark"] .key{background:#16304d;color:#9ec3ff}
+        .theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border:1px solid var(--line,#e5e5e0);background:var(--card,#fff);color:var(--fg,#1a1a1a);border-radius:8px;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+        .theme-toggle:hover{border-color:var(--accent,#2b6cb0)}
+    </style>
+</head>
+<body>
+<script>
+    (function(){try{var t=localStorage.getItem("aos_quiz_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+        function lbl(){return document.documentElement.getAttribute("data-theme")==="dark"?"Светлая тема":"Тёмная тема";}
+        document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.className="theme-toggle";b.type="button";b.textContent=lbl();b.addEventListener("click",function(){var d=document.documentElement.getAttribute("data-theme")==="dark";var n=d?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("aos_quiz_theme",n);}catch(e){}b.textContent=lbl();});document.body.appendChild(b);});})();
+</script>
+
+<div class="wrap">
+    <div class="lec-nav" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:22px;font-size:14px;font-weight:600">
+        <a href="../L4/lecture04_summary.html" style="color:var(--accent);text-decoration:none">← Лекция 4</a>
+        <a href="../index.html" style="color:var(--accent);text-decoration:none">На главную</a>
+        <a href="../L6/lecture06_summary.html" style="color:var(--accent);text-decoration:none">Лекция 6 →</a>
+    </div>
+
+    <header>
+        <div class="eyebrow">Advanced Operating Systems · Lecture 5</div>
+        <h1>CPU Scheduling</h1>
+        <div class="sub">Планирование ЦП — резюме и пояснения</div>
+        <div class="lang-tabs">
+            <button class="active" data-lang="ru">Русский</button>
+            <button data-lang="en">English</button>
+        </div>
+    </header>
+
+    <!-- ===================== РУССКАЯ ВЕРСИЯ ===================== -->
+    <section id="ru" class="lang active">
+        <p class="lede">Эта лекция объясняет, <b>как ОС выбирает, какой процесс/поток запустить на ЦП</b>: цикл CPU–I/O burst, роль короткого планировщика и диспетчера, критерии качества (utilization, throughput, turnaround, waiting, response), классические алгоритмы (FCFS, SJF, Priority, Round Robin, многоуровневые очереди), планирование потоков и в SMP/NUMA, real-time (Rate Monotonic, EDF), реальные планировщики Linux CFS / Windows / Solaris и способы оценки алгоритмов (детерминированное моделирование, очереди и формула Литтла, симуляция, реализация).</p>
+
+        <div class="toc">
+            <h4>Содержание</h4>
+            <ol>
+                <li><a href="#ru-1">Базовые концепции и CPU–I/O burst</a></li>
+                <li><a href="#ru-2">Короткий планировщик и диспетчер</a></li>
+                <li><a href="#ru-3">Критерии планирования</a></li>
+                <li><a href="#ru-4">FCFS</a></li>
+                <li><a href="#ru-5">SJF и SRTF</a></li>
+                <li><a href="#ru-6">Priority scheduling</a></li>
+                <li><a href="#ru-7">Round Robin</a></li>
+                <li><a href="#ru-8">Многоуровневые очереди и feedback</a></li>
+                <li><a href="#ru-9">Планирование потоков (PCS / SCS)</a></li>
+                <li><a href="#ru-10">Многопроцессорное планирование, NUMA, многоядерность</a></li>
+                <li><a href="#ru-11">Real-time планирование</a></li>
+                <li><a href="#ru-12">Примеры ОС: Linux CFS, Windows, Solaris</a></li>
+                <li><a href="#ru-13">Оценка алгоритмов</a></li>
+            </ol>
+        </div>
+
+        <h2 id="ru-1">1. Базовые концепции и CPU–I/O burst</h2>
+        <ul>
+            <li>Максимальная загрузка ЦП достигается за счёт <b>мультипрограммирования</b>.</li>
+            <li>Выполнение процесса представляет собой цикл: <b>CPU burst → I/O wait → CPU burst → I/O wait → …</b></li>
+            <li>За CPU burst следует I/O burst; для планирования главное — <b>распределение длительностей CPU burst</b>.</li>
+        </ul>
+
+        <div class="card">
+            <b>Наблюдение:</b> гистограмма длительностей CPU burst обычно <b>сильно скошена</b> в сторону коротких бёрстов — короткие встречаются гораздо чаще длинных. Это и есть теоретическая основа эффективности SJF.
+        </div>
+
+        <h2 id="ru-2">2. Короткий планировщик и диспетчер</h2>
+        <p><b>Short-term scheduler</b> (короткий планировщик) выбирает из ready-очереди процесс, которому отдадут ЦП. Очередь может быть упорядочена по-разному.</p>
+
+        <p>Решение о переключении принимается, когда процесс:</p>
+        <ol>
+            <li>переходит из <i>running</i> в <i>waiting</i> (например, ждёт I/O);</li>
+            <li>переходит из <i>running</i> в <i>ready</i> (например, по прерыванию);</li>
+            <li>переходит из <i>waiting</i> в <i>ready</i> (завершилось I/O);</li>
+            <li>завершается.</li>
+        </ol>
+
+        <p>Планирование <b>в случаях 1 и 4</b> — <b>non-preemptive</b> (без вытеснения). Все остальные — <b>preemptive</b> (с вытеснением). При вытеснении надо учитывать: доступ к разделяемым данным, вытеснение в kernel mode, прерывания во время критичных действий ОС.</p>
+
+        <h3>Диспетчер</h3>
+        <p><b>Диспетчер</b> передаёт управление ЦП выбранному процессу. Это включает:</p>
+        <ul>
+            <li>переключение контекста,</li>
+            <li>переход в user mode,</li>
+            <li>переход в нужное место пользовательской программы для её возобновления.</li>
+        </ul>
+        <p><b>Dispatch latency</b> — время, которое диспетчер тратит на остановку одного процесса и запуск другого.</p>
+
+        <h2 id="ru-3">3. Критерии планирования</h2>
+        <div class="grid">
+            <div class="card"><b>CPU utilization</b><br><span style="color:var(--muted);font-size:14px">Держать ЦП максимально занятым.</span></div>
+            <div class="card"><b>Throughput</b><br><span style="color:var(--muted);font-size:14px">Число завершённых процессов в единицу времени.</span></div>
+            <div class="card"><b>Turnaround time</b><br><span style="color:var(--muted);font-size:14px">Полное время выполнения процесса.</span></div>
+            <div class="card"><b>Waiting time</b><br><span style="color:var(--muted);font-size:14px">Сколько процесс провёл в ready-очереди.</span></div>
+            <div class="card"><b>Response time</b><br><span style="color:var(--muted);font-size:14px">Время от подачи запроса до первой реакции (не до полного ответа). Важно в интерактивных системах.</span></div>
+        </div>
+        <p><b>Цели оптимизации:</b> максимум utilization и throughput; минимум turnaround, waiting и response time.</p>
+
+        <h2 id="ru-4">4. First-Come, First-Served (FCFS)</h2>
+        <p>Простейший алгоритм: процесс, пришедший первым, обслуживается первым.</p>
+
+        <p><b>Пример 1.</b> Порядок прихода: P1(24), P2(3), P3(3).</p>
+        <div class="gantt">
+            <div class="slot">P1<small>0–24</small></div>
+            <div class="slot">P2<small>24–27</small></div>
+            <div class="slot">P3<small>27–30</small></div>
+        </div>
+        <p>Waiting time: P1=0, P2=24, P3=27. Среднее: <code>(0+24+27)/3 = 17</code>.</p>
+
+        <p><b>Пример 2.</b> Порядок прихода: P2, P3, P1.</p>
+        <div class="gantt">
+            <div class="slot">P2<small>0–3</small></div>
+            <div class="slot">P3<small>3–6</small></div>
+            <div class="slot">P1<small>6–30</small></div>
+        </div>
+        <p>Среднее ожидание: <code>(6+0+3)/3 = 3</code> — намного лучше.</p>
+
+        <div class="card">
+            <b>Convoy effect:</b> короткие процессы стоят в очереди за одним длинным — все ждут. Особенно плох FCFS, когда есть один CPU-bound и много I/O-bound процессов.
+        </div>
+
+        <h2 id="ru-5">5. Shortest-Job-First (SJF) и SRTF</h2>
+        <ul>
+            <li>С каждым процессом связана длина его <b>следующего</b> CPU burst.</li>
+            <li>Выбирается процесс с <b>минимальной</b> ожидаемой длиной.</li>
+            <li>SJF <b>оптимален</b>: даёт минимальное среднее waiting time для данного набора процессов.</li>
+            <li><b>Проблема:</b> длина следующего CPU burst неизвестна — её приходится оценивать.</li>
+        </ul>
+
+        <h3>Оценка длины следующего CPU burst</h3>
+        <p>Используется <b>экспоненциальное усреднение</b> прошлых длительностей:</p>
+        <div class="formula">τ<sub>n+1</sub> = α · t<sub>n</sub> + (1 − α) · τ<sub>n</sub></div>
+        <p>где <code>t<sub>n</sub></code> — длина последнего реального burst, <code>τ<sub>n</sub></code> — предыдущая оценка, обычно <code>α = ½</code>.</p>
+
+        <ul>
+            <li><b>α = 0:</b> <code>τ<sub>n+1</sub> = τ<sub>n</sub></code> — недавняя история не учитывается.</li>
+            <li><b>α = 1:</b> <code>τ<sub>n+1</sub> = t<sub>n</sub></code> — учитывается только последний burst.</li>
+            <li>Разложение: <code>τ<sub>n+1</sub> = α·t<sub>n</sub> + (1−α)·α·t<sub>n−1</sub> + …</code> — вклад каждого предыдущего значения экспоненциально убывает.</li>
+        </ul>
+
+        <h3>Shortest-Remaining-Time-First (SRTF)</h3>
+        <p>Preemptive-версия SJF: если приходит новый процесс с меньшим оставшимся CPU burst, чем у текущего, — текущий вытесняется. Среднее waiting time ещё меньше.</p>
+
+        <h2 id="ru-6">6. Priority Scheduling</h2>
+        <ul>
+            <li>Каждому процессу присваивается <b>число-приоритет</b>.</li>
+            <li>ЦП получает процесс с <b>наивысшим приоритетом</b> (обычно меньшее число = выше приоритет).</li>
+            <li>Бывает <b>preemptive</b> и <b>non-preemptive</b>.</li>
+            <li>SJF — частный случай Priority Scheduling, где приоритет = 1/(ожидаемая длина burst).</li>
+        </ul>
+
+        <div class="card">
+            <b>Проблема — starvation:</b> процессы с низким приоритетом могут никогда не получить ЦП.<br>
+            <b>Решение — aging:</b> со временем приоритет ожидающего процесса повышается.
+        </div>
+
+        <h2 id="ru-7">7. Round Robin (RR)</h2>
+        <ul>
+            <li>Каждый процесс получает небольшой <b>квант времени q</b> (обычно 10–100 мс).</li>
+            <li>По истечении кванта процесс вытесняется и попадает в конец ready-очереди.</li>
+            <li>При <code>n</code> процессах и кванте <code>q</code> каждый получает <code>1/n</code> ЦП кусками не больше <code>q</code>. Ни один не ждёт дольше <code>(n−1)q</code>.</li>
+            <li>Таймер генерирует прерывание каждые <code>q</code> для запуска планировщика.</li>
+        </ul>
+
+        <p><b>Выбор q:</b></p>
+        <ul>
+            <li><code>q</code> большое → поведение приближается к FCFS;</li>
+            <li><code>q</code> малое → растёт доля времени на переключение контекста;</li>
+            <li>правило: <b>q ≫ context switch</b>; обычно <code>q ≈ 10–100 мс</code>, переключение контекста <code>&lt; 10 мкс</code>;</li>
+            <li>эмпирическое правило: <b>80% CPU-бёрстов должны быть короче q</b>.</li>
+        </ul>
+
+        <p>RR обычно даёт <b>худший turnaround</b>, чем SJF, но <b>лучший response time</b>.</p>
+
+        <h2 id="ru-8">8. Многоуровневые очереди</h2>
+
+        <h3>Multilevel Queue</h3>
+        <ul>
+            <li>Ready-очередь разбивается на несколько очередей, например:
+                <ul><li><b>foreground</b> (интерактивные) — RR;</li><li><b>background</b> (пакетные) — FCFS.</li></ul>
+            </li>
+            <li>Процесс <b>навсегда</b> остаётся в своей очереди.</li>
+            <li>Нужно правило выбора между очередями:
+                <ul>
+                    <li><b>Fixed priority:</b> сначала foreground, потом background — рискует starvation;</li>
+                    <li><b>Time slice:</b> каждой очереди — свой процент ЦП (80% foreground / 20% background).</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>Multilevel Feedback Queue</h3>
+        <ul>
+            <li>Процесс может <b>перемещаться между очередями</b> — это естественный способ реализовать aging.</li>
+            <li>Параметры алгоритма: число очередей, алгоритм каждой, правила повышения, понижения и распределения новых процессов.</li>
+        </ul>
+
+        <p><b>Пример с тремя очередями:</b></p>
+        <ul>
+            <li><b>Q₀</b> — RR с квантом 8 мс;</li>
+            <li><b>Q₁</b> — RR с квантом 16 мс;</li>
+            <li><b>Q₂</b> — FCFS.</li>
+        </ul>
+        <p>Новая задача попадает в Q₀. Если не успела за 8 мс — спускается в Q₁ (получает там ещё 16 мс). Если и там не завершилась — попадает в Q₂.</p>
+
+        <h2 id="ru-9">9. Планирование потоков</h2>
+        <p>Когда ОС поддерживает потоки, планируются именно потоки, а не процессы.</p>
+
+        <table>
+            <tr><th>Scope</th><th>Где конкурируют</th><th>Когда применяется</th></tr>
+            <tr><td><b>PCS</b><br>process-contention scope</td><td>Внутри процесса — между его потоками</td><td>В моделях many-to-one и many-to-many; библиотека потоков планирует user-level threads на LWP. Приоритет обычно задаёт программист.</td></tr>
+            <tr><td><b>SCS</b><br>system-contention scope</td><td>Между всеми потоками системы</td><td>Когда ядро планирует ядерный поток на ЦП.</td></tr>
+        </table>
+
+        <h3>Pthreads API</h3>
+        <ul>
+            <li><code>PTHREAD_SCOPE_PROCESS</code> — планирование по PCS;</li>
+            <li><code>PTHREAD_SCOPE_SYSTEM</code> — планирование по SCS;</li>
+            <li>В Linux и macOS поддерживается <b>только SCS</b>.</li>
+        </ul>
+        <pre>pthread_attr_t attr;
+pthread_attr_init(&amp;attr);
+pthread_attr_setscope(&amp;attr, PTHREAD_SCOPE_SYSTEM);
+pthread_create(&amp;tid, &amp;attr, runner, NULL);</pre>
+
+        <h2 id="ru-10">10. Многопроцессорное планирование</h2>
+
+        <h3>SMP, AMP, processor affinity</h3>
+        <ul>
+            <li><b>Asymmetric multiprocessing (AMP):</b> только один процессор обращается к системным структурам данных — нет нужды в их разделении.</li>
+            <li><b>Symmetric multiprocessing (SMP):</b> каждый процессор сам себя планирует; либо общая ready-очередь, либо своя у каждого. <b>Самый распространённый подход сегодня.</b></li>
+            <li><b>Processor affinity:</b> процесс «привязан» к процессору, на котором он сейчас работает — это сохраняет тёплый кэш.
+                <ul><li><b>Soft affinity</b> — ОС старается, но может перенести;</li><li><b>Hard affinity</b> — ОС обязана соблюдать.</li></ul>
+            </li>
+            <li>Возможны <b>processor sets</b> — группы ЦП с собственной политикой.</li>
+        </ul>
+
+        <h3>NUMA</h3>
+        <p>В NUMA-системах память «ближе» к одним ЦП и «дальше» от других. Хороший планировщик учитывает affinity не только для кэша, но и для <b>расположения памяти</b> процесса.</p>
+
+        <h3>Балансировка нагрузки в SMP</h3>
+        <ul>
+            <li><b>Push migration:</b> периодическая задача проверяет загрузку ЦП и при перекосе <i>проталкивает</i> задачу с перегруженного на менее загруженный.</li>
+            <li><b>Pull migration:</b> простаивающий процессор <i>сам забирает</i> задачу из очереди занятого.</li>
+        </ul>
+
+        <h3>Многоядерные процессоры</h3>
+        <ul>
+            <li>Несколько ядер на одном физическом кристалле — быстрее и потребляют меньше энергии.</li>
+            <li>На каждом ядре растёт число аппаратных потоков.</li>
+            <li>Аппаратные потоки используют простои на ожидании памяти (<b>memory stall</b>): пока одно загружает данные, другое продолжает работать.</li>
+        </ul>
+
+        <h2 id="ru-11">11. Real-Time CPU Scheduling</h2>
+
+        <h3>Soft vs Hard real-time</h3>
+        <ul>
+            <li><b>Soft real-time:</b> нет гарантий — критичный процесс когда-нибудь будет запланирован, но без обещания «вовремя».</li>
+            <li><b>Hard real-time:</b> задача <i>обязана</i> быть обслужена к дедлайну.</li>
+        </ul>
+
+        <h3>Виды задержек</h3>
+        <ul>
+            <li><b>Interrupt latency</b> — от прихода прерывания до начала его обработчика.</li>
+            <li><b>Dispatch latency</b> — пока планировщик снимает текущий процесс и запускает другой.
+                <ul><li><b>Conflict phase:</b> вытеснение процесса, работающего в kernel mode; освобождение ресурсов, нужных более приоритетной задаче.</li></ul>
+            </li>
+        </ul>
+
+        <h3>Периодические задачи</h3>
+        <p>У периодической задачи: время обработки <code>t</code>, дедлайн <code>d</code>, период <code>p</code>, причём <code>0 ≤ t ≤ d ≤ p</code>. Частота — <code>1/p</code>.</p>
+
+        <h3>Rate-Monotonic Scheduling (RMS)</h3>
+        <p>Приоритет — <b>обратно пропорционален периоду</b>: чем меньше период, тем выше приоритет. Если P1 имеет меньший период, чем P2 — P1 приоритетнее.</p>
+
+        <h3>Earliest Deadline First (EDF)</h3>
+        <p>Приоритет назначается по дедлайну: <b>чем раньше дедлайн, тем выше приоритет</b>. Может уложиться в случаях, где RMS пропускает дедлайны.</p>
+
+        <h3>Proportional Share</h3>
+        <p>Система имеет <code>T</code> «долей»; приложение получает <code>N &lt; T</code> долей и тем самым гарантированно получает <code>N/T</code> процессорного времени.</p>
+
+        <h3>POSIX Real-Time</h3>
+        <ul>
+            <li><code>SCHED_FIFO</code> — FCFS с FIFO-очередью, без time-slicing для потоков одного приоритета.</li>
+            <li><code>SCHED_RR</code> — то же, но с разрезанием времени для потоков одного приоритета.</li>
+            <li>API: <code>pthread_attr_getschedpolicy</code> / <code>setschedpolicy</code>.</li>
+        </ul>
+
+        <h3>Виртуализация</h3>
+        <p>Гипервизор планирует гостевые ОС на физические ЦП; каждая гостевая ОС, в свою очередь, планирует свои процессы, не зная, что не владеет ЦП полностью. Это может ухудшить response time, исказить часы в гостях и обесценить тонкую настройку их собственных планировщиков.</p>
+
+        <h2 id="ru-12">12. Примеры ОС</h2>
+
+        <h3>Linux: до 2.5 и O(1) (ядра 2.5–2.6)</h3>
+        <ul>
+            <li>До 2.5 — вариация классического UNIX-планировщика.</li>
+            <li>2.5 — планировщик с <b>O(1)</b>-временем: preemptive, по приоритетам.</li>
+            <li>Два диапазона приоритетов: real-time (0–99) и nice (100–139). Меньшее число — выше приоритет.</li>
+            <li>Высокому приоритету — больший квант.</li>
+            <li>Две массива по приоритетам: <i>active</i> и <i>expired</i>. Когда active пустеет, массивы меняются местами.</li>
+            <li><b>Недостаток:</b> плохой response time для интерактивных процессов.</li>
+        </ul>
+
+        <h3>Linux: CFS (с 2.6.23)</h3>
+        <ul>
+            <li><b>Completely Fair Scheduler.</b></li>
+            <li>Введены <b>scheduling classes</b> со своими приоритетами; берётся задача с наивысшим приоритетом из наивысшего класса. По умолчанию есть <b>default</b> и <b>real-time</b>.</li>
+            <li>Квант не фиксирован, а вычисляется как <b>доля ЦП</b>. Базируется на nice-значении от −20 до +19 (меньше = выше).</li>
+            <li><b>Target latency</b> — интервал, за который каждая активная задача должна получить ЦП хотя бы один раз; растёт с числом активных задач.</li>
+            <li>Для каждой задачи поддерживается <b>vruntime</b> (виртуальное время), которое для задач низкого приоритета растёт быстрее.</li>
+            <li>Следующей выполняется задача с <b>минимальным vruntime</b>.</li>
+            <li>Real-time планируется по POSIX.1b со <b>статическими</b> приоритетами; nice −20 → глобальный приоритет 100, nice +19 → 139.</li>
+        </ul>
+
+        <h3>Windows</h3>
+        <ul>
+            <li>Preemptive, priority-based; высшая приоритетная задача выполняется первой.</li>
+            <li>Поток работает, пока (1) не заблокируется, (2) не израсходует квант, (3) не будет вытеснен более приоритетным.</li>
+            <li><b>32 уровня приоритета:</b> variable class 1–15, real-time class 16–31; priority 0 — поток управления памятью.</li>
+            <li>На каждый приоритет своя очередь; если ничего готово нет — выполняется idle-поток.</li>
+            <li><b>Классы приоритетов Win32:</b> REALTIME, HIGH, ABOVE_NORMAL, NORMAL, BELOW_NORMAL, IDLE. Внутри класса — relative priority: TIME_CRITICAL, HIGHEST, ABOVE_NORMAL, NORMAL, BELOW_NORMAL, LOWEST, IDLE.</li>
+            <li>Если поток исчерпал квант — приоритет понижается, но не ниже базового. После ожидания — приоритет повышается (boost) в зависимости от того, чего ждали. Foreground-окно получает <b>×3 boost</b>.</li>
+            <li><b>Windows 7:</b> User-Mode Scheduling (UMS) — приложение само создаёт и планирует потоки в обход ядра. Эффективно при больших числах потоков. Пример: C++ ConcRT.</li>
+        </ul>
+
+        <h3>Solaris</h3>
+        <ul>
+            <li>Priority-based, <b>шесть классов</b>: Time Sharing (TS, по умолчанию), Interactive (IA), Real-Time (RT), System (SYS), Fair Share (FSS), Fixed Priority (FP).</li>
+            <li>Поток принадлежит ровно одному классу; у каждого класса свой алгоритм.</li>
+            <li>Time Sharing реализован как multilevel feedback queue; таблица диспетчера загружаема и настраивается админом.</li>
+            <li>Все классы конвертируются в общий <b>глобальный приоритет</b>; следующим выполняется поток с наибольшим. Несколько потоков одного приоритета обслуживаются по RR.</li>
+        </ul>
+
+        <h2 id="ru-13">13. Оценка алгоритмов</h2>
+
+        <h3>Детерминированное моделирование</h3>
+        <p>Берётся конкретная нагрузка, и для каждого алгоритма точно считается результат. Просто и быстро, но применимо <i>только</i> к этим входным данным.</p>
+        <p>Например, для 5 процессов, пришедших одновременно: FCFS даёт 28 мс среднего ожидания, non-preemptive SJF — 13 мс, RR — 23 мс.</p>
+
+        <h3>Очереди и формула Литтла</h3>
+        <p>Поведение процессов описывается вероятностно — обычно экспоненциальное распределение интервалов прихода и обслуживания. Систему моделируют как сеть серверов с очередями.</p>
+
+        <div class="formula">n = λ · W</div>
+        <p>где <code>n</code> — средняя длина очереди, <code>λ</code> — средняя интенсивность прибытия, <code>W</code> — среднее время ожидания. <b>Закон Литтла</b> верен для любого алгоритма и любого распределения прихода.</p>
+        <p><b>Пример.</b> Если в среднем приходит 7 процессов в секунду и обычно в очереди 14 процессов — среднее ожидание = 2 секунды.</p>
+
+        <h3>Симуляция</h3>
+        <ul>
+            <li>Очередевые модели ограничены — симуляция точнее.</li>
+            <li>Программная модель системы; время — переменная; собирается статистика.</li>
+            <li>Входные данные: генератор случайных чисел по заданному распределению или <b>trace tapes</b> — записи реальных событий из реальной системы.</li>
+        </ul>
+
+        <h3>Реализация</h3>
+        <p>Даже симуляция ограничена в точности. В конце концов — собрать планировщик и протестировать в реальной системе. <b>Высокая стоимость, высокий риск</b>, окружения сильно отличаются. Поэтому гибкие планировщики позволяют <b>настраивать поведение под систему или площадку</b>, либо предоставляют API для управления приоритетами.</p>
+
+        <div class="card">
+            <b>Главный вывод:</b> ни один алгоритм планирования не оптимален во всех сценариях. FCFS прост, но даёт convoy effect; SJF оптимален по waiting time, но требует прогноза; RR хорош для интерактивности; многоуровневые feedback-очереди и CFS — компромиссы, объединяющие плюсы. Real-time требует отдельных гарантий (RMS, EDF). Оценивать алгоритм нужно <b>под конкретную нагрузку</b> — через моделирование, симуляцию или прямое внедрение.
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ===================== ENGLISH VERSION ===================== -->
+    <section id="en" class="lang">
+        <p class="lede">This lecture explains <b>how the OS picks which process/thread runs on the CPU</b>: the CPU–I/O burst cycle, the role of the short-term scheduler and dispatcher, the quality metrics (utilization, throughput, turnaround, waiting, response), the classic algorithms (FCFS, SJF, Priority, Round Robin, multilevel queues), thread scheduling, multiprocessor and NUMA scheduling, real-time scheduling (Rate Monotonic, EDF), real-world schedulers (Linux CFS, Windows, Solaris) and how to evaluate algorithms (deterministic modeling, queueing/Little's law, simulation, implementation).</p>
+
+        <div class="toc">
+            <h4>Contents</h4>
+            <ol>
+                <li><a href="#en-1">Basic concepts and the CPU–I/O burst cycle</a></li>
+                <li><a href="#en-2">Short-term scheduler and dispatcher</a></li>
+                <li><a href="#en-3">Scheduling criteria</a></li>
+                <li><a href="#en-4">FCFS</a></li>
+                <li><a href="#en-5">SJF and SRTF</a></li>
+                <li><a href="#en-6">Priority scheduling</a></li>
+                <li><a href="#en-7">Round Robin</a></li>
+                <li><a href="#en-8">Multilevel and feedback queues</a></li>
+                <li><a href="#en-9">Thread scheduling (PCS / SCS)</a></li>
+                <li><a href="#en-10">Multiprocessor, NUMA, multicore</a></li>
+                <li><a href="#en-11">Real-time scheduling</a></li>
+                <li><a href="#en-12">OS examples: Linux CFS, Windows, Solaris</a></li>
+                <li><a href="#en-13">Algorithm evaluation</a></li>
+            </ol>
+        </div>
+
+        <h2 id="en-1">1. Basic concepts and the CPU–I/O burst cycle</h2>
+        <ul>
+            <li>Maximum CPU utilization comes from <b>multiprogramming</b>.</li>
+            <li>Process execution is a cycle: <b>CPU burst → I/O wait → CPU burst → I/O wait → …</b></li>
+            <li>A CPU burst is followed by an I/O burst; scheduling cares mainly about the <b>distribution of CPU burst lengths</b>.</li>
+        </ul>
+
+        <div class="card">
+            <b>Observation:</b> the histogram of CPU burst times is typically <b>strongly skewed</b> toward short bursts — short bursts are far more common than long ones. This is precisely why SJF is effective in theory.
+        </div>
+
+        <h2 id="en-2">2. Short-term scheduler and dispatcher</h2>
+        <p>The <b>short-term scheduler</b> picks the next ready process to receive the CPU. The ready queue may be ordered in many ways.</p>
+
+        <p>A scheduling decision happens when a process:</p>
+        <ol>
+            <li>switches from <i>running</i> to <i>waiting</i> (e.g., awaits I/O);</li>
+            <li>switches from <i>running</i> to <i>ready</i> (e.g., on interrupt);</li>
+            <li>switches from <i>waiting</i> to <i>ready</i> (I/O completed);</li>
+            <li>terminates.</li>
+        </ol>
+
+        <p>Scheduling under <b>cases 1 and 4</b> is <b>nonpreemptive</b>. All other cases are <b>preemptive</b>. Preemption raises issues: shared-data access, preemption in kernel mode, interrupts during critical OS activities.</p>
+
+        <h3>Dispatcher</h3>
+        <p>The <b>dispatcher</b> hands the CPU to the process the scheduler chose. This involves:</p>
+        <ul>
+            <li>context switching,</li>
+            <li>switching to user mode,</li>
+            <li>jumping to the right location in the user program to resume it.</li>
+        </ul>
+        <p><b>Dispatch latency</b> = time it takes to stop one process and start another.</p>
+
+        <h2 id="en-3">3. Scheduling criteria</h2>
+        <div class="grid">
+            <div class="card"><b>CPU utilization</b><br><span style="color:var(--muted);font-size:14px">Keep the CPU as busy as possible.</span></div>
+            <div class="card"><b>Throughput</b><br><span style="color:var(--muted);font-size:14px">Processes finished per unit time.</span></div>
+            <div class="card"><b>Turnaround time</b><br><span style="color:var(--muted);font-size:14px">Total time to execute a process.</span></div>
+            <div class="card"><b>Waiting time</b><br><span style="color:var(--muted);font-size:14px">Time spent in the ready queue.</span></div>
+            <div class="card"><b>Response time</b><br><span style="color:var(--muted);font-size:14px">Time from request to first response (not full output). Matters in interactive systems.</span></div>
+        </div>
+        <p><b>Optimization goals:</b> maximize utilization and throughput; minimize turnaround, waiting, response time.</p>
+
+        <h2 id="en-4">4. First-Come, First-Served (FCFS)</h2>
+        <p>The simplest algorithm: whoever arrives first is served first.</p>
+
+        <p><b>Example 1.</b> Arrival order: P1(24), P2(3), P3(3).</p>
+        <div class="gantt">
+            <div class="slot">P1<small>0–24</small></div>
+            <div class="slot">P2<small>24–27</small></div>
+            <div class="slot">P3<small>27–30</small></div>
+        </div>
+        <p>Waiting times: P1=0, P2=24, P3=27. Average: <code>(0+24+27)/3 = 17</code>.</p>
+
+        <p><b>Example 2.</b> Arrival order: P2, P3, P1.</p>
+        <div class="gantt">
+            <div class="slot">P2<small>0–3</small></div>
+            <div class="slot">P3<small>3–6</small></div>
+            <div class="slot">P1<small>6–30</small></div>
+        </div>
+        <p>Average wait: <code>(6+0+3)/3 = 3</code> — much better.</p>
+
+        <div class="card">
+            <b>Convoy effect:</b> short processes get stuck behind one long process. FCFS is especially bad with one CPU-bound and many I/O-bound processes.
+        </div>
+
+        <h2 id="en-5">5. Shortest-Job-First (SJF) and SRTF</h2>
+        <ul>
+            <li>Each process has a length for its <b>next</b> CPU burst.</li>
+            <li>Pick the process with the <b>shortest</b> predicted next burst.</li>
+            <li>SJF is <b>optimal</b>: it minimizes average waiting time for a given workload.</li>
+            <li><b>Problem:</b> we don't know the next burst length — we have to estimate.</li>
+        </ul>
+
+        <h3>Estimating the next CPU burst</h3>
+        <p>Use <b>exponential averaging</b> of previous bursts:</p>
+        <div class="formula">τ<sub>n+1</sub> = α · t<sub>n</sub> + (1 − α) · τ<sub>n</sub></div>
+        <p>where <code>t<sub>n</sub></code> is the latest actual burst, <code>τ<sub>n</sub></code> the previous estimate, commonly <code>α = ½</code>.</p>
+
+        <ul>
+            <li><b>α = 0:</b> <code>τ<sub>n+1</sub> = τ<sub>n</sub></code> — recent history is ignored.</li>
+            <li><b>α = 1:</b> <code>τ<sub>n+1</sub> = t<sub>n</sub></code> — only the last burst counts.</li>
+            <li>Expanded: <code>τ<sub>n+1</sub> = α·t<sub>n</sub> + (1−α)·α·t<sub>n−1</sub> + …</code> — each older sample weighs exponentially less.</li>
+        </ul>
+
+        <h3>Shortest-Remaining-Time-First (SRTF)</h3>
+        <p>The preemptive version of SJF: if a new arrival has a shorter remaining burst than the running process, preempt. Average waiting drops further.</p>
+
+        <h2 id="en-6">6. Priority Scheduling</h2>
+        <ul>
+            <li>Each process gets an integer <b>priority</b>.</li>
+            <li>The CPU goes to the highest-priority process (usually lower number = higher priority).</li>
+            <li>Can be <b>preemptive</b> or <b>nonpreemptive</b>.</li>
+            <li>SJF is a special case where priority = inverse of predicted next CPU burst.</li>
+        </ul>
+
+        <div class="card">
+            <b>Problem — starvation:</b> low-priority processes may never run.<br>
+            <b>Solution — aging:</b> raise the priority of a process the longer it has waited.
+        </div>
+
+        <h2 id="en-7">7. Round Robin (RR)</h2>
+        <ul>
+            <li>Each process gets a small <b>time quantum q</b> (typically 10–100 ms).</li>
+            <li>When the quantum expires, the process is preempted and goes to the back of the ready queue.</li>
+            <li>With <code>n</code> processes and quantum <code>q</code>, each gets <code>1/n</code> of the CPU in chunks of at most <code>q</code>. No process waits more than <code>(n−1)q</code>.</li>
+            <li>A timer interrupt every <code>q</code> kicks the scheduler.</li>
+        </ul>
+
+        <p><b>Choosing q:</b></p>
+        <ul>
+            <li>q large → behaves like FCFS;</li>
+            <li>q small → context-switch overhead dominates;</li>
+            <li>rule: <b>q ≫ context switch</b>; commonly q ≈ 10–100 ms, context switch &lt; 10 µs;</li>
+            <li>rule of thumb: <b>80% of CPU bursts should be shorter than q</b>.</li>
+        </ul>
+
+        <p>RR typically gives <b>worse turnaround</b> than SJF but <b>better response</b>.</p>
+
+        <h2 id="en-8">8. Multilevel queues</h2>
+
+        <h3>Multilevel Queue</h3>
+        <ul>
+            <li>The ready queue is split into several queues, e.g.:
+                <ul><li><b>foreground</b> (interactive) — RR;</li><li><b>background</b> (batch) — FCFS.</li></ul>
+            </li>
+            <li>A process stays <b>permanently</b> in its assigned queue.</li>
+            <li>Need a policy across queues:
+                <ul>
+                    <li><b>Fixed priority:</b> serve foreground first, then background — risks starvation.</li>
+                    <li><b>Time slice:</b> each queue gets a share of CPU (e.g. 80% / 20%).</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>Multilevel Feedback Queue</h3>
+        <ul>
+            <li>Processes can <b>move between queues</b> — a natural way to do aging.</li>
+            <li>Parameters: number of queues, algorithm per queue, rules for promotion, demotion, and initial placement.</li>
+        </ul>
+
+        <p><b>Three-queue example:</b></p>
+        <ul>
+            <li><b>Q₀</b> — RR with 8 ms quantum;</li>
+            <li><b>Q₁</b> — RR with 16 ms quantum;</li>
+            <li><b>Q₂</b> — FCFS.</li>
+        </ul>
+        <p>A new job enters Q₀. If it doesn't finish in 8 ms, it drops to Q₁ (gets 16 more ms). If it still doesn't finish, it drops to Q₂.</p>
+
+        <h2 id="en-9">9. Thread scheduling</h2>
+        <p>When the OS supports threads, threads — not processes — are scheduled.</p>
+
+        <table>
+            <tr><th>Scope</th><th>Competition is…</th><th>When it applies</th></tr>
+            <tr><td><b>PCS</b><br>process-contention scope</td><td>Inside a process — among its threads</td><td>Many-to-one and many-to-many models; the thread library schedules user-level threads onto LWPs. Priority typically set by the programmer.</td></tr>
+            <tr><td><b>SCS</b><br>system-contention scope</td><td>Across all threads in the system</td><td>When the kernel schedules a kernel thread onto a CPU.</td></tr>
+        </table>
+
+        <h3>Pthreads API</h3>
+        <ul>
+            <li><code>PTHREAD_SCOPE_PROCESS</code> — PCS scheduling;</li>
+            <li><code>PTHREAD_SCOPE_SYSTEM</code> — SCS scheduling;</li>
+            <li>Linux and macOS allow <b>only SCS</b>.</li>
+        </ul>
+        <pre>pthread_attr_t attr;
+pthread_attr_init(&amp;attr);
+pthread_attr_setscope(&amp;attr, PTHREAD_SCOPE_SYSTEM);
+pthread_create(&amp;tid, &amp;attr, runner, NULL);</pre>
+
+        <h2 id="en-10">10. Multiprocessor scheduling</h2>
+
+        <h3>SMP, AMP, processor affinity</h3>
+        <ul>
+            <li><b>Asymmetric multiprocessing (AMP):</b> only one processor touches system data structures — avoids data sharing.</li>
+            <li><b>Symmetric multiprocessing (SMP):</b> every processor schedules itself; either a single shared ready queue or one per CPU. <b>The common case today.</b></li>
+            <li><b>Processor affinity:</b> a process is biased toward the CPU it last ran on — preserves cache warmth.
+                <ul><li><b>Soft affinity</b> — best effort;</li><li><b>Hard affinity</b> — the OS must obey.</li></ul>
+            </li>
+            <li>Also <b>processor sets</b> — groups of CPUs with their own policy.</li>
+        </ul>
+
+        <h3>NUMA</h3>
+        <p>In NUMA systems memory is closer to some CPUs and farther from others. A good scheduler considers affinity not only for cache but for <b>memory placement</b>.</p>
+
+        <h3>Load balancing in SMP</h3>
+        <ul>
+            <li><b>Push migration:</b> a periodic task checks per-CPU load and pushes tasks off overloaded CPUs.</li>
+            <li><b>Pull migration:</b> an idle CPU pulls a waiting task from a busy one.</li>
+        </ul>
+
+        <h3>Multicore processors</h3>
+        <ul>
+            <li>Multiple cores on one chip — faster, lower power.</li>
+            <li>Hardware threads per core also growing.</li>
+            <li>Hardware threads exploit <b>memory stalls</b>: while one waits on memory, another makes progress.</li>
+        </ul>
+
+        <h2 id="en-11">11. Real-Time CPU Scheduling</h2>
+
+        <h3>Soft vs hard real-time</h3>
+        <ul>
+            <li><b>Soft real-time:</b> no guarantee — the critical process will run eventually, but no "on time" promise.</li>
+            <li><b>Hard real-time:</b> the task <i>must</i> be serviced by its deadline.</li>
+        </ul>
+
+        <h3>Latency types</h3>
+        <ul>
+            <li><b>Interrupt latency</b> — arrival of interrupt → start of its handler.</li>
+            <li><b>Dispatch latency</b> — scheduler stopping the current task → starting another.
+                <ul><li><b>Conflict phase:</b> preempting a process running in kernel mode; waiting for a low-priority process to release resources needed by a high-priority one.</li></ul>
+            </li>
+        </ul>
+
+        <h3>Periodic tasks</h3>
+        <p>A periodic task has processing time <code>t</code>, deadline <code>d</code>, period <code>p</code>, with <code>0 ≤ t ≤ d ≤ p</code>. Its rate is <code>1/p</code>.</p>
+
+        <h3>Rate-Monotonic Scheduling (RMS)</h3>
+        <p>Priority is <b>inversely proportional to the period</b>: shorter period → higher priority. If P1 has a shorter period than P2, P1 has higher priority.</p>
+
+        <h3>Earliest Deadline First (EDF)</h3>
+        <p>Priority is set by deadline: <b>the earlier the deadline, the higher the priority</b>. EDF can meet deadlines that RMS misses.</p>
+
+        <h3>Proportional Share</h3>
+        <p>The system has <code>T</code> shares; an application gets <code>N &lt; T</code> shares and is therefore guaranteed <code>N/T</code> of CPU time.</p>
+
+        <h3>POSIX Real-Time</h3>
+        <ul>
+            <li><code>SCHED_FIFO</code> — FCFS via a FIFO queue, no time-slicing for equal-priority threads.</li>
+            <li><code>SCHED_RR</code> — like SCHED_FIFO but with time-slicing for equal-priority threads.</li>
+            <li>API: <code>pthread_attr_getschedpolicy</code> / <code>setschedpolicy</code>.</li>
+        </ul>
+
+        <h3>Virtualization</h3>
+        <p>The hypervisor schedules guest OSes onto physical CPUs; each guest in turn schedules its own processes, unaware it doesn't really own the CPUs. This can degrade response time, distort guest clocks, and undo the guest's own scheduling decisions.</p>
+
+        <h2 id="en-12">12. OS examples</h2>
+
+        <h3>Linux: pre-2.5 and the O(1) scheduler (2.5–2.6)</h3>
+        <ul>
+            <li>Before 2.5 — a variation of the classic UNIX scheduler.</li>
+            <li>2.5 introduced the <b>O(1)</b> scheduler: preemptive, priority-based.</li>
+            <li>Two priority ranges: real-time (0–99) and nice (100–139). Lower number = higher priority.</li>
+            <li>Higher priority gets a larger quantum.</li>
+            <li>Two arrays per CPU runqueue: <i>active</i> and <i>expired</i>. When active drains, the two are swapped.</li>
+            <li><b>Drawback:</b> poor response time for interactive processes.</li>
+        </ul>
+
+        <h3>Linux: CFS (since 2.6.23)</h3>
+        <ul>
+            <li><b>Completely Fair Scheduler.</b></li>
+            <li><b>Scheduling classes</b> with their own priorities; the scheduler picks the highest-priority task in the highest class. By default: <b>default</b> and <b>real-time</b>.</li>
+            <li>Instead of fixed quanta, allocates a <b>proportion of CPU time</b>. Based on nice values from −20 to +19 (lower = higher).</li>
+            <li><b>Target latency</b> — the interval within which each active task should run at least once; grows with the number of active tasks.</li>
+            <li>Each task has a <b>vruntime</b> (virtual run time); lower-priority tasks accumulate vruntime faster.</li>
+            <li>The next task is the one with the <b>smallest vruntime</b>.</li>
+            <li>Real-time scheduling follows POSIX.1b with <b>static</b> priorities; nice −20 maps to global priority 100, nice +19 to 139.</li>
+        </ul>
+
+        <h3>Windows</h3>
+        <ul>
+            <li>Preemptive, priority-based; highest-priority thread runs next.</li>
+            <li>A thread runs until (1) it blocks, (2) its quantum expires, or (3) a higher-priority thread preempts it.</li>
+            <li><b>32 priority levels:</b> variable class 1–15, real-time class 16–31; priority 0 is the memory-management thread.</li>
+            <li>One queue per priority; if no thread is runnable, the idle thread runs.</li>
+            <li><b>Win32 priority classes:</b> REALTIME, HIGH, ABOVE_NORMAL, NORMAL, BELOW_NORMAL, IDLE. Within a class, a relative priority: TIME_CRITICAL, HIGHEST, ABOVE_NORMAL, NORMAL, BELOW_NORMAL, LOWEST, IDLE.</li>
+            <li>When a quantum expires the priority is lowered, but never below the base. After a wait the priority is boosted based on what was waited on. The foreground window gets a <b>3× boost</b>.</li>
+            <li><b>Windows 7:</b> User-Mode Scheduling (UMS) — applications create and manage threads independently of the kernel. Much more efficient for huge thread counts. Example: C++ ConcRT.</li>
+        </ul>
+
+        <h3>Solaris</h3>
+        <ul>
+            <li>Priority-based with <b>six classes</b>: Time Sharing (TS, default), Interactive (IA), Real-Time (RT), System (SYS), Fair Share (FSS), Fixed Priority (FP).</li>
+            <li>A thread is in exactly one class at a time; each class has its own algorithm.</li>
+            <li>Time Sharing uses multilevel feedback queues; the dispatch table is loadable and admin-tunable.</li>
+            <li>All classes map into a single <b>global priority</b>; the highest runs next. Threads at the same priority are scheduled RR.</li>
+        </ul>
+
+        <h2 id="en-13">13. Algorithm evaluation</h2>
+
+        <h3>Deterministic modeling</h3>
+        <p>Take a particular workload and compute exact results for each algorithm. Simple and fast — but only valid for those inputs.</p>
+        <p>For example, with 5 processes arriving at time 0: FCFS gives 28 ms average wait, non-preemptive SJF gives 13 ms, RR gives 23 ms.</p>
+
+        <h3>Queueing models and Little's Law</h3>
+        <p>Describe processes probabilistically — typically exponential arrival and service intervals. The system is modeled as a network of servers with queues.</p>
+
+        <div class="formula">n = λ · W</div>
+        <p>where <code>n</code> = average queue length, <code>λ</code> = average arrival rate, <code>W</code> = average wait. <b>Little's Law</b> holds for any scheduling algorithm and any arrival distribution.</p>
+        <p><b>Example.</b> If 7 processes arrive per second on average and there are normally 14 in the queue, average wait = 2 seconds.</p>
+
+        <h3>Simulation</h3>
+        <ul>
+            <li>Queueing models are limited — simulation is more accurate.</li>
+            <li>A programmed model of the computer system; time is a variable; statistics are gathered.</li>
+            <li>Input data come from a probabilistic random-number generator, mathematically defined distributions, or <b>trace tapes</b> — records of real events from real systems.</li>
+        </ul>
+
+        <h3>Implementation</h3>
+        <p>Even simulation has limited accuracy. Ultimately — build the scheduler and run it on a real system. <b>High cost, high risk</b>, and environments vary. So the most flexible schedulers can be <b>tuned per-site or per-system</b>, or expose APIs for priority adjustment.</p>
+
+        <div class="card">
+            <b>Take-away:</b> no single scheduling algorithm wins in every scenario. FCFS is simple but suffers the convoy effect; SJF is optimal for waiting time but needs prediction; RR is great for interactivity; multilevel-feedback queues and CFS are compromises that combine the strengths. Real-time needs separate guarantees (RMS, EDF). The right algorithm depends on the workload — measured via modeling, simulation, or live deployment.
+        </div>
+    </section>
+
+    <footer>
+        Advanced Operating Systems · Lecture 5 · CPU Scheduling<br>
+        Adapted from <i>Operating System Concepts</i>, 10th Edition — Silberschatz, Galvin and Gagne ©2018
+    </footer>
+
+</div>
+<script>
+    (function(){var buttons=document.querySelectorAll(".lang-tabs button");var sections=document.querySelectorAll("section.lang");buttons.forEach(function(btn){btn.addEventListener("click",function(){var lang=btn.dataset.lang;buttons.forEach(function(b){b.classList.toggle("active",b===btn);});sections.forEach(function(s){s.classList.toggle("active",s.id===lang);});window.scrollTo({top:0,behavior:"smooth"});});});})();
+</script>
+</body>
+</html>

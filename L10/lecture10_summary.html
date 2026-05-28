@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 10 — Network and Distributed Systems</title>
+    <style>
+        :root{
+            --bg:#fafaf8;
+            --fg:#1a1a1a;
+            --muted:#6b6b6b;
+            --accent:#2b6cb0;
+            --line:#e5e5e0;
+            --card:#ffffff;
+            --code-bg:#f3f3ee;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
+            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+            line-height:1.65;font-size:16px;}
+        .wrap{max-width:880px;margin:0 auto;padding:64px 28px 96px}
+        header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:48px}
+        .eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+        h1{font-size:34px;font-weight:600;margin:0 0 8px;letter-spacing:-.01em}
+        .sub{color:var(--muted);font-size:16px}
+        nav.lang{display:flex;gap:8px;margin-top:24px}
+        nav.lang a{font-size:14px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;
+            text-decoration:none;color:var(--fg);background:var(--card)}
+        nav.lang a:hover{border-color:var(--accent);color:var(--accent)}
+        section.lang-section{margin-top:56px}
+        h2{font-size:24px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+        h3{font-size:18px;font-weight:600;margin:28px 0 10px;color:var(--fg)}
+        p{margin:10px 0}
+        ul{margin:10px 0 16px;padding-left:22px}
+        li{margin:5px 0}
+        .lede{font-size:17px;color:var(--muted);margin:0 0 24px}
+        .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:16px 0}
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}
+        .pill{display:inline-block;font-size:12px;padding:2px 10px;border:1px solid var(--line);
+            border-radius:999px;color:var(--muted);background:var(--card);margin-right:6px}
+        code,kbd{background:var(--code-bg);padding:1px 6px;border-radius:4px;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px}
+        pre{background:var(--code-bg);padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px;line-height:1.5;margin:14px 0}
+        table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px}
+        th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+        th{font-weight:600;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+        .divider{height:1px;background:var(--line);margin:64px 0}
+        .toc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:24px 0}
+        .toc h4{margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+        .toc ol{margin:0;padding-left:22px;color:var(--fg)}
+        .toc li{margin:3px 0}
+        .toc a{color:var(--fg);text-decoration:none}
+        .toc a:hover{color:var(--accent)}
+        .stack{display:flex;flex-direction:column;gap:0;margin:14px 0;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px}
+        .stack .layer{padding:10px 16px;border:1px solid var(--line);background:var(--card);text-align:center}
+        .stack .layer + .layer{border-top:none}
+        .stack .layer:first-child{border-radius:8px 8px 0 0}
+        .stack .layer:last-child{border-radius:0 0 8px 8px}
+        .stack .muted{color:var(--muted);font-size:12px;margin-top:4px}
+        footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--line);
+            color:var(--muted);font-size:13px;text-align:center}
+        .lang-tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px;margin:24px 0 8px;width:fit-content}
+        .lang-tabs button{background:transparent;border:none;padding:8px 18px;font:inherit;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-radius:7px;transition:all .15s}
+        .lang-tabs button.active{background:var(--accent);color:#fff}
+        .lang-tabs button:hover:not(.active){color:var(--fg)}
+        section.lang{display:none}
+        section.lang.active{display:block}
+    </style>
+    <style>
+        html[data-theme="dark"]{--bg:#15171a;--fg:#e7e9ec;--muted:#9aa0a6;--accent:#5aa2ff;--line:#2c3137;--border:#2c3137;--card:#1e2125;--code-bg:#2a2f35;--ok:#5fd39a;--ok-bg:#16271d;--ok-line:#234d38;--bad:#ff8c8c;--bad-bg:#2a1718;--bad-line:#5a2a2c;--sel-bg:#16304d;--shadow:rgba(0,0,0,.45)}
+        html[data-theme="dark"] .key{background:#16304d;color:#9ec3ff}
+        .theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border:1px solid var(--line,#e5e5e0);background:var(--card,#fff);color:var(--fg,#1a1a1a);border-radius:8px;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+        .theme-toggle:hover{border-color:var(--accent,#2b6cb0)}
+    </style>
+</head>
+<body>
+<script>
+    (function(){try{var t=localStorage.getItem("aos_quiz_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+        function lbl(){return document.documentElement.getAttribute("data-theme")==="dark"?"Светлая тема":"Тёмная тема";}
+        document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.className="theme-toggle";b.type="button";b.textContent=lbl();b.addEventListener("click",function(){var d=document.documentElement.getAttribute("data-theme")==="dark";var n=d?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("aos_quiz_theme",n);}catch(e){}b.textContent=lbl();});document.body.appendChild(b);});})();
+</script>
+
+<div class="wrap">
+    <div class="lec-nav" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:22px;font-size:14px;font-weight:600">
+        <a href="../L9/lecture09_summary.html" style="color:var(--accent);text-decoration:none">← Лекция 9</a>
+        <a href="../index.html" style="color:var(--accent);text-decoration:none">На главную</a>
+    </div>
+
+    <header>
+        <div class="eyebrow">Advanced Operating Systems · Lecture 10</div>
+        <h1>Network and Distributed Systems</h1>
+        <div class="sub">Сети и распределённые системы — резюме и пояснения</div>
+        <div class="lang-tabs">
+            <button class="active" data-lang="ru">Русский</button>
+            <button data-lang="en">English</button>
+        </div>
+    </header>
+
+    <!-- ===================== РУССКАЯ ВЕРСИЯ ===================== -->
+    <section id="ru" class="lang active">
+        <p class="lede">Эта лекция объясняет, <b>что такое распределённая система</b>, зачем она нужна (sharing, speedup, reliability), как устроены LAN/WAN, что такое 7 уровней OSI и стек TCP/IP, как пакет идёт от отправителя к получателю (DNS → IP → ARP → MAC), чем отличаются UDP и TCP, что такое сетевая и распределённая ОС, как обеспечиваются <b>robustness</b>, <b>transparency</b>, <b>scalability</b>, и как устроены распределённые файловые системы (client-server vs cluster-based, GFS/HDFS, политика кэширования и согласованности).</p>
+
+        <div class="toc">
+            <h4>Содержание</h4>
+            <ol>
+                <li><a href="#ru-1">Что такое распределённая система</a></li>
+                <li><a href="#ru-2">Зачем нужны распределённые системы</a></li>
+                <li><a href="#ru-3">LAN и WAN</a></li>
+                <li><a href="#ru-4">Именование и DNS</a></li>
+                <li><a href="#ru-5">Семь уровней OSI</a></li>
+                <li><a href="#ru-6">TCP/IP, ARP, MAC</a></li>
+                <li><a href="#ru-7">UDP и TCP</a></li>
+                <li><a href="#ru-8">Сетевая vs распределённая ОС</a></li>
+                <li><a href="#ru-9">Robustness и обнаружение отказов</a></li>
+                <li><a href="#ru-10">Transparency и Scalability</a></li>
+                <li><a href="#ru-11">Распределённая файловая система (DFS)</a></li>
+                <li><a href="#ru-12">Client-Server vs Cluster-based DFS</a></li>
+                <li><a href="#ru-13">Именование в DFS</a></li>
+                <li><a href="#ru-14">Удалённый доступ и кэширование</a></li>
+                <li><a href="#ru-15">Согласованность кэша</a></li>
+            </ol>
+        </div>
+
+        <h2 id="ru-1">1. Что такое распределённая система</h2>
+        <div class="card">
+            <b>Распределённая система</b> — набор слабо связанных <b>узлов (nodes)</b>, соединённых коммуникационной сетью. У каждого узла своя память и свой такт; общение — только через <b>передачу сообщений</b>.
+        </div>
+        <ul>
+            <li>Узлы называют процессорами, компьютерами, машинами, хостами.</li>
+            <li><b>Site</b> — физическое местоположение машины; <b>node</b> — конкретная система.</li>
+            <li>Обычно <b>server</b> предоставляет ресурс, который хочет использовать <b>client</b>.</li>
+            <li>Конфигурации: <b>client-server</b>, <b>peer-to-peer</b>, гибрид.
+                <ul>
+                    <li>В P2P каждый узел и клиент, и сервер.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2 id="ru-2">2. Зачем нужны распределённые системы</h2>
+        <div class="grid">
+            <div class="card"><b>Resource sharing</b><br><span style="color:var(--muted);font-size:14px">Файлы, печать, удалённые БД, GPU и другое спецоборудование.</span></div>
+            <div class="card"><b>Computation speedup</b><br><span style="color:var(--muted);font-size:14px">Распределить подзадачи по узлам; <b>load balancing</b> — перенос задач на менее загруженные узлы.</span></div>
+            <div class="card"><b>Reliability</b><br><span style="color:var(--muted);font-size:14px">Детектировать и восстанавливаться после отказа узла, передать функции, ре-интегрировать.</span></div>
+        </div>
+
+        <h2 id="ru-3">3. LAN и WAN</h2>
+        <h3>Local-Area Network (LAN)</h3>
+        <ul>
+            <li>Небольшая географическая область.</li>
+            <li>Компьютеры, ноутбуки, мобильные устройства + периферия (принтеры, СХД) + роутеры.</li>
+            <li><b>Ethernet</b> (IEEE 802.3): от 10 Mbps до 10+ Gbps.</li>
+            <li><b>Wi-Fi</b> (IEEE 802.11): от 11 Mbps до 400+ Mbps.</li>
+        </ul>
+
+        <h3>Wide-Area Network (WAN)</h3>
+        <ul>
+            <li>Связывает географически удалённые сайты point-to-point-каналами.</li>
+            <li>Среды: телефон, выделенные линии, оптика, микроволновка, радио, спутник.</li>
+            <li>Реализуется через <b>роутеры</b>.</li>
+            <li>Магистральные провайдеры — 40–100 Gbps; локальные ISP медленнее.</li>
+            <li><b>Интернет</b> — самый известный WAN.</li>
+        </ul>
+
+        <h2 id="ru-4">4. Именование и DNS</h2>
+        <ul>
+            <li>У каждой системы — уникальное имя; у каждого процесса — уникальный <code>process-id</code>.</li>
+            <li>Процессы на удалённых машинах идентифицируются парой <code>&lt;host-name, identifier&gt;</code>.</li>
+            <li><b>DNS (Domain Name System)</b> задаёт <b>иерархическую структуру</b> имён и преобразует имена в адреса.</li>
+        </ul>
+
+        <h2 id="ru-5">5. Семь уровней OSI</h2>
+        <div class="stack">
+            <div class="layer">7. Application<div class="muted">пользователь: FTP, remote login, email, схемы распределённых БД</div></div>
+            <div class="layer">6. Presentation<div class="muted">конвертация форматов, полу-/полнодуплекс</div></div>
+            <div class="layer">5. Session<div class="muted">сессии: process-to-process протоколы</div></div>
+            <div class="layer">4. Transport<div class="muted">разбиение на пакеты, порядок, flow control, физические адреса</div></div>
+            <div class="layer">3. Network<div class="muted">маршрутизация пакетов, адреса, таблицы маршрутов</div></div>
+            <div class="layer">2. Data-link<div class="muted">фреймы, обнаружение и восстановление ошибок</div></div>
+            <div class="layer">1. Physical<div class="muted">механика и электрика передачи битов</div></div>
+        </div>
+
+        <p>OSI — формализация ранних работ конца 1970-х. <b>Не получила широкого распространения</b>. На практике царит <b>TCP/IP</b> — у него меньше уровней, он сочетает несколько функций в одном слое; в теории сложнее имплементируется, но эффективнее.</p>
+
+        <h2 id="ru-6">6. TCP/IP, ARP, MAC</h2>
+        <h3>Маршрутизация</h3>
+        <ul>
+            <li>У каждого хоста есть имя и связанный <b>IP-адрес</b> (host-id), иерархический и сегментированный.</li>
+            <li>Отправитель смотрит свои <b>маршрутные таблицы</b> и находит роутер.</li>
+            <li>Роутер по сегменту host-id решает, куда передать пакет — возможно, через несколько роутеров.</li>
+            <li>Пакет либо самостоятелен, либо <b>пересобирается</b> из нескольких на приёмнике.</li>
+        </ul>
+
+        <h3>Внутри сети: MAC и ARP</h3>
+        <ul>
+            <li>У каждого Ethernet/Wi-Fi устройства есть <b>MAC-адрес</b> (Medium Access Control).</li>
+            <li>Два устройства в одном LAN общаются по MAC.</li>
+            <li>Чтобы узнать соответствие <b>IP → MAC</b>, используется <b>ARP</b> (Address Resolution Protocol).</li>
+            <li><b>Broadcast</b> — специальный сетевой адрес, на который реагируют все хосты сети; не пересылается роутерами в другие сети.</li>
+        </ul>
+
+        <h2 id="ru-7">7. UDP и TCP</h2>
+        <p>Когда пакет дошёл до хоста по IP, его нужно отдать <b>правильному процессу</b>. Это делают <b>транспортные протоколы</b> через <b>номера портов</b>.</p>
+
+        <p><b>Хорошо известные порты:</b></p>
+        <ul>
+            <li>FTP — 21</li>
+            <li>ssh — 22</li>
+            <li>SMTP — 25</li>
+            <li>HTTP — 80</li>
+        </ul>
+
+        <h3>UDP (User Datagram Protocol)</h3>
+        <ul>
+            <li>«Голое» расширение IP портами.</li>
+            <li><b>Ненадёжен</b>: пакеты могут потеряться или прийти не по порядку.</li>
+            <li><b>Connectionless</b>: нет рукопожатия и закрытия.</li>
+            <li>UDP-пакеты называют <b>datagrams</b>.</li>
+        </ul>
+
+        <h3>TCP (Transmission Control Protocol)</h3>
+        <ul>
+            <li><b>Надёжен и connection-oriented.</b></li>
+            <li>Поверх ненадёжной сети даёт абстракцию <b>упорядоченного, непрерывного байтового потока</b>.</li>
+            <li>Каждый пакет получает <b>ACK</b>; при отсутствии ACK по таймеру — повторная отправка.</li>
+            <li><b>Sequence numbers</b> позволяют упорядочить и выявить пропавшие пакеты.</li>
+            <li>Соединение открывается <b>three-way handshake</b>, закрывается серией контрольных пакетов.</li>
+            <li>Получатель может отправлять <b>cumulative ACK</b> за серию пакетов; отправитель может слать несколько пакетов до ACK ради throughput.</li>
+            <li><b>Flow control</b> — не перегружать получателя.</li>
+            <li><b>Congestion control</b> — оценивать загруженность сети и регулировать скорость.</li>
+        </ul>
+
+        <h2 id="ru-8">8. Сетевая vs распределённая ОС</h2>
+
+        <h3>Network Operating Systems</h3>
+        <ul>
+            <li>Пользователь <b>осознаёт</b> множественность машин.</li>
+            <li>Доступ к ресурсам — явный:
+                <ul>
+                    <li>remote login (<code>ssh kristen.cs.yale.edu</code>),</li>
+                    <li>передача файлов через <b>FTP</b>,</li>
+                    <li>облачное хранилище — загрузка, скачивание, шаринг.</li>
+                </ul>
+            </li>
+            <li>Пользователь должен <b>сменить парадигму</b>: открыть сессию, вводить сетевые команды.</li>
+            <li>Сложнее в использовании.</li>
+        </ul>
+
+        <h3>Distributed Operating Systems</h3>
+        <p>Пользователь <b>не подозревает</b> о множественности машин — удалённые ресурсы выглядят как локальные.</p>
+        <ul>
+            <li><b>Data migration</b> — передаётся целый файл или только нужная часть.</li>
+            <li><b>Computation migration</b> — переносится <b>вычисление</b>, а не данные (через <b>RPC</b> или сообщения).</li>
+            <li><b>Process migration</b> — выполнение процесса или его частей на разных сайтах:
+                <ul>
+                    <li><b>load balancing,</b></li>
+                    <li><b>computation speedup</b> — параллелизм,</li>
+                    <li>предпочтения по железу/софту,</li>
+                    <li>data access — лучше запустить процесс там, где данные.</li>
+                </ul>
+            </li>
+            <li>WWW — пример такого подхода.</li>
+        </ul>
+
+        <h2 id="ru-9">9. Robustness и обнаружение отказов</h2>
+        <p>Типы отказов: link failure, site failure, потеря сообщения. <b>Fault-tolerant</b> система выдерживает определённый уровень отказов. Процесс: <b>detection → reconfiguration → recovery</b>.</p>
+
+        <h3>Обнаружение отказа — heartbeat protocol</h3>
+        <ol>
+            <li>Сайты A и B установили связь.</li>
+            <li>С фиксированным интервалом обмениваются «I-am-up» сообщениями.</li>
+            <li>Если A не получает сообщение от B в срок — возможно, B упал или сообщение потеряно.</li>
+            <li>A посылает «Are-you-up?».</li>
+            <li>Без ответа — повторить или попробовать <b>альтернативный маршрут</b>.</li>
+            <li>Если ответа нет — значит, произошёл какой-то отказ.</li>
+        </ol>
+
+        <div class="card">
+            <b>Главная сложность:</b> A <b>не может</b> точно определить, что именно случилось — упал B, упал прямой канал, упал альтернативный канал, или потеряно сообщение.
+        </div>
+
+        <h3>Reconfiguration и Recovery</h3>
+        <ul>
+            <li>Если упал канал A↔B — <b>сообщить всем сайтам</b>.</li>
+            <li>Если упал сайт — все остальные узнают, что его сервисы недоступны.</li>
+            <li>Когда узел/канал возвращается — снова рассылается broadcast.</li>
+        </ul>
+
+        <h2 id="ru-10">10. Transparency и Scalability</h2>
+
+        <h3>Transparency</h3>
+        <ul>
+            <li>Распределённая система <b>должна выглядеть как обычная централизованная</b>.</li>
+            <li>UI не отличает локальные и удалённые ресурсы. Пример: <b>NFS</b>.</li>
+            <li><b>User mobility:</b> пользователь логинится с любой машины и видит своё окружение. Пример: <b>LDAP</b> + виртуализация рабочих столов.</li>
+        </ul>
+
+        <h3>Scalability</h3>
+        <ul>
+            <li>При росте нагрузки система должна <b>легко принимать новые ресурсы</b>.</li>
+            <li>Реагирует на рост нагрузки <b>плавно</b>.</li>
+            <li>Добавляя ресурсы, надо учитывать <b>косвенную нагрузку</b> на другие компоненты.</li>
+            <li><b>Сжатие и дедупликация</b> экономят место и сетевые ресурсы.</li>
+        </ul>
+
+        <h2 id="ru-11">11. Распределённая файловая система (DFS)</h2>
+        <div class="card">
+            <b>DFS</b> — файловая система, у которой клиенты, серверы и устройства хранения <b>разбросаны</b> по машинам распределённой системы. Для клиента она должна выглядеть как обычная централизованная ФС. Главное отличие — <b>управление рассредоточенными хранилищами</b>.
+        </div>
+
+        <ul>
+            <li><b>Service</b> — программа на одной или нескольких машинах, предоставляющая функциональность априори неизвестным клиентам.</li>
+            <li><b>Server</b> — реализация service на одной машине.</li>
+            <li><b>Client</b> — процесс, вызывающий service через client interface (для файла — <code>create, delete, read, write</code>).</li>
+            <li>Клиентский интерфейс DFS должен быть <b>прозрачным</b> — не отличать локальные и удалённые файлы.</li>
+        </ul>
+
+        <p><b>Ключевые вызовы:</b> именование и прозрачность, удалённый доступ, кэширование и согласованность.</p>
+
+        <h2 id="ru-12">12. Client-Server vs Cluster-based DFS</h2>
+
+        <h3>Client-Server DFS</h3>
+        <ul>
+            <li>Серверы хранят файлы <b>и</b> метаданные на подключённых хранилищах.</li>
+            <li>Клиенты запрашивают файлы у сервера.</li>
+            <li>Сервер отвечает за аутентификацию, проверку прав, доставку.</li>
+            <li>Изменения клиента отправляются обратно на сервер.</li>
+            <li>Примеры: <b>NFS, OpenAFS</b>.</li>
+            <li><b>Проблемы:</b> single point of failure, узкое место для всех запросов, ограничения по масштабу и пропускной способности.</li>
+        </ul>
+
+        <h3>Cluster-Based DFS</h3>
+        <ul>
+            <li>Создан более <b>отказоустойчивым</b> и <b>масштабируемым</b>.</li>
+            <li>Примеры: <b>GFS (Google File System)</b>, <b>HDFS (Hadoop)</b>.</li>
+            <li>Клиенты подключаются к <b>master metadata server</b> и нескольким <b>data servers</b>, хранящим <b>chunks</b> (порции файлов).</li>
+            <li>Master хранит маппинг chunk→data server и иерархию каталогов/файлов.</li>
+            <li>Каждый chunk <b>реплицирован n раз</b>.</li>
+        </ul>
+
+        <p><b>Принципы дизайна GFS:</b></p>
+        <ul>
+            <li>Отказы железа — <b>норма</b>, а не исключение.</li>
+            <li>Файлы очень большие.</li>
+            <li>В основном <b>append</b> в конец, а не перезапись.</li>
+            <li>Можно изменить API файловой системы → больше гибкости (приложения переписываются под новый API).</li>
+            <li><b>MapReduce</b> — модульный слой поверх GFS для крупномасштабных параллельных вычислений; Hadoop тоже стекируется и модульный.</li>
+        </ul>
+
+        <h2 id="ru-13">13. Именование в DFS</h2>
+        <ul>
+            <li><b>Naming</b> — соответствие логических и физических объектов.</li>
+            <li><b>Multilevel mapping</b> — абстракция файла, скрывающая, где и как он хранится на диске.</li>
+            <li>Прозрачная DFS <b>скрывает</b>, где в сети лежит файл.</li>
+            <li>Для реплицированных файлов отображение возвращает <b>множество локаций</b>; и сами копии, и их места скрыты.</li>
+        </ul>
+
+        <h3>Структуры именования</h3>
+        <table>
+            <tr><th>Свойство</th><th>Описание</th></tr>
+            <tr><td><b>Location transparency</b></td><td>Имя файла не раскрывает физическое расположение.</td></tr>
+            <tr><td><b>Location independence</b></td><td>Имя файла не нужно менять при переносе файла.</td></tr>
+        </table>
+        <p>Большинство DFS используют <b>статическое, location-transparent</b> отображение для имён уровня пользователя. Некоторые поддерживают <b>миграцию файлов</b> (OpenAFS). Hadoop поддерживает миграцию, но <b>без соблюдения POSIX</b>. Amazon S3 предоставляет блоки хранилища через API и динамически размещает данные.</p>
+
+        <h3>Три подхода к схемам именования</h3>
+        <ol>
+            <li>Имя = <code>&lt;host-name, local-name&gt;</code> — глобально уникальное, но <b>ни transparent, ни independent</b>.</li>
+            <li>Монтирование удалённых каталогов в локальные — выглядит как единое дерево, но прозрачно только для уже смонтированных (стиль NFS).</li>
+            <li><b>Единое глобальное имя</b> для всей системы. Если сервер недоступен — какой-то произвольный набор каталогов на разных машинах становится недоступным.</li>
+        </ol>
+
+        <h2 id="ru-14">14. Удалённый доступ и кэширование</h2>
+        <p>После того как сервер найден через схему имён, нужно передать данные.</p>
+
+        <h3>Remote-service механизм</h3>
+        <ul>
+            <li>Запросы доставляются на сервер; сервер выполняет и возвращает результат.</li>
+            <li>Самая распространённая реализация — <b>RPC</b>.</li>
+        </ul>
+
+        <h3>Кэширование</h3>
+        <ul>
+            <li>Снижает сетевой трафик: недавно прочитанные блоки оседают в кэше.</li>
+            <li>Если данных нет в кэше — копия тащится с сервера и кладётся в кэш; доступ идёт к копии.</li>
+            <li>Master-копия — на сервере, копии (частей файла) — в разных кэшах.</li>
+            <li>Возникает <b>cache-consistency problem</b> — поддержание согласованности.</li>
+            <li>Иногда это называют <b>network virtual memory</b>.</li>
+        </ul>
+
+        <h3>Где располагать кэш — диск или RAM</h3>
+        <table>
+            <tr><th>Disk cache</th><th>Main-memory cache</th></tr>
+            <tr><td>Надёжнее, переживает рестарт</td><td>Позволяет diskless-рабочие станции</td></tr>
+            <tr><td>Не надо фетчить заново после восстановления</td><td>Быстрый доступ, прирост в больших памятях</td></tr>
+        </table>
+        <p>Кэши сервера (для ускорения дискового I/O) <b>всегда в памяти</b>; кэш в памяти у клиента — единая модель для сервера и клиента.</p>
+
+        <h3>Политики обновления кэша</h3>
+        <ul>
+            <li><b>Write-through</b> — сразу пишет данные на сервер. <b>Надёжно</b>, но медленно.</li>
+            <li><b>Delayed-write (write-back)</b> — пишет в кэш, потом «когда-нибудь» на сервер. <b>Быстро</b>, но при крахе клиента данные теряются. Бывают варианты:
+                <ul>
+                    <li>периодический скан кэша и flush изменённых блоков;</li>
+                    <li><b>write-on-close</b> — отправка данных на сервер при закрытии файла. Хорошо подходит для файлов, открытых долго и часто меняемых.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2 id="ru-15">15. Согласованность кэша</h2>
+        <p>Главный вопрос: <i>совпадает ли локальная копия с master-копией?</i></p>
+
+        <table>
+            <tr><th>Подход</th><th>Кто проверяет</th></tr>
+            <tr><td><b>Client-initiated</b></td><td>Клиент запускает проверку; сервер сравнивает локальные данные с мастером.</td></tr>
+            <tr><td><b>Server-initiated</b></td><td>Сервер запоминает, какие части файлов кэшированы у каких клиентов; при потенциальной несогласованности <i>сам</i> реагирует.</td></tr>
+        </table>
+
+        <h3>В cluster-based DFS</h3>
+        <ul>
+            <li>Сложнее из-за метаданных и реплик.</li>
+            <li><b>HDFS</b> — только <b>append-only</b>, один писатель → проще согласованность.</li>
+            <li><b>GFS</b> — допускает <b>random writes</b> с параллельными писателями → сложнее гарантии записи.</li>
+        </ul>
+
+        <div class="card">
+            <b>Главный вывод:</b> распределённая система меняет «локальную ОС» на коллекцию слабосвязанных узлов, общающихся по сети. Чтобы это работало, нужны слои: физический ↔ data-link ↔ network (IP+ARP+MAC) ↔ transport (UDP/TCP) ↔ выше. Дальше всё упирается в три фундаментальных вопроса: <b>robustness</b> (как переживать отказы), <b>transparency</b> (как скрыть «распределённость» от пользователя) и <b>scalability</b> (как расти). DFS — конкретное приложение этих принципов: client-server прост и хорошо знаком, cluster-based (GFS/HDFS) рассчитан на отказы железа и огромные файлы.
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ===================== ENGLISH VERSION ===================== -->
+    <section id="en" class="lang">
+        <p class="lede">This lecture explains <b>what a distributed system is</b> and why we want one (sharing, speedup, reliability), how LANs and WANs are built, the seven OSI layers and the TCP/IP stack, how a packet finds its way (DNS → IP → ARP → MAC), the difference between UDP and TCP, network vs. distributed operating systems, the three big design issues (<b>robustness</b>, <b>transparency</b>, <b>scalability</b>), and how distributed file systems work (client-server vs. cluster-based, GFS/HDFS, caching and consistency).</p>
+
+        <div class="toc">
+            <h4>Contents</h4>
+            <ol>
+                <li><a href="#en-1">What a distributed system is</a></li>
+                <li><a href="#en-2">Why distribute</a></li>
+                <li><a href="#en-3">LAN and WAN</a></li>
+                <li><a href="#en-4">Naming and DNS</a></li>
+                <li><a href="#en-5">The seven OSI layers</a></li>
+                <li><a href="#en-6">TCP/IP, ARP, MAC</a></li>
+                <li><a href="#en-7">UDP and TCP</a></li>
+                <li><a href="#en-8">Network vs. distributed OS</a></li>
+                <li><a href="#en-9">Robustness and failure detection</a></li>
+                <li><a href="#en-10">Transparency and scalability</a></li>
+                <li><a href="#en-11">Distributed File System (DFS)</a></li>
+                <li><a href="#en-12">Client-server vs. cluster-based DFS</a></li>
+                <li><a href="#en-13">Naming in a DFS</a></li>
+                <li><a href="#en-14">Remote access and caching</a></li>
+                <li><a href="#en-15">Cache consistency</a></li>
+            </ol>
+        </div>
+
+        <h2 id="en-1">1. What a distributed system is</h2>
+        <div class="card">
+            A <b>distributed system</b> is a collection of loosely coupled <b>nodes</b> interconnected by a communications network. Each node has its own memory and clock; communication happens only by <b>message passing</b>.
+        </div>
+        <ul>
+            <li>Nodes are variously called processors, computers, machines, hosts.</li>
+            <li><b>Site</b> is the physical location; <b>node</b> is a specific system.</li>
+            <li>Usually a <b>server</b> has a resource a <b>client</b> wants.</li>
+            <li>Configurations: <b>client-server</b>, <b>peer-to-peer</b>, hybrid.
+                <ul>
+                    <li>In P2P, every node is both client and server.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2 id="en-2">2. Why distribute</h2>
+        <div class="grid">
+            <div class="card"><b>Resource sharing</b><br><span style="color:var(--muted);font-size:14px">Files, printing, remote databases, GPUs and other special hardware.</span></div>
+            <div class="card"><b>Computation speedup</b><br><span style="color:var(--muted);font-size:14px">Split work across nodes; <b>load balancing</b> moves jobs to lighter-loaded sites.</span></div>
+            <div class="card"><b>Reliability</b><br><span style="color:var(--muted);font-size:14px">Detect and recover from a site failure, hand off functions, re-integrate the failed site.</span></div>
+        </div>
+
+        <h2 id="en-3">3. LAN and WAN</h2>
+        <h3>Local-Area Network (LAN)</h3>
+        <ul>
+            <li>Small geographical area.</li>
+            <li>Computers, laptops, mobile devices + peripherals (printers, storage) + routers.</li>
+            <li><b>Ethernet</b> (IEEE 802.3): 10 Mbps → 10+ Gbps.</li>
+            <li><b>Wi-Fi</b> (IEEE 802.11): 11 Mbps → 400+ Mbps.</li>
+        </ul>
+
+        <h3>Wide-Area Network (WAN)</h3>
+        <ul>
+            <li>Connects geographically separated sites via point-to-point links.</li>
+            <li>Media: telephone lines, leased lines, optical, microwave, radio, satellite.</li>
+            <li>Routed via <b>routers</b>.</li>
+            <li>Backbones at 40–100 Gbps; local ISPs slower.</li>
+            <li>The <b>Internet</b> is the most famous WAN.</li>
+        </ul>
+
+        <h2 id="en-4">4. Naming and DNS</h2>
+        <ul>
+            <li>Every system has a unique name; every process has a unique <code>process-id</code>.</li>
+            <li>Processes on remote machines are identified by <code>&lt;host-name, identifier&gt;</code>.</li>
+            <li><b>DNS (Domain Name System)</b> defines the <b>hierarchical</b> naming structure and resolves names to addresses.</li>
+        </ul>
+
+        <h2 id="en-5">5. The seven OSI layers</h2>
+        <div class="stack">
+            <div class="layer">7. Application<div class="muted">user-facing: FTP, remote login, email, distributed DB schemas</div></div>
+            <div class="layer">6. Presentation<div class="muted">format conversion, half/full duplex</div></div>
+            <div class="layer">5. Session<div class="muted">process-to-process session protocols</div></div>
+            <div class="layer">4. Transport<div class="muted">packetizing, ordering, flow control, physical addresses</div></div>
+            <div class="layer">3. Network<div class="muted">routing, addressing, route tables</div></div>
+            <div class="layer">2. Data-link<div class="muted">frames, error detection/recovery</div></div>
+            <div class="layer">1. Physical<div class="muted">mechanical and electrical transmission of bits</div></div>
+        </div>
+
+        <p>OSI formalizes earlier 1970s work but <b>isn't widely deployed</b>. The dominant stack is <b>TCP/IP</b> — fewer layers, combining several functions per layer; harder to implement in theory but more efficient.</p>
+
+        <h2 id="en-6">6. TCP/IP, ARP, MAC</h2>
+        <h3>Routing</h3>
+        <ul>
+            <li>Every host has a name and an associated <b>IP address</b> (host-id), hierarchical and segmented.</li>
+            <li>The sender consults its <b>routing tables</b> to find a router.</li>
+            <li>The router uses the segmented host-id to decide where to forward — possibly through several routers.</li>
+            <li>A packet may be a whole message, or must be <b>reassembled</b> from many at the destination.</li>
+        </ul>
+
+        <h3>Inside the LAN: MAC and ARP</h3>
+        <ul>
+            <li>Every Ethernet/Wi-Fi device has a <b>MAC address</b> (Medium Access Control).</li>
+            <li>Two devices on the same LAN talk by MAC.</li>
+            <li><b>ARP</b> (Address Resolution Protocol) maps <b>IP → MAC</b>.</li>
+            <li>A <b>broadcast</b> uses a special address — every host receives it; routers don't forward broadcasts to other networks.</li>
+        </ul>
+
+        <h2 id="en-7">7. UDP and TCP</h2>
+        <p>Once an IP packet reaches the host, it must be delivered to the <b>right process</b>. Transport protocols do this via <b>port numbers</b>.</p>
+
+        <p><b>Well-known ports:</b></p>
+        <ul>
+            <li>FTP — 21</li>
+            <li>ssh — 22</li>
+            <li>SMTP — 25</li>
+            <li>HTTP — 80</li>
+        </ul>
+
+        <h3>UDP (User Datagram Protocol)</h3>
+        <ul>
+            <li>A bare-bones extension of IP with port numbers.</li>
+            <li><b>Unreliable</b>: packets may be lost or reordered.</li>
+            <li><b>Connectionless</b>: no setup, no tear-down.</li>
+            <li>UDP packets are called <b>datagrams</b>.</li>
+        </ul>
+
+        <h3>TCP (Transmission Control Protocol)</h3>
+        <ul>
+            <li><b>Reliable and connection-oriented.</b></li>
+            <li>Provides an <b>in-order, uninterrupted byte stream</b> across an unreliable network.</li>
+            <li>Every packet is <b>ACK</b>'d; on timeout the sender retransmits.</li>
+            <li><b>Sequence numbers</b> reorder packets and detect losses.</li>
+            <li>Connections open with a <b>three-way handshake</b> and close with control packets.</li>
+            <li>Receivers can send <b>cumulative ACKs</b>; senders can pipeline packets before ACKs.</li>
+            <li><b>Flow control</b> — don't overwhelm the receiver.</li>
+            <li><b>Congestion control</b> — sense network load and adapt sending rate.</li>
+        </ul>
+
+        <h2 id="en-8">8. Network vs. distributed OS</h2>
+
+        <h3>Network Operating Systems</h3>
+        <ul>
+            <li>Users <b>are aware</b> of multiple machines.</li>
+            <li>Remote access is <b>explicit</b>:
+                <ul>
+                    <li>remote login (<code>ssh kristen.cs.yale.edu</code>),</li>
+                    <li>file transfer via <b>FTP</b>,</li>
+                    <li>cloud storage — upload, download, share.</li>
+                </ul>
+            </li>
+            <li>Users must <b>shift paradigms</b> — open a session, use network commands.</li>
+            <li>Harder to use.</li>
+        </ul>
+
+        <h3>Distributed Operating Systems</h3>
+        <p>Users <b>aren't aware</b> of multiple machines — remote resources look local.</p>
+        <ul>
+            <li><b>Data migration</b> — transfer the whole file or just the parts needed.</li>
+            <li><b>Computation migration</b> — move the <b>computation</b>, not the data (via <b>RPC</b> or messaging).</li>
+            <li><b>Process migration</b> — run a process or parts of it at different sites:
+                <ul>
+                    <li><b>load balancing,</b></li>
+                    <li><b>speedup</b> through concurrency,</li>
+                    <li>hardware/software preferences,</li>
+                    <li>data access — run the process where the data is.</li>
+                </ul>
+            </li>
+            <li>The WWW is an example.</li>
+        </ul>
+
+        <h2 id="en-9">9. Robustness and failure detection</h2>
+        <p>Failure types: link, site, message. A <b>fault-tolerant</b> system tolerates some level of failure. The flow: <b>detection → reconfiguration → recovery</b>.</p>
+
+        <h3>Detection — heartbeat protocol</h3>
+        <ol>
+            <li>Site A and site B establish a link.</li>
+            <li>They exchange "I-am-up" messages at fixed intervals.</li>
+            <li>If A misses one — B might be down or the message lost.</li>
+            <li>A sends "Are-you-up?".</li>
+            <li>If no reply, retry or try an <b>alternate route</b>.</li>
+            <li>If still no reply — a failure has occurred.</li>
+        </ol>
+
+        <div class="card">
+            <b>The hard part:</b> A <b>cannot</b> tell which failure exactly happened — B is down, the direct link is down, the alternate link is down, or the message was lost.
+        </div>
+
+        <h3>Reconfiguration and recovery</h3>
+        <ul>
+            <li>If link A↔B is down — <b>broadcast to every site</b>.</li>
+            <li>If a site is down — every other site learns its services are unavailable.</li>
+            <li>When the node/link returns — broadcast that too.</li>
+        </ul>
+
+        <h2 id="en-10">10. Transparency and scalability</h2>
+
+        <h3>Transparency</h3>
+        <ul>
+            <li>A distributed system <b>should look like a centralized one</b>.</li>
+            <li>The UI doesn't distinguish local from remote. Example: <b>NFS</b>.</li>
+            <li><b>User mobility:</b> a user can log into any machine and see their environment. Example: <b>LDAP</b> plus desktop virtualization.</li>
+        </ul>
+
+        <h3>Scalability</h3>
+        <ul>
+            <li>As demand grows, the system must <b>accept new resources easily</b>.</li>
+            <li>It reacts <b>gracefully</b> to load.</li>
+            <li>Adding resources can create <b>indirect load</b> on other components — beware.</li>
+            <li><b>Compression and deduplication</b> save storage and network.</li>
+        </ul>
+
+        <h2 id="en-11">11. Distributed File System (DFS)</h2>
+        <div class="card">
+            A <b>DFS</b> is a file system whose clients, servers, and storage devices are <b>dispersed</b> across the machines of a distributed system. To the client it should look like an ordinary centralized FS. The distinguishing feature is <b>managing dispersed storage</b>.
+        </div>
+
+        <ul>
+            <li><b>Service</b> — software on one or more machines providing functionality to clients unknown a priori.</li>
+            <li><b>Server</b> — the service running on a single machine.</li>
+            <li><b>Client</b> — a process that invokes a service via the client interface (for files: <code>create, delete, read, write</code>).</li>
+            <li>The DFS client interface should be <b>transparent</b> — local and remote files look the same.</li>
+        </ul>
+
+        <p><b>Key challenges:</b> naming and transparency, remote access, caching and consistency.</p>
+
+        <h2 id="en-12">12. Client-server vs. cluster-based DFS</h2>
+
+        <h3>Client-Server DFS</h3>
+        <ul>
+            <li>Servers hold files <b>and</b> metadata on attached storage.</li>
+            <li>Clients request files from the server.</li>
+            <li>The server handles authentication, permission checks, delivery.</li>
+            <li>Client changes propagate back to the server.</li>
+            <li>Examples: <b>NFS, OpenAFS</b>.</li>
+            <li><b>Problems:</b> single point of failure, bottleneck for all metadata and data requests, scalability and bandwidth limits.</li>
+        </ul>
+
+        <h3>Cluster-Based DFS</h3>
+        <ul>
+            <li>Designed to be more <b>fault-tolerant</b> and <b>scalable</b>.</li>
+            <li>Examples: <b>GFS (Google File System)</b>, <b>HDFS (Hadoop)</b>.</li>
+            <li>Clients connect to a <b>master metadata server</b> and several <b>data servers</b> holding file <b>chunks</b>.</li>
+            <li>The master maps chunks to data servers plus the directory/file hierarchy.</li>
+            <li>Each chunk is <b>replicated n times</b>.</li>
+        </ul>
+
+        <p><b>GFS design principles:</b></p>
+        <ul>
+            <li>Hardware failures are <b>the norm</b>, not exceptional.</li>
+            <li>Files are very large.</li>
+            <li>Most writes are <b>appends</b>, not overwrites.</li>
+            <li>The FS API can be redesigned for flexibility (apps must adopt it).</li>
+            <li><b>MapReduce</b> is a modular layer on top of GFS for large-scale parallel computation; Hadoop is similarly stackable.</li>
+        </ul>
+
+        <h2 id="en-13">13. Naming in a DFS</h2>
+        <ul>
+            <li><b>Naming</b> — mapping between logical and physical objects.</li>
+            <li><b>Multilevel mapping</b> — a file abstraction that hides where and how the file is stored.</li>
+            <li>A transparent DFS <b>hides</b> the network location of the file.</li>
+            <li>For replicated files the mapping returns a <b>set of locations</b>; multiple copies and their locations are hidden from the user.</li>
+        </ul>
+
+        <h3>Naming properties</h3>
+        <table>
+            <tr><th>Property</th><th>Meaning</th></tr>
+            <tr><td><b>Location transparency</b></td><td>The name doesn't reveal the file's physical location.</td></tr>
+            <tr><td><b>Location independence</b></td><td>The name doesn't have to change when the file moves.</td></tr>
+        </table>
+        <p>Most DFSes use <b>static, location-transparent</b> mapping for user-level names. Some support <b>file migration</b> (OpenAFS). Hadoop supports it but <b>without POSIX</b>. Amazon S3 provides on-demand storage blocks via APIs, dynamically placing data.</p>
+
+        <h3>Three naming schemes</h3>
+        <ol>
+            <li>Name = <code>&lt;host-name, local-name&gt;</code> — globally unique, but neither transparent nor independent.</li>
+            <li>Attach remote directories to local ones — appears as one tree, transparent only after mounting (NFS style).</li>
+            <li>A <b>single global name structure</b> for the whole system. If a server is unavailable, an arbitrary set of directories on different machines becomes unavailable.</li>
+        </ol>
+
+        <h2 id="en-14">14. Remote access and caching</h2>
+        <p>Once the naming scheme has found the server, data must be transferred.</p>
+
+        <h3>Remote-service mechanism</h3>
+        <ul>
+            <li>Requests are delivered to the server; the server executes and returns the result.</li>
+            <li>Most common implementation: <b>RPC</b>.</li>
+        </ul>
+
+        <h3>Caching</h3>
+        <ul>
+            <li>Reduces network traffic — recently-used blocks live in a cache.</li>
+            <li>If data is missing, a copy is fetched from the server and cached; accesses use the cached copy.</li>
+            <li>The master copy is on the server; partial copies are scattered across caches.</li>
+            <li>This creates the <b>cache-consistency problem</b>.</li>
+            <li>Sometimes called <b>network virtual memory</b>.</li>
+        </ul>
+
+        <h3>Cache location — disk vs. memory</h3>
+        <table>
+            <tr><th>Disk cache</th><th>Main-memory cache</th></tr>
+            <tr><td>More reliable, survives reboot</td><td>Permits diskless workstations</td></tr>
+            <tr><td>No need to refetch after recovery</td><td>Faster access; scales with memory size</td></tr>
+        </table>
+        <p>Server caches (for disk I/O) <b>always live in memory</b>; using memory caches on clients gives one unified mechanism.</p>
+
+        <h3>Cache update policies</h3>
+        <ul>
+            <li><b>Write-through</b> — writes immediately reach the server. <b>Reliable</b> but slow.</li>
+            <li><b>Delayed-write (write-back)</b> — writes hit the cache and propagate later. <b>Fast</b>, but data is lost if the client crashes. Variants:
+                <ul>
+                    <li>periodic scan, flushing dirty blocks;</li>
+                    <li><b>write-on-close</b> — send back when the file is closed. Good for long-open, frequently-modified files.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2 id="en-15">15. Cache consistency</h2>
+        <p>The key question: <i>is the cached copy consistent with the master?</i></p>
+
+        <table>
+            <tr><th>Approach</th><th>Who checks</th></tr>
+            <tr><td><b>Client-initiated</b></td><td>The client triggers a validity check; the server compares with the master.</td></tr>
+            <tr><td><b>Server-initiated</b></td><td>The server records what each client caches; when a potential inconsistency arises, it acts.</td></tr>
+        </table>
+
+        <h3>In cluster-based DFS</h3>
+        <ul>
+            <li>More complex due to metadata server and replicated chunks.</li>
+            <li><b>HDFS</b> — <b>append-only</b>, single writer → consistency is simpler.</li>
+            <li><b>GFS</b> — allows <b>random writes</b> with concurrent writers → write-consistency guarantees are harder.</li>
+        </ul>
+
+        <div class="card">
+            <b>Take-away:</b> a distributed system replaces "one local OS" with a collection of loosely coupled nodes talking over a network. Making that work requires layered protocols: physical ↔ data-link ↔ network (IP+ARP+MAC) ↔ transport (UDP/TCP) ↔ higher. Then everything boils down to three fundamental questions: <b>robustness</b> (surviving failures), <b>transparency</b> (hiding distribution from users), and <b>scalability</b> (growing gracefully). DFS is a concrete instance: client-server is simple and familiar, cluster-based (GFS/HDFS) is designed for hardware failure as the norm and very large files.
+        </div>
+    </section>
+
+    <footer>
+        Advanced Operating Systems · Lecture 10 · Network and Distributed Systems<br>
+        Adapted from <i>Operating System Concepts</i>, 10th Edition — Silberschatz, Galvin and Gagne ©2018
+    </footer>
+
+</div>
+<script>
+    (function(){var buttons=document.querySelectorAll(".lang-tabs button");var sections=document.querySelectorAll("section.lang");buttons.forEach(function(btn){btn.addEventListener("click",function(){var lang=btn.dataset.lang;buttons.forEach(function(b){b.classList.toggle("active",b===btn);});sections.forEach(function(s){s.classList.toggle("active",s.id===lang);});window.scrollTo({top:0,behavior:"smooth"});});});})();
+</script>
+</body>
+</html>

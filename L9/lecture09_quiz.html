@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 9 Quiz — Security</title>
+    <style>
+        :root{--bg:#fafaf8;--fg:#1a1a1a;--muted:#6b6b6b;--accent:#2b6cb0;--line:#e5e5e0;--card:#ffffff;--code-bg:#f3f3ee;--ok:#2f855a;--ok-bg:#e6f4ea;--bad:#c53030;--bad-bg:#fde8e8;--sel-bg:#ebf5ff;--ok-line:#c6e7d2;--bad-line:#f5c6c6}
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.6;font-size:16px}
+        .wrap{max-width:860px;margin:0 auto;padding:48px 24px 96px}
+        header{border-bottom:1px solid var(--line);padding-bottom:24px;margin-bottom:32px}
+        .eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+        h1{font-size:30px;font-weight:600;margin:0 0 6px;letter-spacing:-.01em}
+        .sub{color:var(--muted);font-size:15px}
+        .instr{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:18px 0 28px;font-size:14px;color:var(--muted)}
+        .question{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:16px 0}
+        .qhead{display:flex;gap:10px;margin-bottom:12px}
+        .qnum{font-size:12px;letter-spacing:.08em;color:var(--muted);font-weight:600;padding:3px 8px;background:var(--code-bg);border-radius:6px;flex-shrink:0;height:fit-content}
+        .qtext{font-weight:500;line-height:1.5}
+        .options{display:flex;flex-direction:column;gap:8px}
+        .option{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%;transition:all .12s}
+        .option:hover:not(.locked){border-color:var(--accent);background:var(--card)}
+        .option.selected{border-color:var(--accent);background:var(--sel-bg)}
+        .option.locked{cursor:default}
+        .option.correct{border-color:var(--ok);background:var(--ok-bg)}
+        .option.wrong{border-color:var(--bad);background:var(--bad-bg)}
+        .letter{font-family:"JetBrains Mono",Consolas,monospace;font-weight:600;color:var(--muted);flex-shrink:0;width:18px}
+        .option.correct .letter,.option.wrong .letter{color:inherit}
+        .feedback{margin-top:12px;padding:12px 14px;border-radius:8px;font-size:14px;display:none}
+        .feedback.shown{display:block}
+        .feedback.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+        .feedback.bad{background:var(--bad-bg);color:var(--bad);border:1px solid var(--bad-line)}
+        .feedback .explain{color:var(--fg);margin-top:8px;line-height:1.55}
+        .actions{display:flex;gap:10px;margin-top:28px;justify-content:center}
+        button.btn{padding:11px 24px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;font-size:15px}
+        button.btn:hover{filter:brightness(1.05)}
+        button.btn.secondary{background:var(--card);color:var(--accent)}
+        #reset{display:none}
+        #score{display:none;background:var(--card);border:2px solid var(--accent);border-radius:12px;padding:28px;text-align:center;margin:24px 0}
+        #score.shown{display:block}
+        .score-main{font-size:42px;font-weight:700;color:var(--accent);letter-spacing:-.02em}
+        .score-pct{font-size:18px;color:var(--muted);margin-top:4px}
+        .score-note{font-size:13px;color:var(--muted);margin-top:10px}
+        footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;text-align:center}
+    </style>
+    <style>
+        html[data-theme="dark"]{--bg:#15171a;--fg:#e7e9ec;--muted:#9aa0a6;--accent:#5aa2ff;--line:#2c3137;--border:#2c3137;--card:#1e2125;--code-bg:#2a2f35;--ok:#5fd39a;--ok-bg:#16271d;--ok-line:#234d38;--bad:#ff8c8c;--bad-bg:#2a1718;--bad-line:#5a2a2c;--sel-bg:#16304d;--shadow:rgba(0,0,0,.45)}
+        .theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border:1px solid var(--line,#e5e5e0);background:var(--card,#fff);color:var(--fg,#1a1a1a);border-radius:8px;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+        .theme-toggle:hover{border-color:var(--accent,#2b6cb0)}
+    </style>
+</head>
+<body>
+<script>
+    (function(){try{var t=localStorage.getItem("aos_quiz_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+        function lbl(){return document.documentElement.getAttribute("data-theme")==="dark"?"Светлая тема":"Тёмная тема";}
+        document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.className="theme-toggle";b.type="button";b.textContent=lbl();b.addEventListener("click",function(){var d=document.documentElement.getAttribute("data-theme")==="dark";var n=d?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("aos_quiz_theme",n);}catch(e){}b.textContent=lbl();});document.body.appendChild(b);});})();
+</script>
+
+<div class="wrap">
+    <a class="home-link" href="../index.html" style="display:inline-block;margin-bottom:20px;font-size:14px;font-weight:600;color:var(--accent);text-decoration:none">← На главную</a>
+    <header>
+        <div class="eyebrow">Advanced Operating Systems · Lecture 9 Quiz</div>
+        <h1>Security</h1>
+        <div class="sub">30 multiple-choice questions · instant feedback the moment you answer</div>
+    </header>
+
+    <div class="instr">Click an answer and you'll immediately see whether it's right. Wrong answers reveal the correct choice and a short explanation. A running score sits at the top; your final score appears once every question is answered.</div>
+
+    <div id="quiz"></div>
+    <div id="score"></div>
+
+    <div class="actions">
+        <button class="btn secondary" id="reset" style="display:inline-block">Restart Quiz</button>
+    </div>
+
+    <footer>Advanced Operating Systems · Lecture 9 · Practice quiz</footer>
+</div>
+
+<script>
+    const questions = [
+        {q:"The correct distinction is:",
+            options:["Security = mechanisms; Protection = trust in integrity","Security = measure of confidence in integrity; Protection = mechanisms controlling access","They mean the same thing","Protection is external; Security is internal"],
+            correct:1,
+            explanation:"Protection is the *mechanism*: controlling process/user access to resources. Security is the broader *measure of confidence* that integrity will be preserved — it also considers people, buildings, and threats outside the computer."},
+
+        {q:"Pretending to be an authorized user to escalate privileges is called:",
+            options:["Replay attack","Masquerading","Session hijacking","Man-in-the-middle"],
+            correct:1,
+            explanation:"Masquerading breaches authentication. MITM sits in the data flow. Replay re-uses captured traffic. Session hijacking takes over an already-authenticated session."},
+
+        {q:"Symmetric encryption is _____ asymmetric encryption.",
+            options:["Always less secure than","Much more compute-intensive than","Much faster than","The same speed as"],
+            correct:2,
+            explanation:"Symmetric algorithms (DES/3DES/AES/RC4) are much faster than asymmetric (RSA). That's why TLS uses asymmetric crypto only to set up a symmetric session key, then uses symmetric for the bulk traffic."},
+
+        {q:"RSA's security rests on the difficulty of:",
+            options:["Computing discrete logarithms","Testing primality of a number","Factoring large numbers into their prime factors","Solving the traveling salesman problem"],
+            correct:2,
+            explanation:"Primality testing is easy (there are efficient algorithms). The believed-hard problem is recovering p and q from N = p·q when both are large primes."},
+
+        {q:"A cryptographic hash function must be:",
+            options:["Easily reversible","Collision-resistant","Identical for all inputs","Encrypted with a secret key"],
+            correct:1,
+            explanation:"Collision resistance: it must be infeasible to find m' ≠ m with H(m) = H(m'). MD5 (128-bit) is now considered weak; SHA-1 (160-bit) is being phased out. Hashes alone aren't authenticators — they need MAC or signing."},
+
+        {q:"The 'Trojan mule' is a Trojan horse that specifically emulates:",
+            options:["A printer driver","A login program","A boot loader","A patch utility"],
+            correct:1,
+            explanation:"A Trojan mule mimics a real login prompt to capture credentials. It's a specific instance of the general Trojan-horse idea: code that misuses its execution context."},
+
+        {q:"Ransomware:",
+            options:["Steals passwords silently","Encrypts the victim's data and demands payment to unlock","Spreads only via USB drives","Is a DoS tool"],
+            correct:1,
+            explanation:"Ransomware locks user data via encryption and demands payment for the decryption key. CryptoLocker and WannaCry are well-known examples."},
+
+        {q:"Port scanning (e.g. nmap, nessus) is used to:",
+            options:["Encrypt traffic between hosts","Detect open services and identify a system's vulnerabilities","Update software automatically","Establish a firewall policy"],
+            correct:1,
+            explanation:"Port scanning probes which ports respond, which services run, and which OS/version is behind them — useful for both attackers (reconnaissance) and defenders (audit)."},
+
+        {q:"TLS uses the server's certificate (issued by a CA) to:",
+            options:["Encrypt every byte sent over the network","Verify the server's identity and help establish a symmetric session key","Limit the client's bandwidth","Bypass the firewall"],
+            correct:1,
+            explanation:"TLS uses asymmetric crypto (verified via the CA-signed certificate) to authenticate the server and negotiate a symmetric session key. The session key then encrypts the bulk of the traffic for speed."},
+
+        {q:"Defense in depth means:",
+            options:["One very strong layer of defense","Multiple independent layers so attackers must defeat several","Only physical defense matters","Outsourcing security to vendors"],
+            correct:1,
+            explanation:"Assumes any single layer can fail. Stack physical + OS + network + application + user training. The remembered slogan: 'security is as strong as its weakest link.'"},
+
+        {q:"Anomaly-based IDS:",
+            options:["Looks only for known bad signatures","Spots deviations from normal behavior; can catch zero-day attacks","Cannot have false positives","Requires a virus database"],
+            correct:1,
+            explanation:"Signature-based IDS detects only known threats. Anomaly detection flags unusual behavior — catching unknown attacks (including zero-days) but with more false positives."},
+
+        {q:"A password salt:",
+            options:["Replaces the password entirely","Ensures identical passwords hash to different values, defeating rainbow tables","Is a synonym for an encryption key","Is shared by all users in the system"],
+            correct:1,
+            explanation:"A unique salt added before hashing means two users with the same password get different stored hashes — neutralizes precomputed rainbow-table attacks."},
+
+        {q:"Buffer-overflow attacks can be partially mitigated by:",
+            options:["Larger swap files","Marking the stack non-executable (NX bit / W^X)","Disabling the firewall","Increasing the CPU clock"],
+            correct:1,
+            explanation:"If stack pages are non-executable, injected shellcode placed there can't run. Modern CPUs (SPARC, x86) support a per-page 'non-executable' bit; OSes set it for stack/heap by default."},
+
+        {q:"A one-time password (OTP):",
+            options:["Is the same as a salted password","Changes session-to-session — defeats replay attacks","Is permanent","Is stored in cleartext"],
+            correct:1,
+            explanation:"OTPs are generated from a seed both user and server know. Each session uses a different value, so an attacker who captures one cannot replay it."},
+
+        {q:"In the U.S. DoD security classification, which class uses FORMAL design and verification techniques?",
+            options:["D","C2","B2","A"],
+            correct:3,
+            explanation:"Class A uses formal methods (mathematical proof) to verify security properties. D is minimal protection, C provides discretionary protection through auditing, B adds sensitivity labels."},
+
+        {q:"Vulnerability scans can check:",
+            options:["Only running services","Only file permissions","System configuration, software versions, open ports, and known vulnerabilities — all of the above","Only network traffic"],
+            correct:2,
+            explanation:"Modern vulnerability scanners check many things — configuration, software patch levels, open ports, known CVEs in installed packages, weak credentials, etc."},
+
+        {q:"It is much faster for a computer to encode/decode ciphertext using SYMMETRIC algorithms than ASYMMETRIC ones.",
+            options:["True","False — they have similar performance","False — asymmetric is faster","Only true on GPUs"],
+            correct:0,
+            explanation:"Symmetric crypto operates on bit-level transformations and is orders of magnitude faster than asymmetric (which involves big-integer modular exponentiation). Hence the hybrid approach in TLS."},
+
+        {q:"_____ encrypts the information on the target computer and renders it inaccessible to the owner.",
+            options:["Spyware","Trojan horse","A worm","Ransomware"],
+            correct:3,
+            explanation:"Ransomware encrypts the victim's data and demands a payment for the decryption key. Spyware secretly collects info; a Trojan misuses its environment; a worm self-propagates across hosts."},
+
+        {q:"The textbook's five categories of security violations include all EXCEPT:",
+            options:["Breach of confidentiality","Breach of integrity","Theft of service","Network compression"],
+            correct:3,
+            explanation:"The five categories: confidentiality, integrity, availability, theft of service, denial of service. Compression has nothing to do with security violations."},
+
+        {q:"A trap door (backdoor) embedded in a COMPILER is dangerous because:",
+            options:["Compilers crash easily","Every program compiled with it inherits the backdoor — and source-code review won't catch it","Backdoors slow compilation","Compilers can't be inspected"],
+            correct:1,
+            explanation:"Ken Thompson's classic insight: a backdoored compiler can insert backdoors into every binary, including a fresh compiler built from clean source. Source review doesn't help — you'd need a verified trusted compiler."},
+
+        {q:"A virus DROPPER is:",
+            options:["A virus that crashes on launch","A program whose purpose is to install/insert the actual virus onto the target","A type of antivirus","The disk holding a virus"],
+            correct:1,
+            explanation:"The dropper is the delivery vehicle. It places the virus on the system; the virus then carries out the payload. Standard malware engineering pattern."},
+
+        {q:"A POLYMORPHIC virus is one that:",
+            options:["Targets many operating systems","Mutates its byte signature with each infection to evade signature-based detection","Encrypts the host file","Replaces the kernel"],
+            correct:1,
+            explanation:"Polymorphic viruses change their code each generation (encryption with different keys, NOPs, reordering) so each copy looks different to signature scanners."},
+
+        {q:"The classic Internet worm started with a 99-line C program called the:",
+            options:["Trojan horse","GRAPPLING HOOK — it uploaded the rest of the worm","Sandbox","Honeypot"],
+            correct:1,
+            explanation:"The grappling hook was the foothold. Once it executed it pulled in the main worm code. The Internet worm then abused finger, sendmail bugs, and rsh trust relationships to spread."},
+
+        {q:"Triple-DES gets its added security by:",
+            options:["Using a 256-bit key","Applying DES THREE times, typically with 2 or 3 keys","Adding a hash","Doubling the block size"],
+            correct:1,
+            explanation:"3DES applies DES three times (E-D-E) with 2 or 3 keys. It extended DES's lifetime but is being replaced by AES due to performance."},
+
+        {q:"AES supports key sizes of:",
+            options:["56 bits only","64, 80, or 96 bits","128, 192, or 256 bits","Only 512 bits"],
+            correct:2,
+            explanation:"AES (NIST 2001) uses 128/192/256-bit keys and operates on 128-bit blocks. Replaces DES for most new applications."},
+
+        {q:"RC4 is:",
+            options:["An asymmetric algorithm","A symmetric STREAM cipher — key seeds a pseudo-random keystream","A digital signature scheme","A hash function"],
+            correct:1,
+            explanation:"RC4 is a stream cipher used historically in WEP, early TLS, and Wi-Fi. The keystream is XORed with plaintext. Has known weaknesses; mostly deprecated now."},
+
+        {q:"In an RSA toy example with p = 7, q = 13: N equals:",
+            options:["20","49","91","168"],
+            correct:2,
+            explanation:"N = p · q = 7 · 13 = 91. Also (p−1)(q−1) = 6 · 12 = 72. With public exponent kₑ = 5 and private kd = 29, the keys are (5, 91) and (29, 91)."},
+
+        {q:"A Certificate Authority (CA):",
+            options:["Is an attacker","Is a TRUSTED party whose digital signature on a public key proves who owns the key","Manages firewalls","Issues passwords"],
+            correct:1,
+            explanation:"CAs digitally sign public keys after verifying identity. Browsers ship with root CA public keys. CAs sign other CAs to form a chain of trust used by TLS/SSL."},
+
+        {q:"In TLS, the role of ASYMMETRIC crypto is to:",
+            options:["Encrypt all session traffic","Authenticate the server (via certificate) AND establish a SYMMETRIC session key","Generate random numbers","Decompress data"],
+            correct:1,
+            explanation:"Asymmetric is slow but solves the key-distribution problem. TLS uses it to negotiate a session key, then switches to symmetric encryption for bulk data — best of both worlds."},
+
+        {q:"When a user logs in on Windows 10, the OS creates a:",
+            options:["New PCB","SECURITY ACCESS TOKEN containing the SID, group SIDs, and special privileges","File handle","Shared memory region"],
+            correct:1,
+            explanation:"The token is created at login and copied into every process the user runs. The OS checks the token on every access to decide whether to allow the operation."}
+    ];
+
+    (function(){
+        const quiz = document.getElementById('quiz');
+        const total = questions.length;
+        let answered = 0, correct = 0;
+
+        const bar = document.createElement('div');
+        bar.id = 'livescore';
+        bar.style.cssText = 'position:sticky;top:0;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 16px;margin:0 0 16px;font-size:14px;font-weight:600;color:var(--muted);display:flex;justify-content:space-between;box-shadow:0 1px 6px rgba(0,0,0,.06)';
+        bar.innerHTML = `<span id="ls-prog">Answered 0 / ${total}</span><span id="ls-score">Score 0 / 0</span>`;
+        quiz.parentNode.insertBefore(bar, quiz);
+
+        questions.forEach((q, i) => {
+            const node = document.createElement('div');
+            node.className = 'question';
+            node.dataset.q = i;
+            node.innerHTML = `<div class="qhead"><span class="qnum">Q${i+1}</span><span class="qtext">${q.q}</span></div><div class="options">${q.options.map((opt, j) => `<button class="option" data-i="${j}" type="button"><span class="letter">${'ABCD'[j]}.</span><span>${opt}</span></button>`).join('')}</div><div class="feedback"></div>`;
+            quiz.appendChild(node);
+        });
+
+        quiz.addEventListener('click', e => {
+            const opt = e.target.closest('.option');
+            if (!opt) return;
+            const card = opt.closest('.question');
+            if (card.dataset.done) return;
+            card.dataset.done = '1';
+            const q = questions[parseInt(card.dataset.q)];
+            const chosen = parseInt(opt.dataset.i);
+            card.querySelectorAll('.option').forEach((o, j) => {
+                o.classList.add('locked');
+                if (j === q.correct) o.classList.add('correct');
+                if (j === chosen && j !== q.correct) o.classList.add('wrong');
+            });
+            const fb = card.querySelector('.feedback');
+            answered++;
+            if (chosen === q.correct) {
+                correct++;
+                fb.innerHTML = `<b>✓ Correct.</b>`;
+                fb.classList.add('shown','ok');
+            } else {
+                fb.innerHTML = `<b>✗ You chose ${'ABCD'[chosen]}. Correct answer: ${'ABCD'[q.correct]}.</b><div class="explain">${q.explanation}</div>`;
+                fb.classList.add('shown','bad');
+            }
+            document.getElementById('ls-prog').textContent = `Answered ${answered} / ${total}`;
+            document.getElementById('ls-score').textContent = `Score ${correct} / ${answered}`;
+            if (answered === total) {
+                const pct = Math.round(correct / total * 100);
+                const grade = pct >= 90 ? 'Excellent' : pct >= 70 ? 'Good' : pct >= 50 ? 'Passing' : 'Needs review';
+                const scoreEl = document.getElementById('score');
+                scoreEl.innerHTML = `<div class="score-main">${correct} / ${total}</div><div class="score-pct">${pct}% — ${grade}</div><div class="score-note">Review any red answers above for explanations, or click "Restart Quiz" to go again.</div>`;
+                scoreEl.classList.add('shown');
+                scoreEl.scrollIntoView({behavior:'smooth', block:'center'});
+            }
+        });
+
+        document.getElementById('reset').addEventListener('click', () => location.reload());
+    })();
+</script>
+</body>
+</html>

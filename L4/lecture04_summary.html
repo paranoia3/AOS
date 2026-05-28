@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 4 — Threads & Concurrency</title>
+    <style>
+        :root{
+            --bg:#fafaf8;
+            --fg:#1a1a1a;
+            --muted:#6b6b6b;
+            --accent:#2b6cb0;
+            --line:#e5e5e0;
+            --card:#ffffff;
+            --code-bg:#f3f3ee;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
+            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+            line-height:1.65;font-size:16px;}
+        .wrap{max-width:880px;margin:0 auto;padding:64px 28px 96px}
+        header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:48px}
+        .eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+        h1{font-size:34px;font-weight:600;margin:0 0 8px;letter-spacing:-.01em}
+        .sub{color:var(--muted);font-size:16px}
+        nav.lang{display:flex;gap:8px;margin-top:24px}
+        nav.lang a{font-size:14px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;
+            text-decoration:none;color:var(--fg);background:var(--card)}
+        nav.lang a:hover{border-color:var(--accent);color:var(--accent)}
+        section.lang-section{margin-top:56px}
+        h2{font-size:24px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+        h3{font-size:18px;font-weight:600;margin:28px 0 10px;color:var(--fg)}
+        p{margin:10px 0}
+        ul{margin:10px 0 16px;padding-left:22px}
+        li{margin:5px 0}
+        .lede{font-size:17px;color:var(--muted);margin:0 0 24px}
+        .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:16px 0}
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}
+        .pill{display:inline-block;font-size:12px;padding:2px 10px;border:1px solid var(--line);
+            border-radius:999px;color:var(--muted);background:var(--card);margin-right:6px}
+        code,kbd{background:var(--code-bg);padding:1px 6px;border-radius:4px;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px}
+        pre{background:var(--code-bg);padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px;line-height:1.5;margin:14px 0}
+        table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px}
+        th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+        th{font-weight:600;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+        .divider{height:1px;background:var(--line);margin:64px 0}
+        .toc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:24px 0}
+        .toc h4{margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+        .toc ol{margin:0;padding-left:22px;color:var(--fg)}
+        .toc li{margin:3px 0}
+        .toc a{color:var(--fg);text-decoration:none}
+        .toc a:hover{color:var(--accent)}
+        .formula{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin:16px 0;text-align:center;font-family:"JetBrains Mono",Consolas,monospace;font-size:16px}
+        .model{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;margin:8px 0}
+        .node{padding:6px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+        .arrow{color:var(--muted)}
+        footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--line);
+            color:var(--muted);font-size:13px;text-align:center}
+        .lang-tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px;margin:24px 0 8px;width:fit-content}
+        .lang-tabs button{background:transparent;border:none;padding:8px 18px;font:inherit;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-radius:7px;transition:all .15s}
+        .lang-tabs button.active{background:var(--accent);color:#fff}
+        .lang-tabs button:hover:not(.active){color:var(--fg)}
+        section.lang{display:none}
+        section.lang.active{display:block}
+    </style>
+    <style>
+        html[data-theme="dark"]{--bg:#15171a;--fg:#e7e9ec;--muted:#9aa0a6;--accent:#5aa2ff;--line:#2c3137;--border:#2c3137;--card:#1e2125;--code-bg:#2a2f35;--ok:#5fd39a;--ok-bg:#16271d;--ok-line:#234d38;--bad:#ff8c8c;--bad-bg:#2a1718;--bad-line:#5a2a2c;--sel-bg:#16304d;--shadow:rgba(0,0,0,.45)}
+        html[data-theme="dark"] .key{background:#16304d;color:#9ec3ff}
+        .theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border:1px solid var(--line,#e5e5e0);background:var(--card,#fff);color:var(--fg,#1a1a1a);border-radius:8px;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+        .theme-toggle:hover{border-color:var(--accent,#2b6cb0)}
+    </style>
+</head>
+<body>
+<script>
+    (function(){try{var t=localStorage.getItem("aos_quiz_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+        function lbl(){return document.documentElement.getAttribute("data-theme")==="dark"?"Светлая тема":"Тёмная тема";}
+        document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.className="theme-toggle";b.type="button";b.textContent=lbl();b.addEventListener("click",function(){var d=document.documentElement.getAttribute("data-theme")==="dark";var n=d?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("aos_quiz_theme",n);}catch(e){}b.textContent=lbl();});document.body.appendChild(b);});})();
+</script>
+
+<div class="wrap">
+    <div class="lec-nav" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:22px;font-size:14px;font-weight:600">
+        <a href="../L3/lecture03_summary.html" style="color:var(--accent);text-decoration:none">← Лекция 3</a>
+        <a href="../index.html" style="color:var(--accent);text-decoration:none">На главную</a>
+        <a href="../L5/lecture05_summary.html" style="color:var(--accent);text-decoration:none">Лекция 5 →</a>
+    </div>
+
+    <header>
+        <div class="eyebrow">Advanced Operating Systems · Lecture 4</div>
+        <h1>Threads & Concurrency</h1>
+        <div class="sub">Потоки и параллелизм — резюме и пояснения</div>
+        <div class="lang-tabs">
+            <button class="active" data-lang="ru">Русский</button>
+            <button data-lang="en">English</button>
+        </div>
+    </header>
+
+    <!-- ===================== РУССКАЯ ВЕРСИЯ ===================== -->
+    <section id="ru" class="lang active">
+        <p class="lede">Эта лекция объясняет, <b>что такое поток</b>, чем он отличается от процесса, какие преимущества даёт многопоточность, как соотносятся параллелизм и конкурентность, какие существуют модели отображения пользовательских потоков на ядерные, какие библиотеки потоков применяются на практике (Pthreads, Windows, Java), что такое неявная многопоточность (Thread Pools, OpenMP, GCD), и какие тонкие проблемы возникают при разработке многопоточных программ — <code>fork/exec</code>, сигналы, отмена потоков, TLS.</p>
+
+        <div class="toc">
+            <h4>Содержание</h4>
+            <ol>
+                <li><a href="#ru-1">Что такое поток</a></li>
+                <li><a href="#ru-2">Мотивация: зачем нужны потоки</a></li>
+                <li><a href="#ru-3">Преимущества многопоточности</a></li>
+                <li><a href="#ru-4">Многоядерное программирование</a></li>
+                <li><a href="#ru-5">Параллелизм vs конкурентность</a></li>
+                <li><a href="#ru-6">Закон Амдала</a></li>
+                <li><a href="#ru-7">Пользовательские и ядерные потоки</a></li>
+                <li><a href="#ru-8">Модели многопоточности</a></li>
+                <li><a href="#ru-9">Библиотеки потоков (Pthreads, Windows, Java)</a></li>
+                <li><a href="#ru-10">Неявная многопоточность</a></li>
+                <li><a href="#ru-11">Проблемы многопоточности</a></li>
+                <li><a href="#ru-12">Примеры из ОС: Windows и Linux</a></li>
+            </ol>
+        </div>
+
+        <h2 id="ru-1">1. Что такое поток</h2>
+        <p>Поток (<i>thread</i>) — это <b>базовая единица использования ЦП</b>. Каждый поток состоит из:</p>
+        <ul>
+            <li>идентификатора потока (<code>thread ID</code>),</li>
+            <li>счётчика команд (<code>PC</code>),</li>
+            <li>набора регистров,</li>
+            <li>собственного стека.</li>
+        </ul>
+
+        <div class="card">
+            Потоки одного процесса <b>разделяют</b> между собой: секцию кода, секцию данных, открытые файлы и сигналы — то есть ресурсы, принадлежащие процессу.
+        </div>
+
+        <p>Традиционный процесс имеет <b>один поток управления</b>. Если процесс имеет несколько потоков управления, он может выполнять более одной задачи одновременно.</p>
+
+        <p><b>Пример.</b> Текстовый редактор: один поток отображает графику, другой принимает нажатия клавиш, третий в фоне проверяет орфографию и грамматику.</p>
+
+        <h2 id="ru-2">2. Мотивация: зачем нужны потоки</h2>
+        <ul>
+            <li>Большинство современных приложений — многопоточные.</li>
+            <li>Несколько задач внутри приложения могут быть реализованы отдельными потоками: обновление UI, загрузка данных, проверка орфографии, обработка сетевых запросов.</li>
+            <li><b>Создание процесса — «тяжёлая» операция</b>, создание потока — «лёгкая».</li>
+            <li>Многопоточность упрощает код и повышает эффективность.</li>
+            <li>Ядра современных ОС, как правило, сами многопоточные.</li>
+        </ul>
+
+        <h2 id="ru-3">3. Преимущества многопоточности</h2>
+        <div class="grid">
+            <div class="card"><b>Отзывчивость</b><br><span style="color:var(--muted);font-size:14px">Часть процесса может быть заблокирована, но программа продолжает работать. Особенно важно для пользовательских интерфейсов.</span></div>
+            <div class="card"><b>Разделение ресурсов</b><br><span style="color:var(--muted);font-size:14px">Потоки автоматически разделяют ресурсы процесса — это проще, чем разделяемая память или передача сообщений.</span></div>
+            <div class="card"><b>Экономия</b><br><span style="color:var(--muted);font-size:14px">Создание потока дешевле создания процесса; переключение между потоками — дешевле переключения контекста процессов.</span></div>
+            <div class="card"><b>Масштабируемость</b><br><span style="color:var(--muted);font-size:14px">Процесс может задействовать многопроцессорную/многоядерную архитектуру.</span></div>
+        </div>
+
+        <h2 id="ru-4">4. Многоядерное программирование</h2>
+        <p>Многоядерные и многопроцессорные системы создают давление на программистов. Основные вызовы:</p>
+        <ul>
+            <li><b>Разделение задач</b> — на какие части разбить работу.</li>
+            <li><b>Балансировка</b> — равная загрузка ядер.</li>
+            <li><b>Разделение данных</b> — какие данные кому достаются.</li>
+            <li><b>Зависимости данных</b> — синхронизация между потоками.</li>
+            <li><b>Тестирование и отладка</b> — особенно сложны для многопоточных программ.</li>
+        </ul>
+
+        <h3>Типы параллелизма</h3>
+        <table>
+            <tr><th>Тип</th><th>Что делит</th><th>Что делают потоки</th></tr>
+            <tr><td><b>Data parallelism</b></td><td>Распределяет подмножества <b>одних и тех же данных</b> по ядрам</td><td>Каждое ядро выполняет <b>одну и ту же</b> операцию</td></tr>
+            <tr><td><b>Task parallelism</b></td><td>Распределяет <b>потоки/задачи</b> по ядрам</td><td>Каждый поток выполняет <b>свою уникальную</b> операцию</td></tr>
+        </table>
+
+        <p>С ростом числа потоков растёт и архитектурная поддержка: процессоры имеют ядра и аппаратные потоки на каждом ядре. Например, Oracle SPARC T4: 8 ядер × 8 аппаратных потоков на ядро.</p>
+
+        <h2 id="ru-5">5. Параллелизм vs конкурентность</h2>
+        <div class="card">
+            <p><b>Конкурентность (concurrency)</b> — несколько потоков <i>делают прогресс</i>, но не обязательно одновременно. Возможна даже на одноядерной системе — за счёт планировщика, который быстро переключается между потоками.</p>
+            <p><b>Параллелизм (parallelism)</b> — несколько потоков <i>действительно</i> выполняются <i>одновременно</i>. Требует многоядерной системы с несколькими ЦП.</p>
+        </div>
+        <p>На одноядерной системе возможна только конкурентность. Параллелизм требует нескольких ЦП.</p>
+
+        <h2 id="ru-6">6. Закон Амдала</h2>
+        <p>Определяет прирост производительности при добавлении дополнительных ядер к приложению, имеющему <b>последовательную</b> и <b>параллельную</b> части.</p>
+
+        <div class="formula">
+            speedup = 1 / ( S + (1 − S) / N )
+        </div>
+
+        <p>где <code>S</code> — последовательная часть программы, <code>N</code> — число ядер.</p>
+
+        <ul>
+            <li>Если 75% программы параллельно, 25% последовательно, переход с 1 на 2 ядра даёт ускорение в <b>1.6 раза</b>.</li>
+            <li>При <code>N → ∞</code> ускорение стремится к <code>1 / S</code>.</li>
+            <li><b>Вывод:</b> последовательная часть оказывает <i>непропорционально большое</i> влияние на достижимое ускорение.</li>
+        </ul>
+
+        <p><i>Замечание из лекции: учитывает ли этот закон современные многоядерные системы? — Это открытый вопрос: при большом числе ядер на первый план выходят кэш, межъядерные коммуникации, NUMA, и закон Амдала становится лишь верхней оценкой.</i></p>
+
+        <h2 id="ru-7">7. Пользовательские и ядерные потоки</h2>
+        <div class="grid">
+            <div class="card">
+                <b>User threads</b><br>
+                <span style="color:var(--muted);font-size:14px">Управляются библиотекой в пользовательском пространстве.</span>
+                <ul>
+                    <li>POSIX Pthreads</li>
+                    <li>Windows threads</li>
+                    <li>Java threads</li>
+                </ul>
+            </div>
+            <div class="card">
+                <b>Kernel threads</b><br>
+                <span style="color:var(--muted);font-size:14px">Поддерживаются непосредственно ядром ОС.</span>
+                <ul>
+                    <li>Windows</li>
+                    <li>Solaris</li>
+                    <li>Linux</li>
+                    <li>Tru64 UNIX</li>
+                    <li>macOS</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2 id="ru-8">8. Модели многопоточности</h2>
+        <p>Пользовательские потоки в итоге должны быть отображены на ядерные потоки, чтобы выполняться на ЦП. Существуют четыре основные модели.</p>
+
+        <h3>Many-to-One (многие к одному)</h3>
+        <div class="model"><span class="node">User T₁</span><span class="node">User T₂</span><span class="node">User T₃</span><span class="arrow">→</span><span class="node">Kernel Thread</span></div>
+        <ul>
+            <li>Много пользовательских потоков отображаются на <b>один</b> ядерный поток.</li>
+            <li>Если один поток блокируется — блокируются все.</li>
+            <li>Не может реально работать параллельно на многоядерной системе.</li>
+            <li><b>Примеры:</b> Solaris Green Threads, GNU Portable Threads.</li>
+        </ul>
+
+        <h3>One-to-One (один к одному)</h3>
+        <div class="model"><span class="node">User T₁</span><span class="arrow">→</span><span class="node">Kernel T₁</span><span class="node">User T₂</span><span class="arrow">→</span><span class="node">Kernel T₂</span></div>
+        <ul>
+            <li>Каждый пользовательский поток отображается на отдельный ядерный поток.</li>
+            <li>Больше конкурентности, чем M:1.</li>
+            <li>Накладные расходы могут ограничивать число потоков на процесс.</li>
+            <li><b>Примеры:</b> Windows, Linux, Solaris ≥ 9.</li>
+        </ul>
+
+        <h3>Many-to-Many (многие ко многим)</h3>
+        <div class="model"><span class="node">User T₁</span><span class="node">User T₂</span><span class="node">User T₃</span><span class="arrow">→</span><span class="node">Kernel T₁</span><span class="node">Kernel T₂</span></div>
+        <ul>
+            <li>Много пользовательских потоков отображается на <b>несколько</b> ядерных потоков.</li>
+            <li>ОС создаёт ровно столько ядерных потоков, сколько нужно.</li>
+            <li><b>Примеры:</b> Solaris до версии 9, Windows + ThreadFiber package.</li>
+        </ul>
+
+        <h3>Two-level (двухуровневая)</h3>
+        <p>Похожа на M:M, но дополнительно позволяет привязать пользовательский поток к конкретному ядерному. <b>Примеры:</b> IRIX, HP-UX, Tru64 UNIX, Solaris ≤ 8.</p>
+
+        <h2 id="ru-9">9. Библиотеки потоков</h2>
+        <p>Библиотека потоков предоставляет программисту API для создания и управления потоками. Реализуется двумя способами:</p>
+        <ul>
+            <li>полностью в пользовательском пространстве,</li>
+            <li>на уровне ядра при поддержке ОС.</li>
+        </ul>
+
+        <h3>Pthreads</h3>
+        <ul>
+            <li>Стандарт POSIX (IEEE 1003.1c) — <b>спецификация</b>, а не реализация.</li>
+            <li>Может быть реализована и в user-space, и в kernel-space.</li>
+            <li>Распространена в UNIX-системах: Solaris, Linux, macOS.</li>
+        </ul>
+
+        <h3>Windows threads</h3>
+        <ul>
+            <li>Часть Windows API.</li>
+            <li>Реализует one-to-one mapping на ядерные потоки.</li>
+        </ul>
+
+        <h3>Java threads</h3>
+        <ul>
+            <li>Управляются JVM, обычно поверх ядерных потоков ОС.</li>
+            <li>Создаются двумя способами: наследование от <code>Thread</code> или реализация интерфейса <code>Runnable</code>.</li>
+        </ul>
+
+        <h2 id="ru-10">10. Неявная многопоточность (Implicit Threading)</h2>
+        <p>Чем больше потоков, тем сложнее обеспечить корректность вручную. Решение — переложить создание и управление потоками с программиста на компиляторы и среды выполнения. Программист описывает <b>задачи</b>, а не сами потоки.</p>
+
+        <h3>Thread Pools (пулы потоков)</h3>
+        <ul>
+            <li>Заранее создаётся пул потоков, ожидающих работы.</li>
+            <li>Обслуживание запроса существующим потоком быстрее создания нового.</li>
+            <li>Число потоков ограничено размером пула.</li>
+            <li>Отделение задачи от механизма её исполнения — задачи можно планировать, в т.ч. периодически.</li>
+            <li>Поддерживаются в Windows API.</li>
+        </ul>
+
+        <h3>OpenMP</h3>
+        <ul>
+            <li>Набор директив компилятора и API для C, C++, FORTRAN.</li>
+            <li>Поддержка параллельного программирования в среде с общей памятью.</li>
+            <li>Программист отмечает <b>параллельные регионы</b>:</li>
+        </ul>
+        <pre>#pragma omp parallel
+{
+    /* создать столько потоков, сколько ядер */
+}
+
+#pragma omp parallel for
+for (i = 0; i &lt; N; i++) {
+    c[i] = a[i] + b[i];     /* цикл выполняется параллельно */
+}</pre>
+
+        <h3>Grand Central Dispatch (GCD)</h3>
+        <ul>
+            <li>Технология Apple для macOS и iOS.</li>
+            <li>Расширения C/C++, API и runtime-библиотека.</li>
+            <li>Блоки кода в синтаксисе <code>^{ ... }</code>, например: <code>^{ printf("I am a block"); }</code></li>
+            <li>Блоки помещаются в очереди и берутся свободными потоками из пула.</li>
+        </ul>
+
+        <p><b>Два типа очередей:</b></p>
+        <ul>
+            <li><b>Serial</b> — FIFO, по одному блоку на удаление; одна на процесс (main queue), плюс пользовательские.</li>
+            <li><b>Concurrent</b> — FIFO, но несколько блоков могут быть запущены одновременно. Три системных очереди с приоритетами <i>low</i>, <i>default</i>, <i>high</i>.</li>
+        </ul>
+
+        <p>Другие подходы: Microsoft Threading Building Blocks (TBB), <code>java.util.concurrent</code>.</p>
+
+        <h2 id="ru-11">11. Проблемы многопоточности</h2>
+
+        <h3>Семантика <code>fork()</code> и <code>exec()</code></h3>
+        <ul>
+            <li>Должен ли <code>fork()</code> дублировать <b>все потоки</b> процесса, или только вызвавший поток? — В некоторых UNIX-системах есть <b>две версии fork()</b> для каждого варианта.</li>
+            <li><code>exec()</code> работает как обычно: заменяет процесс целиком, со всеми потоками.</li>
+        </ul>
+
+        <h3>Обработка сигналов</h3>
+        <p>В UNIX сигналы — это способ уведомить процесс о событии. Жизненный цикл сигнала:</p>
+        <ol>
+            <li>Сигнал генерируется событием.</li>
+            <li>Сигнал доставляется процессу.</li>
+            <li>Сигнал обрабатывается <b>обработчиком по умолчанию</b> (от ядра) или <b>пользовательским</b> обработчиком.</li>
+        </ol>
+
+        <p><b>Куда доставлять сигнал в многопоточном процессе?</b> — Возможны четыре стратегии:</p>
+        <ul>
+            <li>в тот поток, к которому относится сигнал;</li>
+            <li>каждому потоку процесса;</li>
+            <li>определённым потокам;</li>
+            <li>выделенному потоку, принимающему все сигналы процесса.</li>
+        </ul>
+
+        <h3>Отмена потока (Thread Cancellation)</h3>
+        <p>Завершение целевого потока до того, как он закончит работу. Два подхода:</p>
+        <table>
+            <tr><th>Подход</th><th>Поведение</th></tr>
+            <tr><td><b>Asynchronous</b></td><td>Поток немедленно завершается — даже посреди обновления данных.</td></tr>
+            <tr><td><b>Deferred</b> (отложенная)</td><td>Поток получает уведомление и сам периодически проверяет, не пора ли завершиться. Завершение происходит в <i>точке отмены</i> (<code>pthread_testcancel()</code>), затем вызывается cleanup handler.</td></tr>
+        </table>
+        <p>Тип по умолчанию — deferred. В Linux отмена потоков реализована через сигналы. В большинстве случаев отложенная отмена предпочтительнее асинхронной.</p>
+
+        <h3>Thread-Local Storage (TLS)</h3>
+        <ul>
+            <li>Позволяет каждому потоку иметь <b>свою копию</b> данных.</li>
+            <li>Полезно, когда программист не контролирует создание потоков (например, в пуле).</li>
+            <li>Отличается от локальных переменных: те видны только в одном вызове функции, TLS — между вызовами.</li>
+            <li>Похоже на <code>static</code>-данные, но уникально для каждого потока.</li>
+        </ul>
+
+        <h3>Scheduler Activations</h3>
+        <ul>
+            <li>Модели M:M и Two-level требуют коммуникации между уровнями, чтобы поддерживать правильное число ядерных потоков.</li>
+            <li>Между пользовательскими и ядерными потоками используется промежуточная структура — <b>LWP (Lightweight Process)</b>.</li>
+            <li>LWP выглядит как «виртуальный процессор», на котором планируется пользовательский поток.</li>
+            <li>Каждый LWP привязан к ядерному потоку.</li>
+            <li><b>Upcalls</b> — механизм коммуникации <i>из ядра в библиотеку потоков</i>, позволяющий приложению поддерживать корректное число ядерных потоков.</li>
+        </ul>
+
+        <h2 id="ru-12">12. Примеры из ОС</h2>
+
+        <h3>Windows Threads</h3>
+        <ul>
+            <li>Реализует Windows API — главный API для Win 98/NT/2000/XP/7.</li>
+            <li>Модель <b>one-to-one</b>, kernel-level.</li>
+            <li>Каждый поток содержит: ID, набор регистров, отдельные user-stack и kernel-stack, область приватных данных (для runtime и DLL).</li>
+            <li>Регистры + стеки + приватная область = <b>контекст</b> потока.</li>
+        </ul>
+
+        <p><b>Основные структуры данных потока в Windows:</b></p>
+        <table>
+            <tr><th>Структура</th><th>Содержимое</th><th>Где</th></tr>
+            <tr><td><b>ETHREAD</b></td><td>Executive thread block; указатель на процесс и на KTHREAD</td><td>Kernel space</td></tr>
+            <tr><td><b>KTHREAD</b></td><td>Информация о планировании и синхронизации, kernel-stack, указатель на TEB</td><td>Kernel space</td></tr>
+            <tr><td><b>TEB</b></td><td>Thread environment block; ID потока, user-stack, TLS</td><td>User space</td></tr>
+        </table>
+
+        <h3>Linux Threads</h3>
+        <ul>
+            <li>В Linux потоки называются <b>tasks</b>, понятия «процесс» и «поток» не различаются.</li>
+            <li>Создание — через системный вызов <code>clone()</code>.</li>
+            <li><code>clone()</code> позволяет дочерней задаче <b>разделять</b> адресное пространство родителя; поведение настраивается флагами.</li>
+            <li>Структура <code>struct task_struct</code> содержит указатели на структуры данных процесса — они либо разделяются, либо у каждой задачи свои.</li>
+        </ul>
+
+        <div class="card">
+            <b>Главный вывод:</b> поток — это «лёгкий» процесс, разделяющий ресурсы с другими потоками того же процесса. Многопоточность даёт отзывчивость, экономию и масштабируемость, но требует тщательной работы с синхронизацией, сигналами, отменой и переносимостью между моделями user/kernel-потоков.
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ===================== ENGLISH VERSION ===================== -->
+    <section id="en" class="lang">
+        <p class="lede">This lecture introduces the <b>thread</b> — the fundamental unit of CPU utilization — explains why modern applications are multithreaded, contrasts parallelism with concurrency, walks through the user/kernel mapping models, surveys the main thread libraries (Pthreads, Windows, Java), and discusses implicit threading (thread pools, OpenMP, Grand Central Dispatch). It closes with the subtle issues every multithreaded program must handle: <code>fork/exec</code> semantics, signals, cancellation, and thread-local storage.</p>
+
+        <div class="toc">
+            <h4>Contents</h4>
+            <ol>
+                <li><a href="#en-1">What is a thread</a></li>
+                <li><a href="#en-2">Motivation</a></li>
+                <li><a href="#en-3">Benefits of multithreading</a></li>
+                <li><a href="#en-4">Multicore programming</a></li>
+                <li><a href="#en-5">Concurrency vs parallelism</a></li>
+                <li><a href="#en-6">Amdahl's Law</a></li>
+                <li><a href="#en-7">User threads and kernel threads</a></li>
+                <li><a href="#en-8">Multithreading models</a></li>
+                <li><a href="#en-9">Thread libraries</a></li>
+                <li><a href="#en-10">Implicit threading</a></li>
+                <li><a href="#en-11">Threading issues</a></li>
+                <li><a href="#en-12">OS examples: Windows & Linux</a></li>
+            </ol>
+        </div>
+
+        <h2 id="en-1">1. What is a thread</h2>
+        <p>A <b>thread</b> is the basic unit of CPU utilization. Every thread has:</p>
+        <ul>
+            <li>a thread ID,</li>
+            <li>a program counter (PC),</li>
+            <li>a register set,</li>
+            <li>its own stack.</li>
+        </ul>
+
+        <div class="card">
+            All threads in the same process <b>share</b>: the code section, data section, open files, and signals — i.e. resources owned by the process.
+        </div>
+
+        <p>A traditional process has a single thread of control. With multiple threads, it can perform more than one task at a time.</p>
+        <p><b>Example.</b> A word processor: one thread for graphics, another for keystrokes, a third for spell/grammar checking in the background.</p>
+
+        <h2 id="en-2">2. Motivation</h2>
+        <ul>
+            <li>Most modern applications are multithreaded.</li>
+            <li>Distinct tasks inside one application become separate threads: update display, fetch data, spell-check, answer a network request.</li>
+            <li><b>Process creation is heavy-weight; thread creation is light-weight.</b></li>
+            <li>Threading can simplify code and increase efficiency.</li>
+            <li>Kernels themselves are generally multithreaded.</li>
+        </ul>
+
+        <h2 id="en-3">3. Benefits of multithreading</h2>
+        <div class="grid">
+            <div class="card"><b>Responsiveness</b><br><span style="color:var(--muted);font-size:14px">A process can keep running even if part of it is blocked — critical for user interfaces.</span></div>
+            <div class="card"><b>Resource sharing</b><br><span style="color:var(--muted);font-size:14px">Threads share process resources by default — easier than shared memory or message passing.</span></div>
+            <div class="card"><b>Economy</b><br><span style="color:var(--muted);font-size:14px">Cheaper than creating processes; thread switching has lower overhead than context switching.</span></div>
+            <div class="card"><b>Scalability</b><br><span style="color:var(--muted);font-size:14px">A multithreaded process can take advantage of multiprocessor / multicore architectures.</span></div>
+        </div>
+
+        <h2 id="en-4">4. Multicore programming</h2>
+        <p>Multicore and multiprocessor systems put pressure on programmers. The main challenges:</p>
+        <ul>
+            <li><b>Dividing activities</b> — how to split the work.</li>
+            <li><b>Balance</b> — keep all cores equally busy.</li>
+            <li><b>Data splitting</b> — which data goes to which thread.</li>
+            <li><b>Data dependency</b> — synchronization across threads.</li>
+            <li><b>Testing & debugging</b> — especially hard for concurrent code.</li>
+        </ul>
+
+        <h3>Types of parallelism</h3>
+        <table>
+            <tr><th>Type</th><th>What is partitioned</th><th>Threads do…</th></tr>
+            <tr><td><b>Data parallelism</b></td><td>Subsets of the <b>same data</b> across cores</td><td>The <b>same</b> operation on each core</td></tr>
+            <tr><td><b>Task parallelism</b></td><td><b>Threads/tasks</b> distributed across cores</td><td>Each thread runs a <b>unique</b> operation</td></tr>
+        </table>
+
+        <p>As the number of threads grows, hardware support grows with it: CPUs have multiple cores, and each core may have multiple hardware threads. Example: Oracle SPARC T4 — 8 cores × 8 hardware threads per core.</p>
+
+        <h2 id="en-5">5. Concurrency vs parallelism</h2>
+        <div class="card">
+            <p><b>Concurrency</b> — multiple threads are <i>making progress</i>, not necessarily at the same instant. Achievable even on a single core via the scheduler.</p>
+            <p><b>Parallelism</b> — multiple threads are <i>actually executing simultaneously</i>. Requires a multicore system.</p>
+        </div>
+        <p>Single CPU → concurrency only. True parallelism needs multiple CPUs.</p>
+
+        <h2 id="en-6">6. Amdahl's Law</h2>
+        <p>Quantifies the performance gain from adding cores to an application that has both serial and parallel parts.</p>
+
+        <div class="formula">
+            speedup = 1 / ( S + (1 − S) / N )
+        </div>
+
+        <p>where <code>S</code> = serial fraction, <code>N</code> = number of cores.</p>
+        <ul>
+            <li>If the application is 75% parallel / 25% serial, moving from 1 to 2 cores gives a speedup of <b>1.6×</b>.</li>
+            <li>As <code>N → ∞</code>, speedup approaches <code>1 / S</code>.</li>
+            <li><b>Implication:</b> the serial portion has a <i>disproportionate</i> effect on the gains achievable from more cores.</li>
+        </ul>
+
+        <p><i>Open question raised in the lecture: does the law account for contemporary multicore systems? — With many cores, cache hierarchies, inter-core communication, and NUMA effects matter; Amdahl's Law becomes an upper bound, not the full picture.</i></p>
+
+        <h2 id="en-7">7. User threads and kernel threads</h2>
+        <div class="grid">
+            <div class="card">
+                <b>User threads</b><br>
+                <span style="color:var(--muted);font-size:14px">Managed by a user-level threads library.</span>
+                <ul>
+                    <li>POSIX Pthreads</li>
+                    <li>Windows threads</li>
+                    <li>Java threads</li>
+                </ul>
+            </div>
+            <div class="card">
+                <b>Kernel threads</b><br>
+                <span style="color:var(--muted);font-size:14px">Supported directly by the kernel.</span>
+                <ul>
+                    <li>Windows</li>
+                    <li>Solaris</li>
+                    <li>Linux</li>
+                    <li>Tru64 UNIX</li>
+                    <li>macOS</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2 id="en-8">8. Multithreading models</h2>
+        <p>User threads must ultimately be mapped to kernel threads to execute on the CPU. There are four common models.</p>
+
+        <h3>Many-to-One</h3>
+        <div class="model"><span class="node">User T₁</span><span class="node">User T₂</span><span class="node">User T₃</span><span class="arrow">→</span><span class="node">Kernel Thread</span></div>
+        <ul>
+            <li>Many user threads mapped to a single kernel thread.</li>
+            <li>One blocking thread blocks all.</li>
+            <li>Cannot run in true parallel on multicore.</li>
+            <li><b>Examples:</b> Solaris Green Threads, GNU Portable Threads.</li>
+        </ul>
+
+        <h3>One-to-One</h3>
+        <div class="model"><span class="node">User T₁</span><span class="arrow">→</span><span class="node">Kernel T₁</span><span class="node">User T₂</span><span class="arrow">→</span><span class="node">Kernel T₂</span></div>
+        <ul>
+            <li>Each user thread maps to one kernel thread.</li>
+            <li>More concurrency than M:1.</li>
+            <li>Overhead may cap the number of threads per process.</li>
+            <li><b>Examples:</b> Windows, Linux, Solaris ≥ 9.</li>
+        </ul>
+
+        <h3>Many-to-Many</h3>
+        <div class="model"><span class="node">User T₁</span><span class="node">User T₂</span><span class="node">User T₃</span><span class="arrow">→</span><span class="node">Kernel T₁</span><span class="node">Kernel T₂</span></div>
+        <ul>
+            <li>Many user threads multiplexed onto several kernel threads.</li>
+            <li>OS creates enough kernel threads for the workload.</li>
+            <li><b>Examples:</b> Solaris &lt; 9, Windows with ThreadFiber.</li>
+        </ul>
+
+        <h3>Two-level</h3>
+        <p>Like Many-to-Many, but additionally allows a user thread to be <i>bound</i> to a specific kernel thread. <b>Examples:</b> IRIX, HP-UX, Tru64 UNIX, Solaris ≤ 8.</p>
+
+        <h2 id="en-9">9. Thread libraries</h2>
+        <p>A thread library exposes an API for creating and managing threads. Two implementation strategies:</p>
+        <ul>
+            <li>entirely in user space,</li>
+            <li>kernel-level, supported by the OS.</li>
+        </ul>
+
+        <h3>Pthreads</h3>
+        <ul>
+            <li>POSIX standard (IEEE 1003.1c) — a <b>specification</b>, not an implementation.</li>
+            <li>Can be user- or kernel-level.</li>
+            <li>Common across UNIX: Solaris, Linux, macOS.</li>
+        </ul>
+
+        <h3>Windows threads</h3>
+        <ul>
+            <li>Part of the Windows API.</li>
+            <li>Uses a one-to-one mapping to kernel threads.</li>
+        </ul>
+
+        <h3>Java threads</h3>
+        <ul>
+            <li>Managed by the JVM, typically over the host OS's kernel threads.</li>
+            <li>Two creation paths: extend <code>Thread</code> or implement <code>Runnable</code>.</li>
+        </ul>
+
+        <h2 id="en-10">10. Implicit threading</h2>
+        <p>As thread counts grow, getting program correctness right manually becomes harder. The idea: shift thread creation and management from the programmer to compilers and runtime libraries. The programmer identifies <b>tasks</b>, not threads.</p>
+
+        <h3>Thread Pools</h3>
+        <ul>
+            <li>A pool of threads is created in advance, waiting for work.</li>
+            <li>Servicing a request with an existing thread is faster than creating a new one.</li>
+            <li>Bounds the total number of threads to the pool size.</li>
+            <li>Decoupling task from thread enables different scheduling strategies (e.g., periodic tasks).</li>
+            <li>Supported by the Windows API.</li>
+        </ul>
+
+        <h3>OpenMP</h3>
+        <ul>
+            <li>A set of compiler directives plus an API for C, C++, FORTRAN.</li>
+            <li>Targets parallel programming in shared-memory environments.</li>
+            <li>The programmer marks <b>parallel regions</b>:</li>
+        </ul>
+        <pre>#pragma omp parallel
+{
+    /* create as many threads as there are cores */
+}
+
+#pragma omp parallel for
+for (i = 0; i &lt; N; i++) {
+    c[i] = a[i] + b[i];     /* loop runs in parallel */
+}</pre>
+
+        <h3>Grand Central Dispatch (GCD)</h3>
+        <ul>
+            <li>Apple technology for macOS and iOS.</li>
+            <li>Extensions to C/C++, an API, and a runtime library.</li>
+            <li>Code blocks in <code>^{ ... }</code> syntax: <code>^{ printf("I am a block"); }</code></li>
+            <li>Blocks are placed in dispatch queues and picked up by available threads from a pool.</li>
+        </ul>
+
+        <p><b>Two queue types:</b></p>
+        <ul>
+            <li><b>Serial</b> — FIFO, one block at a time; one queue per process (the main queue), plus user-created.</li>
+            <li><b>Concurrent</b> — FIFO, but several blocks may be removed at a time. Three system-wide queues at priorities <i>low</i>, <i>default</i>, <i>high</i>.</li>
+        </ul>
+
+        <p>Other approaches: Microsoft Threading Building Blocks (TBB), <code>java.util.concurrent</code>.</p>
+
+        <h2 id="en-11">11. Threading issues</h2>
+
+        <h3>Semantics of <code>fork()</code> and <code>exec()</code></h3>
+        <ul>
+            <li>Does <code>fork()</code> duplicate <b>all threads</b>, or only the calling thread? Some UNIXes provide <b>two versions of fork()</b> — one for each behavior.</li>
+            <li><code>exec()</code> works as usual: it replaces the entire running process, including all threads.</li>
+        </ul>
+
+        <h3>Signal handling</h3>
+        <p>Signals notify a UNIX process that some event occurred. Lifecycle:</p>
+        <ol>
+            <li>The signal is generated by an event.</li>
+            <li>The signal is delivered to a process.</li>
+            <li>The signal is handled by either the <b>default</b> handler (kernel) or a <b>user-defined</b> one.</li>
+        </ol>
+
+        <p><b>Where do you deliver a signal in a multithreaded process?</b> Four strategies:</p>
+        <ul>
+            <li>to the thread the signal applies to;</li>
+            <li>to every thread in the process;</li>
+            <li>to certain threads only;</li>
+            <li>to one designated thread that receives all signals.</li>
+        </ul>
+
+        <h3>Thread cancellation</h3>
+        <p>Terminating the <i>target thread</i> before it finishes. Two approaches:</p>
+        <table>
+            <tr><th>Approach</th><th>Behavior</th></tr>
+            <tr><td><b>Asynchronous</b></td><td>Terminates the target immediately — even mid-update.</td></tr>
+            <tr><td><b>Deferred</b></td><td>The target is told to terminate; it periodically checks. Cancellation happens at <i>cancellation points</i> (<code>pthread_testcancel()</code>), then a cleanup handler runs.</td></tr>
+        </table>
+        <p>The default type is deferred. On Linux, cancellation is implemented through signals. In most circumstances, deferred is preferred over asynchronous.</p>
+
+        <h3>Thread-Local Storage (TLS)</h3>
+        <ul>
+            <li>Gives each thread its <b>own copy</b> of data.</li>
+            <li>Useful when you don't control thread creation (e.g., when using a pool).</li>
+            <li>Different from local variables: locals live only inside one function call; TLS persists across calls.</li>
+            <li>Similar to <code>static</code> data, but per-thread.</li>
+        </ul>
+
+        <h3>Scheduler activations</h3>
+        <ul>
+            <li>The M:M and Two-level models need communication to keep the right number of kernel threads allocated.</li>
+            <li>An intermediate structure — the <b>LWP (lightweight process)</b> — sits between user and kernel threads.</li>
+            <li>An LWP looks like a virtual processor onto which the user library schedules user threads.</li>
+            <li>Each LWP is attached to a kernel thread.</li>
+            <li><b>Upcalls</b> are the kernel-to-thread-library communication that lets the application keep the kernel-thread count correct.</li>
+        </ul>
+
+        <h2 id="en-12">12. OS examples</h2>
+
+        <h3>Windows Threads</h3>
+        <ul>
+            <li>Implements the Windows API (Win 98, NT, 2000, XP, 7).</li>
+            <li>Uses a <b>one-to-one</b>, kernel-level mapping.</li>
+            <li>Each thread holds: a thread ID, a register set, separate user and kernel stacks, and a private storage area for the runtime/DLLs.</li>
+            <li>The registers + stacks + private storage = the thread's <b>context</b>.</li>
+        </ul>
+
+        <p><b>Primary data structures for a Windows thread:</b></p>
+        <table>
+            <tr><th>Structure</th><th>Contents</th><th>Lives in</th></tr>
+            <tr><td><b>ETHREAD</b></td><td>Executive thread block; pointer to owning process and to KTHREAD</td><td>Kernel space</td></tr>
+            <tr><td><b>KTHREAD</b></td><td>Scheduling & synchronization info, kernel-mode stack, pointer to TEB</td><td>Kernel space</td></tr>
+            <tr><td><b>TEB</b></td><td>Thread environment block; thread ID, user-mode stack, TLS</td><td>User space</td></tr>
+        </table>
+
+        <h3>Linux Threads</h3>
+        <ul>
+            <li>Linux calls them <b>tasks</b> and does not distinguish between processes and threads.</li>
+            <li>Created via the <code>clone()</code> system call.</li>
+            <li><code>clone()</code> lets a child task <b>share</b> the parent's address space; flags control exactly which resources are shared.</li>
+            <li>A <code>struct task_struct</code> points to per-task data structures — shared or unique depending on the flags.</li>
+        </ul>
+
+        <div class="card">
+            <b>Take-away:</b> a thread is a "lightweight process" that shares resources with sibling threads in the same process. Multithreading delivers responsiveness, economy, and scalability — but comes with a set of subtle hazards (synchronization, signal delivery, cancellation, user/kernel mapping) that the OS, the runtime, and the programmer must each handle correctly.
+        </div>
+    </section>
+
+    <footer>
+        Advanced Operating Systems · Lecture 4 · Threads & Concurrency<br>
+        Adapted from <i>Operating System Concepts</i>, 10th Edition — Silberschatz, Galvin and Gagne ©2018
+    </footer>
+
+</div>
+<script>
+    (function(){var buttons=document.querySelectorAll(".lang-tabs button");var sections=document.querySelectorAll("section.lang");buttons.forEach(function(btn){btn.addEventListener("click",function(){var lang=btn.dataset.lang;buttons.forEach(function(b){b.classList.toggle("active",b===btn);});sections.forEach(function(s){s.classList.toggle("active",s.id===lang);});window.scrollTo({top:0,behavior:"smooth"});});});})();
+</script>
+</body>
+</html>

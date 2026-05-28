@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 6 Quiz — Main Memory</title>
+    <style>
+        :root{--bg:#fafaf8;--fg:#1a1a1a;--muted:#6b6b6b;--accent:#2b6cb0;--line:#e5e5e0;--card:#ffffff;--code-bg:#f3f3ee;--ok:#2f855a;--ok-bg:#e6f4ea;--bad:#c53030;--bad-bg:#fde8e8;--sel-bg:#ebf5ff;--ok-line:#c6e7d2;--bad-line:#f5c6c6}
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;line-height:1.6;font-size:16px}
+        .wrap{max-width:860px;margin:0 auto;padding:48px 24px 96px}
+        header{border-bottom:1px solid var(--line);padding-bottom:24px;margin-bottom:32px}
+        .eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+        h1{font-size:30px;font-weight:600;margin:0 0 6px;letter-spacing:-.01em}
+        .sub{color:var(--muted);font-size:15px}
+        .instr{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:18px 0 28px;font-size:14px;color:var(--muted)}
+        .question{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:16px 0}
+        .qhead{display:flex;gap:10px;margin-bottom:12px}
+        .qnum{font-size:12px;letter-spacing:.08em;color:var(--muted);font-weight:600;padding:3px 8px;background:var(--code-bg);border-radius:6px;flex-shrink:0;height:fit-content}
+        .qtext{font-weight:500;line-height:1.5}
+        .options{display:flex;flex-direction:column;gap:8px}
+        .option{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%;transition:all .12s}
+        .option:hover:not(.locked){border-color:var(--accent);background:var(--card)}
+        .option.selected{border-color:var(--accent);background:var(--sel-bg)}
+        .option.locked{cursor:default}
+        .option.correct{border-color:var(--ok);background:var(--ok-bg)}
+        .option.wrong{border-color:var(--bad);background:var(--bad-bg)}
+        .letter{font-family:"JetBrains Mono",Consolas,monospace;font-weight:600;color:var(--muted);flex-shrink:0;width:18px}
+        .option.correct .letter,.option.wrong .letter{color:inherit}
+        .feedback{margin-top:12px;padding:12px 14px;border-radius:8px;font-size:14px;display:none}
+        .feedback.shown{display:block}
+        .feedback.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+        .feedback.bad{background:var(--bad-bg);color:var(--bad);border:1px solid var(--bad-line)}
+        .feedback .explain{color:var(--fg);margin-top:8px;line-height:1.55}
+        .actions{display:flex;gap:10px;margin-top:28px;justify-content:center}
+        button.btn{padding:11px 24px;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;font-size:15px}
+        button.btn:hover{filter:brightness(1.05)}
+        button.btn.secondary{background:var(--card);color:var(--accent)}
+        #reset{display:none}
+        #score{display:none;background:var(--card);border:2px solid var(--accent);border-radius:12px;padding:28px;text-align:center;margin:24px 0}
+        #score.shown{display:block}
+        .score-main{font-size:42px;font-weight:700;color:var(--accent);letter-spacing:-.02em}
+        .score-pct{font-size:18px;color:var(--muted);margin-top:4px}
+        .score-note{font-size:13px;color:var(--muted);margin-top:10px}
+        footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;text-align:center}
+    </style>
+    <style>
+        html[data-theme="dark"]{--bg:#15171a;--fg:#e7e9ec;--muted:#9aa0a6;--accent:#5aa2ff;--line:#2c3137;--border:#2c3137;--card:#1e2125;--code-bg:#2a2f35;--ok:#5fd39a;--ok-bg:#16271d;--ok-line:#234d38;--bad:#ff8c8c;--bad-bg:#2a1718;--bad-line:#5a2a2c;--sel-bg:#16304d;--shadow:rgba(0,0,0,.45)}
+        .theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border:1px solid var(--line,#e5e5e0);background:var(--card,#fff);color:var(--fg,#1a1a1a);border-radius:8px;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+        .theme-toggle:hover{border-color:var(--accent,#2b6cb0)}
+    </style>
+</head>
+<body>
+<script>
+    (function(){try{var t=localStorage.getItem("aos_quiz_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+        function lbl(){return document.documentElement.getAttribute("data-theme")==="dark"?"Светлая тема":"Тёмная тема";}
+        document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.className="theme-toggle";b.type="button";b.textContent=lbl();b.addEventListener("click",function(){var d=document.documentElement.getAttribute("data-theme")==="dark";var n=d?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("aos_quiz_theme",n);}catch(e){}b.textContent=lbl();});document.body.appendChild(b);});})();
+</script>
+
+<div class="wrap">
+    <a class="home-link" href="../index.html" style="display:inline-block;margin-bottom:20px;font-size:14px;font-weight:600;color:var(--accent);text-decoration:none">← На главную</a>
+    <header>
+        <div class="eyebrow">Advanced Operating Systems · Lecture 6 Quiz</div>
+        <h1>Main Memory</h1>
+        <div class="sub">30 multiple-choice questions · instant feedback the moment you answer</div>
+    </header>
+
+    <div class="instr">Click an answer and you'll immediately see whether it's right. Wrong answers reveal the correct choice and a short explanation. A running score sits at the top; your final score appears once every question is answered.</div>
+
+    <div id="quiz"></div>
+    <div id="score"></div>
+
+    <div class="actions">
+        <button class="btn secondary" id="reset" style="display:inline-block">Restart Quiz</button>
+    </div>
+
+    <footer>Advanced Operating Systems · Lecture 6 · Practice quiz</footer>
+</div>
+
+<script>
+    const questions = [
+        {q:"If base = 1200 and limit = 350, which of the following addresses is ILLEGAL?",
+            options:["1200","1400","1549","1600"],
+            correct:3,
+            explanation:"Legal range is [base, base+limit) = [1200, 1550). 1200 is the very first legal byte, 1400 = 1200+200, and 1549 = 1200+349 are all in range. 1600 lies past the limit and would trap to the kernel."},
+
+        {q:"If base = 1200 and limit = 350, which of the following addresses IS legal?",
+            options:["800","1100","1200","1700"],
+            correct:2,
+            explanation:"Only addresses in [1200, 1550) are legal. 800 and 1100 are below base; 1700 exceeds the limit; 1200 is exactly the base — the first legal address."},
+
+        {q:"Compile-time address binding requires:",
+            options:["Run-time hardware translation (MMU)","Knowing the load address in advance, otherwise recompilation is required","The OS to be in user mode","Dynamic linking"],
+            correct:1,
+            explanation:"At compile time, the compiler emits absolute addresses. If the program's load address changes, you must recompile. Load-time binding emits relocatable code instead."},
+
+        {q:"The MMU is responsible for:",
+            options:["Compile-time address binding","Run-time mapping of virtual to physical addresses","Disk-to-memory swap I/O","Page-replacement decisions"],
+            correct:1,
+            explanation:"The MMU is the hardware that performs run-time address translation — adding a relocation register, walking a page table, etc. The OS makes the policy decisions; the MMU does the per-access lookups."},
+
+        {q:"External fragmentation is best described as:",
+            options:["Allocated memory slightly larger than requested","Enough total free memory exists, but not in one contiguous block","The OS using more memory than expected","A fault in the MMU"],
+            correct:1,
+            explanation:"External fragmentation = the 'Swiss cheese' problem of contiguous allocation: free memory is scattered in small holes. Internal fragmentation is the wasted space inside an allocated block."},
+
+        {q:"Paging eliminates EXTERNAL fragmentation primarily because:",
+            options:["It compacts memory continuously","Frames and pages are fixed-size, so any free frame fits any page","It disables protection","Each process gets a contiguous block"],
+            correct:1,
+            explanation:"Since frames (physical) and pages (logical) are the same fixed size, any free frame works for any page — no Swiss-cheese pattern. Internal fragmentation does remain (the last page may be partly empty)."},
+
+        {q:"Compaction (to defeat external fragmentation) is possible only if:",
+            options:["The system has at least 4 GB of RAM","Address binding is dynamic (execution-time)","The MMU is disabled","Pages are at least 4 KB"],
+            correct:1,
+            explanation:"Compaction moves processes in memory. With compile- or load-time binding, addresses inside the process would no longer be valid. Only execution-time binding lets a process move while running."},
+
+        {q:"With TLB hit ratio α = 80%, TLB search ε = 20 ns, and memory access = 100 ns, the Effective Access Time is:",
+            options:["100 ns","120 ns","200 ns","80 ns"],
+            correct:1,
+            explanation:"EAT = α(ε + memory) + (1−α)(ε + 2·memory) = 0.80(120) + 0.20(220) ≈ 0.80·100 + 0.20·200 = 120 ns. With α=99%, EAT drops to ~101 ns — almost native speed."},
+
+        {q:"Inverted page tables work by storing:",
+            options:["One page-table entry per process","One page-table entry per physical frame","Entries inside the CPU","Hash buckets of TLBs"],
+            correct:1,
+            explanation:"Inverted tables have one entry per real frame, describing what virtual page (and which process) currently occupies that frame. Saves memory but lookups need a hash table to be efficient."},
+
+        {q:"On x86-64, the implemented virtual-address width is typically:",
+            options:["32 bits","48 bits","Full 64 bits","52 bits"],
+            correct:1,
+            explanation:"x86-64 is '64-bit' but in practice implements 48-bit virtual addresses (52-bit physical with PAE). Uses 4-level paging. Page sizes 4 KB, 2 MB, 1 GB."},
+
+        {q:"A 'page-out' operation:",
+            options:["Frees a page table","Moves a page from main memory to the backing store","Increases TLB hit rate","Is a kind of segmentation"],
+            correct:1,
+            explanation:"A page-out evicts a page from physical memory to disk so the frame can be reused. The opposite is page-in (bring it back). Page replacement policies decide which page to evict."},
+
+        {q:"ASID (Address-Space ID) in a TLB entry exists in order to:",
+            options:["Encrypt addresses","Avoid flushing the TLB on every context switch","Replace the PTBR","Identify the user"],
+            correct:1,
+            explanation:"With an ASID tagged onto each TLB entry, entries for different processes can coexist. A context switch doesn't have to invalidate the whole TLB — entries simply belong to whichever ASID is now active."},
+
+        {q:"A page-table entry's valid/invalid bit set to 'invalid' means:",
+            options:["The page is currently on disk","The page is not part of the process's logical address space","The page's data is corrupted","The page is execute-only"],
+            correct:1,
+            explanation:"The valid bit answers the question 'is this page within the process's logical address space at all?' An access to an invalid page traps to the kernel (which may then page it in or raise a segfault)."},
+
+        {q:"Hierarchical (multi-level) page tables alone become impractical at:",
+            options:["Small page sizes like 4 KB","Very large address spaces (64-bit)","Single-process systems","Systems without a TLB"],
+            correct:1,
+            explanation:"In 64-bit with 4 KB pages, even a 2-level table needs an outer table of ~2^42 entries — far too large. So real 64-bit systems use 3–4 levels (slow), or hashed/inverted tables."},
+
+        {q:"Hashed page tables are MOST commonly used for:",
+            options:["Address spaces larger than 32 bits","Embedded systems with 16-bit addresses","Small caches","Real-time tasks"],
+            correct:0,
+            explanation:"Hashed page tables become attractive for large (>32-bit) address spaces. The virtual page number is hashed; collisions are chained. Clustered variants cover multiple pages per entry — good for sparse address spaces."},
+
+        {q:"Dynamic linking is mainly useful because:",
+            options:["It saves stack space","Many processes can share one in-memory copy of a library","It speeds up the loader","It enables garbage collection"],
+            correct:1,
+            explanation:"Dynamic linking (shared libraries) lets many processes share a single in-memory copy of common library code. Also enables library patching and runtime updates."},
+
+        {q:"On a process exit, paging's internal fragmentation:",
+            options:["Doubles","Disappears entirely","Averages about half a page per process","Is more than one full page per process"],
+            correct:2,
+            explanation:"The last page of a process is on average half full. Worst case is almost a whole frame minus 1 byte; average is about ½·(page size). That's why making pages smaller reduces fragmentation but enlarges page tables."},
+
+        {q:"Sharing of read-only (reentrant) code via paging is useful because:",
+            options:["It always speeds up execution","Many processes (e.g., users running the same editor) can share one in-memory copy","It bypasses protection checks","It eliminates page faults"],
+            correct:1,
+            explanation:"If the code is reentrant (doesn't modify itself), all users running it can map the same physical frames into their address spaces. Saves a lot of memory for popular programs."},
+
+        {q:"Static vs dynamic linking — the main difference is:",
+            options:["Static is faster than dynamic","Static embeds libraries into the binary; dynamic links them at runtime and allows sharing","Dynamic linking can't be used on Linux","They are identical"],
+            correct:1,
+            explanation:"Static linking copies library code into the executable — bigger binary, no runtime dependency. Dynamic linking defers it; shared libraries are loaded once and used by many processes. Dynamic linking also enables library patching without recompiling apps."},
+
+        {q:"In modern OSes, standard whole-process swapping is:",
+            options:["The default policy","Normally DISABLED; only a modified version kicks in when free memory is critically low","Required for paging","Used only on mobile devices"],
+            correct:1,
+            explanation:"Whole-process swapping is too expensive in modern systems. Modern OSes use demand paging routinely and only invoke swap (often partial) under severe memory pressure."},
+
+        {q:"Mobile operating systems (iOS, Android) typically:",
+            options:["Use standard whole-process swapping","Do NOT support standard swapping; iOS asks apps to relinquish memory, Android terminates apps after saving state","Have unlimited memory","Disable paging entirely"],
+            correct:1,
+            explanation:"Flash storage has limited write cycles and slower throughput. iOS politely asks apps to free memory; Android kills apps under pressure but saves state for fast restart. Both still use paging."},
+
+        {q:"In segmentation, each segment-table entry contains:",
+            options:["A page number and offset","A BASE (starting physical address) and a LIMIT (length)","Permissions only","A pointer to the inverted page table"],
+            correct:1,
+            explanation:"Each entry holds base = start, limit = length. STBR points to the segment table; STLR holds its length. Logical address is <segment-number, offset>."},
+
+        {q:"For a logical address space of size 2^m and page size 2^n, the page OFFSET uses:",
+            options:["m bits","n bits","m − n bits","m + n bits"],
+            correct:1,
+            explanation:"Offset uses n bits to address 2^n bytes within a page. The remaining m − n bits form the page number — an index into the page table."},
+
+        {q:"On IA-32, segments shared across processes live in the:",
+            options:["Local Descriptor Table (LDT)","Global Descriptor Table (GDT)","TLB","PTBR"],
+            correct:1,
+            explanation:"IA-32 supports up to 16K segments per process: up to 8K private (LDT) and up to 8K shared via the GDT. Each segment can be 4 GB."},
+
+        {q:"Intel's PAE (Page Address Extension):",
+            options:["Reduces virtual memory","Lets 32-bit apps access more than 4 GB of physical memory via a 3-level paging scheme","Replaces the MMU","Is for 64-bit systems only"],
+            correct:1,
+            explanation:"PAE keeps 32-bit virtual addresses but expands physical addresses to 36 bits (64 GB) using a 3-level page table. The top two bits index a page-directory pointer table."},
+
+        {q:"Solaris supports two page sizes:",
+            options:["1 KB and 1 MB","4 KB and 4 MB","8 KB and 4 MB","2 MB and 1 GB"],
+            correct:2,
+            explanation:"Solaris uses 8 KB and 4 MB pages. Big pages reduce TLB pressure and page-table size; small pages reduce internal fragmentation. The OS picks per-region."},
+
+        {q:"Clustered page tables are a variation of hashed page tables, suited best for:",
+            options:["Dense address spaces","SPARSE 64-bit address spaces","Embedded systems without MMU","Real-time-only systems"],
+            correct:1,
+            explanation:"Clustered page tables let each entry cover several adjacent pages (e.g., 16). Especially efficient for sparse address spaces where references are scattered."},
+
+        {q:"In Oracle SPARC Solaris, the TSB (Translation Storage Buffer) is:",
+            options:["The TLB itself","An IN-MEMORY cache of TTEs the hardware walks on a TLB miss","A disk-resident page file","Strictly kernel-only"],
+            correct:1,
+            explanation:"On a TLB miss, hardware walks the TSB looking for a TTE. If still no match, the kernel is interrupted, searches the hash table, builds a TTE, stores it in the TSB, and resumes."},
+
+        {q:"ARM uses how many levels of paging for SECTIONS vs small pages?",
+            options:["Two for sections, one for small pages","ONE for sections (1 MB/16 MB), TWO for small pages (4 KB/16 KB)","Three for both","One for both"],
+            correct:1,
+            explanation:"ARM uses one-level paging for sections, two-level paging for small pages. It also has two-level TLBs (outer micro-TLBs for data and instructions, plus an inner main TLB)."},
+
+        {q:"On x86-64 with PAE, physical addresses can be up to:",
+            options:["32 bits","48 bits","52 bits","64 bits"],
+            correct:2,
+            explanation:"x86-64 implements 48-bit virtual addressing and up to 52-bit physical addressing. Four-level page tables; page sizes 4 KB, 2 MB, 1 GB."}
+    ];
+
+    (function(){
+        const quiz = document.getElementById('quiz');
+        const total = questions.length;
+        let answered = 0, correct = 0;
+
+        const bar = document.createElement('div');
+        bar.id = 'livescore';
+        bar.style.cssText = 'position:sticky;top:0;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 16px;margin:0 0 16px;font-size:14px;font-weight:600;color:var(--muted);display:flex;justify-content:space-between;box-shadow:0 1px 6px rgba(0,0,0,.06)';
+        bar.innerHTML = `<span id="ls-prog">Answered 0 / ${total}</span><span id="ls-score">Score 0 / 0</span>`;
+        quiz.parentNode.insertBefore(bar, quiz);
+
+        questions.forEach((q, i) => {
+            const node = document.createElement('div');
+            node.className = 'question';
+            node.dataset.q = i;
+            node.innerHTML = `<div class="qhead"><span class="qnum">Q${i+1}</span><span class="qtext">${q.q}</span></div><div class="options">${q.options.map((opt, j) => `<button class="option" data-i="${j}" type="button"><span class="letter">${'ABCD'[j]}.</span><span>${opt}</span></button>`).join('')}</div><div class="feedback"></div>`;
+            quiz.appendChild(node);
+        });
+
+        quiz.addEventListener('click', e => {
+            const opt = e.target.closest('.option');
+            if (!opt) return;
+            const card = opt.closest('.question');
+            if (card.dataset.done) return;
+            card.dataset.done = '1';
+            const q = questions[parseInt(card.dataset.q)];
+            const chosen = parseInt(opt.dataset.i);
+            card.querySelectorAll('.option').forEach((o, j) => {
+                o.classList.add('locked');
+                if (j === q.correct) o.classList.add('correct');
+                if (j === chosen && j !== q.correct) o.classList.add('wrong');
+            });
+            const fb = card.querySelector('.feedback');
+            answered++;
+            if (chosen === q.correct) {
+                correct++;
+                fb.innerHTML = `<b>✓ Correct.</b>`;
+                fb.classList.add('shown','ok');
+            } else {
+                fb.innerHTML = `<b>✗ You chose ${'ABCD'[chosen]}. Correct answer: ${'ABCD'[q.correct]}.</b><div class="explain">${q.explanation}</div>`;
+                fb.classList.add('shown','bad');
+            }
+            document.getElementById('ls-prog').textContent = `Answered ${answered} / ${total}`;
+            document.getElementById('ls-score').textContent = `Score ${correct} / ${answered}`;
+            if (answered === total) {
+                const pct = Math.round(correct / total * 100);
+                const grade = pct >= 90 ? 'Excellent' : pct >= 70 ? 'Good' : pct >= 50 ? 'Passing' : 'Needs review';
+                const scoreEl = document.getElementById('score');
+                scoreEl.innerHTML = `<div class="score-main">${correct} / ${total}</div><div class="score-pct">${pct}% — ${grade}</div><div class="score-note">Review any red answers above for explanations, or click "Restart Quiz" to go again.</div>`;
+                scoreEl.classList.add('shown');
+                scoreEl.scrollIntoView({behavior:'smooth', block:'center'});
+            }
+        });
+
+        document.getElementById('reset').addEventListener('click', () => location.reload());
+    })();
+</script>
+</body>
+</html>

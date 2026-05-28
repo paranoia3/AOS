@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 9 — Security</title>
+    <style>
+        :root{
+            --bg:#fafaf8;
+            --fg:#1a1a1a;
+            --muted:#6b6b6b;
+            --accent:#2b6cb0;
+            --line:#e5e5e0;
+            --card:#ffffff;
+            --code-bg:#f3f3ee;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
+            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+            line-height:1.65;font-size:16px;}
+        .wrap{max-width:880px;margin:0 auto;padding:64px 28px 96px}
+        header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:48px}
+        .eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+        h1{font-size:34px;font-weight:600;margin:0 0 8px;letter-spacing:-.01em}
+        .sub{color:var(--muted);font-size:16px}
+        nav.lang{display:flex;gap:8px;margin-top:24px}
+        nav.lang a{font-size:14px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;
+            text-decoration:none;color:var(--fg);background:var(--card)}
+        nav.lang a:hover{border-color:var(--accent);color:var(--accent)}
+        section.lang-section{margin-top:56px}
+        h2{font-size:24px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+        h3{font-size:18px;font-weight:600;margin:28px 0 10px;color:var(--fg)}
+        p{margin:10px 0}
+        ul{margin:10px 0 16px;padding-left:22px}
+        li{margin:5px 0}
+        .lede{font-size:17px;color:var(--muted);margin:0 0 24px}
+        .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:16px 0}
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}
+        .pill{display:inline-block;font-size:12px;padding:2px 10px;border:1px solid var(--line);
+            border-radius:999px;color:var(--muted);background:var(--card);margin-right:6px}
+        code,kbd{background:var(--code-bg);padding:1px 6px;border-radius:4px;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px}
+        pre{background:var(--code-bg);padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px;line-height:1.5;margin:14px 0}
+        table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px}
+        th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+        th{font-weight:600;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+        .divider{height:1px;background:var(--line);margin:64px 0}
+        .toc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:24px 0}
+        .toc h4{margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+        .toc ol{margin:0;padding-left:22px;color:var(--fg)}
+        .toc li{margin:3px 0}
+        .toc a{color:var(--fg);text-decoration:none}
+        .toc a:hover{color:var(--accent)}
+        .formula{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;margin:16px 0;text-align:center;font-family:"JetBrains Mono",Consolas,monospace;font-size:15px}
+        .diagram{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;margin:14px 0;font-family:"JetBrains Mono",Consolas,monospace}
+        .box{padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+        .arrow{color:var(--muted)}
+        footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--line);
+            color:var(--muted);font-size:13px;text-align:center}
+        .lang-tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px;margin:24px 0 8px;width:fit-content}
+        .lang-tabs button{background:transparent;border:none;padding:8px 18px;font:inherit;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-radius:7px;transition:all .15s}
+        .lang-tabs button.active{background:var(--accent);color:#fff}
+        .lang-tabs button:hover:not(.active){color:var(--fg)}
+        section.lang{display:none}
+        section.lang.active{display:block}
+    </style>
+    <style>
+        html[data-theme="dark"]{--bg:#15171a;--fg:#e7e9ec;--muted:#9aa0a6;--accent:#5aa2ff;--line:#2c3137;--border:#2c3137;--card:#1e2125;--code-bg:#2a2f35;--ok:#5fd39a;--ok-bg:#16271d;--ok-line:#234d38;--bad:#ff8c8c;--bad-bg:#2a1718;--bad-line:#5a2a2c;--sel-bg:#16304d;--shadow:rgba(0,0,0,.45)}
+        html[data-theme="dark"] .key{background:#16304d;color:#9ec3ff}
+        .theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border:1px solid var(--line,#e5e5e0);background:var(--card,#fff);color:var(--fg,#1a1a1a);border-radius:8px;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+        .theme-toggle:hover{border-color:var(--accent,#2b6cb0)}
+    </style>
+</head>
+<body>
+<script>
+    (function(){try{var t=localStorage.getItem("aos_quiz_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+        function lbl(){return document.documentElement.getAttribute("data-theme")==="dark"?"Светлая тема":"Тёмная тема";}
+        document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.className="theme-toggle";b.type="button";b.textContent=lbl();b.addEventListener("click",function(){var d=document.documentElement.getAttribute("data-theme")==="dark";var n=d?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("aos_quiz_theme",n);}catch(e){}b.textContent=lbl();});document.body.appendChild(b);});})();
+</script>
+
+<div class="wrap">
+    <div class="lec-nav" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:22px;font-size:14px;font-weight:600">
+        <a href="../L8/lecture08_summary.html" style="color:var(--accent);text-decoration:none">← Лекция 8</a>
+        <a href="../index.html" style="color:var(--accent);text-decoration:none">На главную</a>
+        <a href="../L10/lecture10_summary.html" style="color:var(--accent);text-decoration:none">Лекция 10 →</a>
+    </div>
+
+    <header>
+        <div class="eyebrow">Advanced Operating Systems · Lecture 9</div>
+        <h1>Security</h1>
+        <div class="sub">Безопасность — резюме и пояснения</div>
+        <div class="lang-tabs">
+            <button class="active" data-lang="ru">Русский</button>
+            <button data-lang="en">English</button>
+        </div>
+    </header>
+
+    <!-- ===================== РУССКАЯ ВЕРСИЯ ===================== -->
+    <section id="ru" class="lang active">
+        <p class="lede">Эта лекция охватывает <b>безопасность вычислительных систем</b>: чем отличается security от protection, какие категории нарушений (конфиденциальность, целостность, доступность, кража сервиса, DoS), какие методы атак (masquerading, replay, MITM, hijacking, privilege escalation), четырёхуровневая модель защиты, угрозы программам (Trojan, malware, ransomware, переполнение буфера, виды вирусов), сетевые угрозы (worms, port scanning, DoS/DDoS), криптография как инструмент (симметричное и асимметричное шифрование, RSA, MAC и цифровая подпись, TLS), аутентификация пользователей (пароли, salt, OTP, биометрия, MFA), защитные меры (defense in depth, IDS, sandbox, firewall), классификация D/C/B/A и пример Windows 10.</p>
+
+        <div class="toc">
+            <h4>Содержание</h4>
+            <ol>
+                <li><a href="#ru-1">Security vs Protection</a></li>
+                <li><a href="#ru-2">Проблема безопасности и категории нарушений</a></li>
+                <li><a href="#ru-3">Методы атак</a></li>
+                <li><a href="#ru-4">Четыре уровня безопасности</a></li>
+                <li><a href="#ru-5">Угрозы программам</a></li>
+                <li><a href="#ru-6">Переполнение буфера и инъекция кода</a></li>
+                <li><a href="#ru-7">Вирусы</a></li>
+                <li><a href="#ru-8">Сетевые угрозы: worms, port scanning, DoS</a></li>
+                <li><a href="#ru-9">Криптография: шифрование</a></li>
+                <li><a href="#ru-10">Аутентификация сообщений: hash, MAC, цифровая подпись</a></li>
+                <li><a href="#ru-11">Распределение ключей и сертификаты</a></li>
+                <li><a href="#ru-12">TLS и реализация криптографии</a></li>
+                <li><a href="#ru-13">Аутентификация пользователей</a></li>
+                <li><a href="#ru-14">Защитные меры</a></li>
+                <li><a href="#ru-15">Firewall и классификация безопасности</a></li>
+                <li><a href="#ru-16">Пример: Windows 10</a></li>
+            </ol>
+        </div>
+
+        <h2 id="ru-1">1. Security vs Protection</h2>
+        <div class="card">
+            <p><b>Security</b> — мера уверенности в том, что целостность системы и её данных будет сохранена.</p>
+            <p><b>Protection</b> — набор <b>механизмов</b>, контролирующих доступ процессов и пользователей к ресурсам.</p>
+        </div>
+
+        <ul>
+            <li><b>Protection — внутренняя</b> проблема ОС.</li>
+            <li><b>Security</b> учитывает <b>и</b> систему, <b>и</b> окружение: людей, здания, бизнес, ценности, угрозы.</li>
+            <li>Абсолютной защиты не бывает; цель — сделать стоимость атаки <b>достаточно высокой</b>, чтобы отпугнуть большинство.</li>
+            <li>Защититься от <b>случайных</b> потерь проще, чем от <b>злонамеренных</b>.</li>
+        </ul>
+
+        <h2 id="ru-2">2. Проблема безопасности и категории нарушений</h2>
+        <p>Система <i>безопасна</i>, если ресурсы используются и доступны <b>так, как задумано</b>, при любых обстоятельствах — что, по сути, недостижимо.</p>
+        <ul>
+            <li><b>Threat</b> — потенциальное нарушение безопасности.</li>
+            <li><b>Attack</b> — попытка нарушения; случайная или злонамеренная.</li>
+            <li><b>Intruders / crackers</b> — те, кто пытается взломать защиту.</li>
+        </ul>
+
+        <h3>Категории нарушений</h3>
+        <table>
+            <tr><th>Категория</th><th>Что произошло</th></tr>
+            <tr><td><b>Breach of confidentiality</b></td><td>Несанкционированное чтение данных.</td></tr>
+            <tr><td><b>Breach of integrity</b></td><td>Несанкционированная модификация данных.</td></tr>
+            <tr><td><b>Breach of availability</b></td><td>Несанкционированное уничтожение данных.</td></tr>
+            <tr><td><b>Theft of service</b></td><td>Несанкционированное использование ресурсов.</td></tr>
+            <tr><td><b>Denial of Service (DoS)</b></td><td>Препятствование легитимному использованию.</td></tr>
+        </table>
+
+        <h2 id="ru-3">3. Методы атак</h2>
+        <ul>
+            <li><b>Masquerading</b> — выдать себя за авторизованного пользователя и эскалировать привилегии.</li>
+            <li><b>Replay attack</b> — повторное воспроизведение перехваченного сообщения, как есть или с модификацией.</li>
+            <li><b>Man-in-the-middle (MITM)</b> — атакующий встроен в поток данных, прикидываясь и отправителем для получателя, и наоборот.</li>
+            <li><b>Session hijacking</b> — перехват уже установленной сессии, минуя аутентификацию.</li>
+            <li><b>Privilege escalation</b> — доступ выходит за рамки, что положено пользователю или ресурсу.</li>
+        </ul>
+
+        <h2 id="ru-4">4. Четыре уровня безопасности</h2>
+        <p>Безопасность должна работать <b>на всех четырёх уровнях</b>:</p>
+        <div class="grid">
+            <div class="card"><b>Physical</b><br><span style="color:var(--muted);font-size:14px">Дата-центры, серверы, подключённые терминалы.</span></div>
+            <div class="card"><b>Application</b><br><span style="color:var(--muted);font-size:14px">Безобидные и вредоносные приложения.</span></div>
+            <div class="card"><b>Operating System</b><br><span style="color:var(--muted);font-size:14px">Механизмы защиты, отладки.</span></div>
+            <div class="card"><b>Network</b><br><span style="color:var(--muted);font-size:14px">Перехват, разрыв связи, DoS.</span></div>
+        </div>
+        <p><b>Безопасность настолько слаба, насколько слабо самое слабое звено.</b> Люди — тоже риск (фишинг, социальная инженерия). При этом <b>слишком много безопасности</b> делает систему неюзабельной.</p>
+
+        <h2 id="ru-5">5. Угрозы программам</h2>
+
+        <h3>Trojan Horse</h3>
+        <p>Сегмент кода, который злоупотребляет своим окружением. Эксплуатирует механизмы, позволяющие чужому коду выполняться от имени других пользователей. Включает spyware, всплывающие окна, скрытые каналы. До 80% спама доставляется системами, заражёнными spyware.</p>
+
+        <h3>Trap Door (бэкдор)</h3>
+        <p>Специальный идентификатор пользователя или пароль, обходящий обычную аутентификацию. Может быть встроен даже в <b>компилятор</b>. <b>Сложен в обнаружении.</b></p>
+
+        <h3>Malware</h3>
+        <ul>
+            <li><b>Trojan Horse</b> — программа, действующая скрытно.</li>
+            <li><b>Spyware</b> — часто ставится вместе с легальным ПО, показывает рекламу, собирает данные.</li>
+            <li><b>Ransomware</b> — шифрует данные, требует выкуп за расшифровку.</li>
+            <li>Также: trap doors, <b>logic bombs</b>.</li>
+            <li>Все нарушают <b>принцип наименьших привилегий</b> (Least Privilege).</li>
+            <li>Цель часто — оставить <b>Remote Access Tool (RAT)</b> для повторного доступа.</li>
+        </ul>
+
+        <h2 id="ru-6">6. Переполнение буфера и инъекция кода</h2>
+
+        <p>Классический пример небезопасного C-кода:</p>
+        <pre>#include &lt;stdio.h&gt;
+#define BUFFER_SIZE 256
+int main(int argc, char *argv[])
+{
+    char buffer[BUFFER_SIZE];
+    if (argc &lt; 2)
+        return -1;
+    else {
+        strcpy(buffer, argv[1]);   // нет проверки длины
+        return 0;
+    }
+}</pre>
+
+        <h3>Code Injection</h3>
+        <ul>
+            <li>Возникает, когда <b>системный код не злонамеренный</b>, но <b>имеет баги</b>, позволяющие добавлять/менять исполняемый код.</li>
+            <li>Следствие плохих практик в низкоуровневых языках (C/C++) с прямым доступом к памяти через указатели.</li>
+            <li>Цель — <b>buffer overflow</b>: код подкладывают в буфер и заставляют исполниться.</li>
+            <li><b>Script kiddies</b> используют готовые эксплоиты, не понимая внутренностей.</li>
+            <li>Часто используется <b>trampoline</b> — переход на чужой код.</li>
+        </ul>
+
+        <p><b>Возможные последствия:</b> shell с правами процесса-жертвы, открытие сетевого порта, удаление файлов, загрузка вредоноса. Атака может пройти через сеть, обходя firewall на разрешённых соединениях.</p>
+
+        <p><b>Защиты:</b></p>
+        <ul>
+            <li>отключить выполнение со стека (<b>NX-бит</b> / non-executable);</li>
+            <li>добавить бит «non-executable» в page table (SPARC, x86);</li>
+            <li><b>code review</b> — программисты вычитывают код друг друга на предмет логических ошибок.</li>
+        </ul>
+
+        <h2 id="ru-7">7. Вирусы</h2>
+        <ul>
+            <li>Фрагмент кода, встроенный в легитимную программу.</li>
+            <li>Самораспространяется, нацелен на заражение других машин.</li>
+            <li>Очень <b>специфичен</b> к CPU-архитектуре, ОС и приложению.</li>
+            <li>Распространяется обычно через email или как макрос.</li>
+            <li><b>Virus dropper</b> внедряет вирус в систему.</li>
+        </ul>
+
+        <h3>Категории вирусов</h3>
+        <ul>
+            <li>File / parasitic,</li>
+            <li>Boot / memory,</li>
+            <li>Macro,</li>
+            <li>Source code,</li>
+            <li><b>Polymorphic</b> — каждый раз другая «сигнатура»,</li>
+            <li><b>Encrypted</b>, Stealth, Tunneling, Multipartite, Armored.</li>
+        </ul>
+
+        <p><b>Почему чаще всего атакуют Windows?</b> Самая массовая, по умолчанию все — администраторы, монокультура «вредна». Атаки давно перешли из «научных экспериментов» в инструмент <b>организованной преступности</b>: ботнеты для спама и DDoS, кейлоггеры для паролей и кредиток.</p>
+
+        <h2 id="ru-8">8. Сетевые угрозы</h2>
+
+        <h3>Worms (черви)</h3>
+        <p>Самостоятельные программы, использующие механизм <b>спавна</b>. Знаменитый <b>Internet worm</b>:</p>
+        <ul>
+            <li>Использовал UNIX-сетевые возможности и баги в <code>finger</code> и <code>sendmail</code>.</li>
+            <li>Эксплуатировал <b>trust relationships</b> у <code>rsh</code> — доступ без пароля.</li>
+            <li><b>Grappling hook</b> — 99 строк C, загружал основной код червя.</li>
+            <li>Подобрав один хост, пытался заразить связанные системы.</li>
+            <li>Брутфорсил пароли других пользователей локально.</li>
+            <li>Если цель уже заражена — обычно прекращал, но <b>каждый 7-й раз</b> всё равно заражал (защита от фейковых «уже заражено»).</li>
+        </ul>
+
+        <h3>Port Scanning</h3>
+        <ul>
+            <li>Автоматический перебор портов на диапазоне IP-адресов.</li>
+            <li>Определение протокола сервиса, ОС, версии.</li>
+            <li><b>nmap</b> — сканирует все порты диапазона; <b>nessus</b> — база протоколов, багов и эксплоитов.</li>
+            <li>Часто запускается с <b>zombie</b>-систем для маскировки.</li>
+        </ul>
+
+        <h3>Denial of Service</h3>
+        <ul>
+            <li>Перегружают цель, чтобы она не могла обслуживать.</li>
+            <li><b>DDoS</b> — Distributed DoS, атака с многих машин одновременно.</li>
+            <li>Пример: рукопожатие IP (<code>SYN flood</code>) — у ОС лимит на полуоткрытые соединения.</li>
+            <li>Как отличить DDoS от того, что сайт просто популярный? — Непросто.</li>
+            <li>Может быть <b>случайным</b> (студенты, сломавшие <code>fork()</code>) или <b>намеренным</b> (вымогательство, наказание).</li>
+        </ul>
+
+        <h2 id="ru-9">9. Криптография: шифрование</h2>
+        <p><b>Криптография</b> — самый широкий инструмент безопасности. На локальной машине ОС сама управляет PID и портами; в сети источник и получатель <b>нельзя</b> доверять без криптографии — IP-адрес ничего не гарантирует.</p>
+
+        <p>Криптография ограничивает множество <b>потенциальных отправителей и/или получателей</b> сообщения и основана на <b>секретах (ключах)</b>.</p>
+
+        <h3>Шифрование (Encryption)</h3>
+        <p>Ограничивает множество получателей. Алгоритм состоит из:</p>
+        <ul>
+            <li><code>K</code> — множество ключей, <code>M</code> — сообщений, <code>C</code> — шифротекстов;</li>
+            <li><code>E : K → (M → C)</code> и <code>D : K → (C → M)</code>;</li>
+            <li>обе функции должны быть эффективно вычисляемы.</li>
+        </ul>
+        <p><b>Ключевое свойство:</b> вычислить <code>m</code> из <code>c</code> возможно, только если есть ключ <code>k</code>. Шифротекст часто открыт (в сети), поэтому <b>невыводимость</b> <code>k</code> из <code>c</code> критически важна.</p>
+
+        <h3>Симметричное шифрование</h3>
+        <ul>
+            <li><b>Один и тот же</b> ключ шифрует и расшифровывает → ключ <b>должен быть секретным</b>.</li>
+            <li><b>DES</b> — был стандартом, теперь небезопасен (короткий ключ).</li>
+            <li><b>Triple-DES</b> — DES трижды с 2–3 ключами.</li>
+            <li><b>AES</b> (2001, NIST) — блочный шифр, ключи 128/192/256 бит, блоки 128 бит.</li>
+            <li><b>RC4</b> — потоковый шифр (Wi-Fi), известны уязвимости.</li>
+        </ul>
+
+        <h3>Асимметричное шифрование (public-key)</h3>
+        <ul>
+            <li>У каждого пользователя <b>две</b> ключа:
+                <ul><li><b>public</b> — публикуется, используется для шифрования;</li><li><b>private</b> — известен только владельцу, используется для расшифровки.</li></ul>
+            </li>
+            <li><b>RSA</b> — самый распространённый. Основан на том, что:
+                <ul><li>проверять простоту числа — легко;</li><li>раскладывать число на простые множители — <b>неизвестно как делать эффективно</b>.</li></ul>
+            </li>
+        </ul>
+
+        <p><b>Формально:</b></p>
+        <div class="formula">
+            N = p · q (p, q — большие простые)<br>
+            Eₖₑ,N(m) = m^kₑ mod N<br>
+            Dₖd,N(c) = c^kd mod N<br>
+            kₑ · kd ≡ 1 (mod (p−1)(q−1))
+        </div>
+
+        <p><b>Игрушечный пример:</b> p = 7, q = 13 → N = 91, (p−1)(q−1) = 72. Выбираем kₑ = 5, тогда kd = 29. Публичный ключ (5, 91), приватный (29, 91). Сообщение 69 → шифротекст 62 → обратно 69.</p>
+
+        <p><b>Замечания:</b></p>
+        <ul>
+            <li>Симметричная криптография основана на <b>трансформациях</b>, асимметричная — на <b>математических функциях</b>.</li>
+            <li>Асимметричная гораздо более <b>вычислительно дорогая</b> → обычно <b>не используется</b> для шифрования больших объёмов.</li>
+        </ul>
+
+        <h2 id="ru-10">10. Аутентификация сообщений: hash, MAC, цифровая подпись</h2>
+
+        <h3>Authentication</h3>
+        <p>Ограничивает множество <b>отправителей</b> сообщения, дополняет шифрование. Также доказывает, что <b>сообщение не было изменено</b>.</p>
+        <p>Алгоритм:</p>
+        <ul>
+            <li><code>S : K → (M → A)</code> — генерация аутентификатора;</li>
+            <li><code>V : K → (M × A → {true, false})</code> — верификация.</li>
+        </ul>
+        <p>Если <code>Vk(m, a) = true</code>, значит сообщение <b>не модифицировано</b> и отправитель имеет <code>k</code>.</p>
+
+        <h3>Hash-функции</h3>
+        <ul>
+            <li>Создают маленький блок фиксированной длины — <b>message digest</b>.</li>
+            <li>Должны быть <b>collision-resistant</b>: невозможно найти <code>m'</code> ≠ <code>m</code> с <code>H(m) = H(m')</code>.</li>
+            <li><b>MD5</b> (128 бит), <b>SHA-1</b> (160 бит).</li>
+            <li>Сами по себе <b>не годятся</b> как аутентификаторы: если злодей подменит <code>m</code> на <code>m'</code> и пересчитает <code>H(m')</code> — никто не заметит. Поэтому <code>H(m)</code> сам надо аутентифицировать.</li>
+        </ul>
+
+        <h3>MAC (Message Authentication Code)</h3>
+        <ul>
+            <li>Криптографическая контрольная сумма, создаваемая с <b>секретным ключом</b>.</li>
+            <li>Симметричное шифрование, используется для коротких значений.</li>
+            <li>Если МАС применить к <code>H(m)</code> — получим аутентификацию <b>длинных</b> сообщений.</li>
+            <li>Ключ нужен и для генерации, и для проверки → кто может проверить, тот может и подделать.</li>
+        </ul>
+
+        <h3>Цифровая подпись (Digital Signature)</h3>
+        <ul>
+            <li>На асимметричных ключах. Аутентификатор = <b>цифровая подпись</b>.</li>
+            <li><b>Любой</b> может проверить подлинность — публичным ключом.</li>
+            <li><code>ks</code> (signing) — приватный, <code>kv</code> (verify) — публичный, вывести <code>ks</code> из <code>kv</code> невозможно.</li>
+            <li>RSA digital signature: <code>Sks(m) = H(m)^ks mod N</code>; верификация: <code>a^kv mod N = H(m)</code>.</li>
+        </ul>
+
+        <p><b>Зачем аутентификация, если есть шифрование?</b></p>
+        <ul>
+            <li>Меньше вычислений (кроме RSA-подписей).</li>
+            <li>Аутентификатор обычно короче сообщения.</li>
+            <li>Иногда нужна аутентификация <b>без</b> конфиденциальности (подписанные патчи).</li>
+            <li>База для <b>non-repudiation</b> — отправитель не сможет отрицать факт отправки.</li>
+        </ul>
+
+        <h2 id="ru-11">11. Распределение ключей и сертификаты</h2>
+        <ul>
+            <li>Доставка <b>симметричного</b> ключа — большая проблема, часто решается <b>out-of-band</b>.</li>
+            <li>Асимметричных ключей много — хранят в <b>key ring</b>.</li>
+            <li>Даже распределение публичных ключей не безопасно — возможна <b>MITM-атака на асимметричную криптографию</b>.</li>
+        </ul>
+
+        <h3>Цифровые сертификаты</h3>
+        <ul>
+            <li>Доказательство <b>кому принадлежит</b> публичный ключ.</li>
+            <li>Публичный ключ <b>цифрово подписан</b> доверенной стороной.</li>
+            <li><b>Certificate Authority (CA)</b> — доверенная сторона; их публичные ключи входят в дистрибутивы браузеров.</li>
+            <li>CA подписывают ключи других CA — образуется <b>цепочка доверия</b>.</li>
+        </ul>
+
+        <h2 id="ru-12">12. TLS и реализация криптографии</h2>
+        <p>Криптографию можно встроить на разных уровнях модели OSI:</p>
+        <ul>
+            <li><b>SSL/TLS</b> — на транспортном уровне;</li>
+            <li><b>IPSec</b> — на сетевом, основа <b>VPN</b>; <b>IKE</b> — обмен ключами.</li>
+        </ul>
+        <p><b>Почему не только на нижнем уровне?</b> Иногда нужны знания, доступные только сверху (аутентификация пользователя, доставка email).</p>
+
+        <h3>TLS / SSL</h3>
+        <ul>
+            <li>Криптографический протокол, ограничивающий обмен сообщениями двумя компьютерами.</li>
+            <li>Браузер ↔ web-server, защита кредиток.</li>
+            <li>Сервер верифицируется <b>сертификатом</b>.</li>
+            <li>Асимметричная криптография используется, чтобы <b>обменяться симметричным session key</b>, а основной трафик — уже симметрично (быстрее).</li>
+        </ul>
+
+        <h2 id="ru-13">13. Аутентификация пользователей</h2>
+        <p>Правильное определение пользователя критично — на этом строится вся защита. Чаще всего — <b>пароли</b>.</p>
+
+        <h3>Правила обращения с паролями</h3>
+        <ul>
+            <li>Хранить в секрете, часто менять, не повторяться.</li>
+            <li>Не позволять «угадываемых» паролей.</li>
+            <li>Логировать неудачные попытки (но <b>не сами пароли</b>!).</li>
+            <li>Хранить только в <b>зашифрованном</b> виде или использовать одноразовые.</li>
+        </ul>
+
+        <h3>Угрозы паролям</h3>
+        <ul>
+            <li>Sniffing (перехват сети) — лечится шифрованием.</li>
+            <li>Shoulder surfing — подглядывание.</li>
+            <li>Trojan keystroke logger.</li>
+        </ul>
+
+        <h3>Хранение паролей</h3>
+        <ul>
+            <li>Хранится только <b>хэш</b> (UNIX: <code>/etc/shadow</code>, доступен только суперпользователю).</li>
+            <li>Хэш-функция: <b>легко вычислить, трудно обратить</b>.</li>
+            <li><b>Salt</b> — добавляется к паролю, чтобы одинаковые пароли давали разные хэши; защита от rainbow-таблиц.</li>
+        </ul>
+
+        <h3>One-time passwords (OTP)</h3>
+        <p>Пароль вычисляется по функции и seed одновременно у пользователя и на сервере; железный токен / калькулятор / key fob. Часто меняется → <b>replay невозможен</b>.</p>
+
+        <h3>Биометрия</h3>
+        <p>Физический атрибут: отпечаток пальца, скан ладони…</p>
+
+        <h3>Multi-Factor Authentication (MFA)</h3>
+        <p>Два или более фактора, например: USB-донгл + биометрия + пароль.</p>
+
+        <h2 id="ru-14">14. Защитные меры</h2>
+        <p><b>Defense in depth</b> — основной принцип: несколько уровней защиты.</p>
+        <ul>
+            <li><b>Security policy</b> — что именно защищаем.</li>
+            <li><b>Vulnerability assessment</b> — сравнение реального состояния с политикой.</li>
+            <li><b>Intrusion Detection (IDS)</b>:
+                <ul>
+                    <li><b>Signature-based</b> — известные плохие паттерны.</li>
+                    <li><b>Anomaly detection</b> — отклонения от нормы; ловит даже <b>zero-day</b>.</li>
+                    <li>Проблемы: <b>false positives</b> и <b>false negatives</b>.</li>
+                </ul>
+            </li>
+            <li><b>Virus protection</b> — поиск сигнатур или запуск в <b>sandbox</b>.</li>
+            <li><b>Auditing, accounting, logging</b> — журналирование событий.</li>
+            <li><b>Safe computing</b> — избегать сомнительных источников.</li>
+        </ul>
+
+        <h3>Сводка лучших практик</h3>
+        <ul>
+            <li>Обучать пользователей: не подключать чужие устройства, не делиться паролями, остерегаться социальной инженерии, понимать, что email — не приватное общение.</li>
+            <li>Защита от фишинга: не открывать ссылки/вложения; подтверждать запросы по телефону.</li>
+            <li>Защищённые коммуникации, физическая защита железа.</li>
+            <li>Минимизировать <b>attack surface</b> — выключить лишние сервисы.</li>
+            <li>Свежее железо/софт, регулярные патчи, только trusted-источники (с code signing).</li>
+            <li>Логи + автоматизированные alerts.</li>
+            <li>Антивирус, IDS, firewall.</li>
+            <li>Сильные пароли, не записывать их где попало.</li>
+            <li>Шифровать накопители и важные файлы.</li>
+            <li>Иметь security policy и поддерживать её актуальной.</li>
+        </ul>
+
+        <h2 id="ru-15">15. Firewall и классификация безопасности</h2>
+
+        <h3>Firewall</h3>
+        <ul>
+            <li>Стоит между <b>доверенными</b> и <b>недоверенными</b> хостами.</li>
+            <li>Ограничивает сетевой доступ между двумя security-доменами.</li>
+            <li>Может быть <b>обойдён</b>: tunneling (например, telnet внутри HTTP), spoofing (правила по IP/имени, которые подделываются).</li>
+            <li><b>Personal firewall</b> — программный слой на конкретном хосте.</li>
+            <li><b>Application proxy firewall</b> — понимает прикладной протокол (например, SMTP).</li>
+            <li><b>System-call firewall</b> — следит за системными вызовами и применяет правила к каждой программе.</li>
+        </ul>
+
+        <h3>Computer Security Classifications (DoD)</h3>
+        <p>Министерство обороны США выделяет четыре дивизиона: <b>A, B, C, D</b>.</p>
+        <table>
+            <tr><th>Класс</th><th>Что обеспечивает</th></tr>
+            <tr><td><b>D</b></td><td>Минимальная защита.</td></tr>
+            <tr><td><b>C</b></td><td>Discretionary protection через аудит.<br><b>C1</b> — кооперирующие пользователи с одним уровнем защиты.<br><b>C2</b> — user-level access control.</td></tr>
+            <tr><td><b>B</b></td><td>Все свойства C + каждому объекту — <b>уникальные sensitivity labels</b>. Уровни <b>B1, B2, B3</b>.</td></tr>
+            <tr><td><b>A</b></td><td>Формальные методы проектирования и верификации безопасности.</td></tr>
+        </table>
+
+        <h2 id="ru-16">16. Пример: Windows 10</h2>
+        <ul>
+            <li>Безопасность основана на <b>учётных записях</b>: у каждого пользователя уникальный <b>Security ID</b>.</li>
+            <li>Login создаёт <b>security access token</b>: ID пользователя, его групп, специальные привилегии.</li>
+            <li>Каждый процесс получает <b>копию токена</b>. Система проверяет токен при доступе.</li>
+            <li>Используется <b>subject model</b>: subject отслеживает разрешения для каждой программы, запущенной пользователем.</li>
+            <li>У каждого объекта Windows — <b>security descriptor</b>: owner ID, group SID, discretionary ACL, system ACL.</li>
+            <li>Windows ввёл <b>mandatory integrity controls</b> — integrity-метки на каждый защищаемый объект и субъект.</li>
+            <li>Объекты бывают <b>container</b> (например, каталог ФС) и <b>noncontainer</b>; по умолчанию объект в контейнере наследует права от родителя.</li>
+            <li><b>Проблемы Windows 10:</b> слабые настройки по умолчанию, много сервисов в коробке, много установленных приложений.</li>
+        </ul>
+
+        <div class="card">
+            <b>Главный вывод:</b> абсолютной безопасности не существует. Цель — поднять стоимость атаки выше потенциальной выгоды. Это требует <b>defense in depth</b>: физическая защита, безопасные приложения, аккуратная ОС, защищённая сеть; криптография для конфиденциальности и аутентификации; продуманная аутентификация пользователей (пароли + соль, OTP, биометрия, MFA); IDS, антивирус, sandbox, firewall; и понимание, что <b>самое слабое звено</b> — обычно человек.
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ===================== ENGLISH VERSION ===================== -->
+    <section id="en" class="lang">
+        <p class="lede">This lecture covers <b>computer-system security</b>: how security differs from protection, the categories of violations (confidentiality, integrity, availability, theft of service, DoS), the attack methods (masquerading, replay, MITM, hijacking, privilege escalation), the four-level model of defense, program threats (Trojans, malware, ransomware, buffer overflow, virus families), network threats (worms, port scanning, DoS/DDoS), cryptography as a security tool (symmetric and asymmetric encryption, RSA, MAC and digital signatures, TLS), user authentication (passwords, salt, OTP, biometrics, MFA), defenses (defense in depth, IDS, sandbox, firewall), the D/C/B/A classification, and the Windows 10 example.</p>
+
+        <div class="toc">
+            <h4>Contents</h4>
+            <ol>
+                <li><a href="#en-1">Security vs protection</a></li>
+                <li><a href="#en-2">The security problem and violation categories</a></li>
+                <li><a href="#en-3">Attack methods</a></li>
+                <li><a href="#en-4">The four security levels</a></li>
+                <li><a href="#en-5">Program threats</a></li>
+                <li><a href="#en-6">Buffer overflow and code injection</a></li>
+                <li><a href="#en-7">Viruses</a></li>
+                <li><a href="#en-8">Network threats: worms, port scanning, DoS</a></li>
+                <li><a href="#en-9">Cryptography: encryption</a></li>
+                <li><a href="#en-10">Message authentication: hash, MAC, digital signatures</a></li>
+                <li><a href="#en-11">Key distribution and certificates</a></li>
+                <li><a href="#en-12">TLS and cryptography implementation</a></li>
+                <li><a href="#en-13">User authentication</a></li>
+                <li><a href="#en-14">Security defenses</a></li>
+                <li><a href="#en-15">Firewalls and security classifications</a></li>
+                <li><a href="#en-16">Example: Windows 10</a></li>
+            </ol>
+        </div>
+
+        <h2 id="en-1">1. Security vs protection</h2>
+        <div class="card">
+            <p><b>Security</b> is a measure of confidence that the integrity of a system and its data will be preserved.</p>
+            <p><b>Protection</b> is the set of <b>mechanisms</b> that control access of processes and users to resources.</p>
+        </div>
+
+        <ul>
+            <li><b>Protection</b> is an <b>internal</b> problem for the OS.</li>
+            <li><b>Security</b> considers <b>both</b> the system and its environment: people, buildings, businesses, valuables, threats.</li>
+            <li>Absolute protection is impossible; the goal is to make the cost of an attack <b>high enough</b> to deter most attempts.</li>
+            <li>Defending against <b>accidental</b> losses is easier than against <b>malicious</b> ones.</li>
+        </ul>
+
+        <h2 id="en-2">2. The security problem and violation categories</h2>
+        <p>A system is <i>secure</i> if its resources are accessed and used <b>exactly as intended</b> under all circumstances — which is essentially unachievable.</p>
+        <ul>
+            <li><b>Threat</b> — a potential violation.</li>
+            <li><b>Attack</b> — an attempted violation; accidental or malicious.</li>
+            <li><b>Intruders / crackers</b> — those trying to breach security.</li>
+        </ul>
+
+        <h3>Violation categories</h3>
+        <table>
+            <tr><th>Category</th><th>What happens</th></tr>
+            <tr><td><b>Breach of confidentiality</b></td><td>Unauthorized reading of data.</td></tr>
+            <tr><td><b>Breach of integrity</b></td><td>Unauthorized modification of data.</td></tr>
+            <tr><td><b>Breach of availability</b></td><td>Unauthorized destruction of data.</td></tr>
+            <tr><td><b>Theft of service</b></td><td>Unauthorized use of resources.</td></tr>
+            <tr><td><b>Denial of Service (DoS)</b></td><td>Prevention of legitimate use.</td></tr>
+        </table>
+
+        <h2 id="en-3">3. Attack methods</h2>
+        <ul>
+            <li><b>Masquerading</b> — pretend to be an authorized user to escalate privileges.</li>
+            <li><b>Replay attack</b> — replay a captured message, as-is or modified.</li>
+            <li><b>Man-in-the-middle (MITM)</b> — attacker sits in the data flow, impersonating both sender and receiver.</li>
+            <li><b>Session hijacking</b> — take over an already-established session, bypassing authentication.</li>
+            <li><b>Privilege escalation</b> — access beyond what is granted to the user/resource.</li>
+        </ul>
+
+        <h2 id="en-4">4. The four security levels</h2>
+        <p>To be effective, security must operate at <b>all four levels</b>:</p>
+        <div class="grid">
+            <div class="card"><b>Physical</b><br><span style="color:var(--muted);font-size:14px">Data centers, servers, attached terminals.</span></div>
+            <div class="card"><b>Application</b><br><span style="color:var(--muted);font-size:14px">Benign or malicious apps can cause issues.</span></div>
+            <div class="card"><b>Operating System</b><br><span style="color:var(--muted);font-size:14px">Protection mechanisms, debugging.</span></div>
+            <div class="card"><b>Network</b><br><span style="color:var(--muted);font-size:14px">Interception, interruption, DoS.</span></div>
+        </div>
+        <p><b>Security is as strong as its weakest link.</b> Humans are a risk too — phishing and social engineering. And conversely, <b>too much security</b> hurts usability.</p>
+
+        <h2 id="en-5">5. Program threats</h2>
+
+        <h3>Trojan Horse</h3>
+        <p>A code segment that misuses its environment by exploiting mechanisms that let user-written code execute on behalf of others. Includes spyware, pop-ups, covert channels. Up to 80% of spam is delivered by spyware-infected systems.</p>
+
+        <h3>Trap Door (backdoor)</h3>
+        <p>A specific user ID or password that bypasses normal authentication. Can be embedded even in a <b>compiler</b>. <b>Hard to detect.</b></p>
+
+        <h3>Malware</h3>
+        <ul>
+            <li><b>Trojan Horse</b> — operates clandestinely.</li>
+            <li><b>Spyware</b> — often bundled with legitimate software; shows ads, captures data.</li>
+            <li><b>Ransomware</b> — encrypts data and demands payment.</li>
+            <li>Also: trap doors, <b>logic bombs</b>.</li>
+            <li>All violate the <b>principle of least privilege</b>.</li>
+            <li>Goal is often to leave behind a <b>Remote Access Tool (RAT)</b>.</li>
+        </ul>
+
+        <h2 id="en-6">6. Buffer overflow and code injection</h2>
+
+        <p>The classic insecure C example:</p>
+        <pre>#include &lt;stdio.h&gt;
+#define BUFFER_SIZE 256
+int main(int argc, char *argv[])
+{
+    char buffer[BUFFER_SIZE];
+    if (argc &lt; 2)
+        return -1;
+    else {
+        strcpy(buffer, argv[1]);   // no length check
+        return 0;
+    }
+}</pre>
+
+        <h3>Code injection</h3>
+        <ul>
+            <li>Happens when <b>system code is not malicious</b> but has bugs allowing executable code to be added or modified.</li>
+            <li>Result of unsafe practices in low-level languages (C/C++) with direct pointer access.</li>
+            <li>Goal: a <b>buffer overflow</b> that injects code into a buffer and gets it executed.</li>
+            <li><b>Script kiddies</b> run pre-written exploits without understanding the internals.</li>
+            <li>A <b>trampoline</b> is often used to redirect execution.</li>
+        </ul>
+
+        <p><b>Possible outcomes:</b> a shell with the victim process's privileges, an open network port, file deletion, malware download. The attack can traverse a firewall via allowed connections.</p>
+
+        <p><b>Defenses:</b></p>
+        <ul>
+            <li>disable stack execution (<b>NX bit</b> / non-executable);</li>
+            <li>add a "non-executable" bit in the page table (SPARC, x86);</li>
+            <li><b>code review</b> — programmers read each other's code for flaws.</li>
+        </ul>
+
+        <h2 id="en-7">7. Viruses</h2>
+        <ul>
+            <li>A code fragment embedded in a legitimate program.</li>
+            <li>Self-replicating, aimed at infecting other computers.</li>
+            <li>Highly <b>specific</b> to CPU architecture, OS, and applications.</li>
+            <li>Usually delivered via email or as a macro.</li>
+            <li>A <b>virus dropper</b> plants the virus on the system.</li>
+        </ul>
+
+        <h3>Virus families</h3>
+        <ul>
+            <li>File / parasitic,</li>
+            <li>Boot / memory,</li>
+            <li>Macro,</li>
+            <li>Source code,</li>
+            <li><b>Polymorphic</b> — changes signature each time,</li>
+            <li><b>Encrypted</b>, Stealth, Tunneling, Multipartite, Armored.</li>
+        </ul>
+
+        <p><b>Why is Windows the main target?</b> It's the most common, everyone runs as administrator by default, monoculture is risky. Attacks have moved from "science experiments" to tools of <b>organized crime</b>: botnets for spam and DDoS, keyloggers for passwords and credit cards.</p>
+
+        <h2 id="en-8">8. Network threats</h2>
+
+        <h3>Worms</h3>
+        <p>Standalone programs that use a <b>spawn</b> mechanism. The famous <b>Internet worm</b>:</p>
+        <ul>
+            <li>Exploited UNIX networking features and bugs in <code>finger</code> and <code>sendmail</code>.</li>
+            <li>Abused <code>rsh</code> <b>trust relationships</b> — passwordless access.</li>
+            <li>A <b>grappling hook</b> of 99 lines of C uploaded the main worm.</li>
+            <li>Tried to attack connected systems and to crack local passwords.</li>
+            <li>If the target was already infected, usually stopped — but <b>every 7th time</b> infected it anyway (counter to fake "already infected" claims).</li>
+        </ul>
+
+        <h3>Port scanning</h3>
+        <ul>
+            <li>Automated probing of ports across IP ranges.</li>
+            <li>Detects which service speaks the protocol, the OS, and version.</li>
+            <li><b>nmap</b> — scans whole ranges; <b>nessus</b> — has a database of protocols, bugs, and exploits.</li>
+            <li>Often launched from <b>zombie</b> systems to decrease traceability.</li>
+        </ul>
+
+        <h3>Denial of Service</h3>
+        <ul>
+            <li>Overloads the target so it can't do useful work.</li>
+            <li><b>DDoS</b> — Distributed DoS, from many sites at once.</li>
+            <li>Example: <code>SYN flood</code> — the OS has a finite half-open connection table.</li>
+            <li>How to distinguish DDoS from a popular website? Hard.</li>
+            <li>Can be <b>accidental</b> (a CS student's bad <code>fork()</code>) or <b>deliberate</b> (extortion, punishment).</li>
+        </ul>
+
+        <h2 id="en-9">9. Cryptography: encryption</h2>
+        <p><b>Cryptography</b> is the broadest security tool. Locally the OS controls PIDs and ports; over the network, source and destination cannot be trusted without cryptography — IP address proves nothing.</p>
+
+        <p>Cryptography constrains the set of <b>potential senders and/or receivers</b> of a message, based on <b>secrets (keys)</b>.</p>
+
+        <h3>Encryption</h3>
+        <p>Constrains receivers. The algorithm has:</p>
+        <ul>
+            <li><code>K</code> — keys, <code>M</code> — messages, <code>C</code> — ciphertexts;</li>
+            <li><code>E : K → (M → C)</code> and <code>D : K → (C → M)</code>;</li>
+            <li>both functions must be efficiently computable.</li>
+        </ul>
+        <p><b>Essential property:</b> recovering <code>m</code> from <code>c</code> is feasible only with the key <code>k</code>. Because ciphertext is usually exposed (on the wire), it must be infeasible to derive <code>k</code> from it.</p>
+
+        <h3>Symmetric encryption</h3>
+        <ul>
+            <li>The <b>same</b> key encrypts and decrypts → the key <b>must be kept secret</b>.</li>
+            <li><b>DES</b> — once the standard, now insecure (short key).</li>
+            <li><b>Triple-DES</b> — DES applied three times with 2–3 keys.</li>
+            <li><b>AES</b> (NIST, 2001) — block cipher, 128/192/256-bit keys, 128-bit blocks.</li>
+            <li><b>RC4</b> — stream cipher (e.g., Wi-Fi); known weaknesses.</li>
+        </ul>
+
+        <h3>Asymmetric (public-key) encryption</h3>
+        <ul>
+            <li>Every user has <b>two</b> keys:
+                <ul><li><b>public</b> — published, used to encrypt;</li><li><b>private</b> — known only to the owner, used to decrypt.</li></ul>
+            </li>
+            <li><b>RSA</b> is the most common. Built on:
+                <ul><li>testing primality is easy;</li><li>factoring a number into primes has <b>no known efficient algorithm</b>.</li></ul>
+            </li>
+        </ul>
+
+        <p><b>Formally:</b></p>
+        <div class="formula">
+            N = p · q (p, q — large primes)<br>
+            Eₖₑ,N(m) = m^kₑ mod N<br>
+            Dₖd,N(c) = c^kd mod N<br>
+            kₑ · kd ≡ 1 (mod (p−1)(q−1))
+        </div>
+
+        <p><b>Toy example:</b> p = 7, q = 13 → N = 91, (p−1)(q−1) = 72. Pick kₑ = 5, get kd = 29. Public key (5, 91), private (29, 91). Message 69 → cipher 62 → back to 69.</p>
+
+        <p><b>Notes:</b></p>
+        <ul>
+            <li>Symmetric crypto is based on <b>transformations</b>; asymmetric is based on <b>mathematical functions</b>.</li>
+            <li>Asymmetric is far more <b>compute-intensive</b> → typically <b>not used</b> for bulk data encryption.</li>
+        </ul>
+
+        <h2 id="en-10">10. Message authentication: hash, MAC, digital signatures</h2>
+
+        <h3>Authentication</h3>
+        <p>Constrains the set of <b>senders</b>, complementing encryption. Also proves the <b>message wasn't modified</b>.</p>
+        <p>Algorithm:</p>
+        <ul>
+            <li><code>S : K → (M → A)</code> — generates an authenticator;</li>
+            <li><code>V : K → (M × A → {true, false})</code> — verifies it.</li>
+        </ul>
+        <p>If <code>Vk(m, a) = true</code>, then <code>m</code> wasn't modified <i>and</i> the sender holds <code>k</code>.</p>
+
+        <h3>Hash functions</h3>
+        <ul>
+            <li>Produce a small fixed-size <b>message digest</b>.</li>
+            <li>Must be <b>collision-resistant</b>: no feasible <code>m'</code> ≠ <code>m</code> with <code>H(m) = H(m')</code>.</li>
+            <li><b>MD5</b> (128 bits), <b>SHA-1</b> (160 bits).</li>
+            <li>By themselves <b>not authenticators</b>: an attacker who swaps <code>m</code> for <code>m'</code> can recompute <code>H(m')</code> undetectably. <code>H(m)</code> itself must be authenticated.</li>
+        </ul>
+
+        <h3>MAC (Message Authentication Code)</h3>
+        <ul>
+            <li>A cryptographic checksum computed with a <b>secret key</b>.</li>
+            <li>Symmetric scheme; used for short values.</li>
+            <li>Applying a MAC to <code>H(m)</code> gives authentication of <b>long</b> messages.</li>
+            <li>The same key generates and verifies → whoever can verify can also forge.</li>
+        </ul>
+
+        <h3>Digital signatures</h3>
+        <ul>
+            <li>Built on asymmetric keys; the authenticator is a <b>digital signature</b>.</li>
+            <li><b>Anyone</b> can verify authenticity using the public key.</li>
+            <li><code>ks</code> (signing) is private, <code>kv</code> (verify) is public; deriving <code>ks</code> from <code>kv</code> is infeasible.</li>
+            <li>RSA signature: <code>Sks(m) = H(m)^ks mod N</code>; verify: <code>a^kv mod N = H(m)</code>.</li>
+        </ul>
+
+        <p><b>Why authentication if encryption already exists?</b></p>
+        <ul>
+            <li>Fewer computations (except RSA signatures).</li>
+            <li>Authenticator is usually shorter than the message.</li>
+            <li>Sometimes you want authentication <b>without</b> confidentiality (signed patches).</li>
+            <li>A basis for <b>non-repudiation</b>.</li>
+        </ul>
+
+        <h2 id="en-11">11. Key distribution and certificates</h2>
+        <ul>
+            <li>Delivering a <b>symmetric</b> key is a huge challenge — often done <b>out-of-band</b>.</li>
+            <li>Asymmetric keys proliferate — kept in a <b>key ring</b>.</li>
+            <li>Even public-key distribution isn't safe — there is an <b>MITM attack on asymmetric crypto</b>.</li>
+        </ul>
+
+        <h3>Digital certificates</h3>
+        <ul>
+            <li>Proof of <b>who owns</b> a given public key.</li>
+            <li>A public key is <b>digitally signed</b> by a trusted party.</li>
+            <li><b>Certificate Authorities (CAs)</b> are trusted parties; their public keys ship with browsers.</li>
+            <li>CAs vouch for other CAs by signing their keys — forming a <b>chain of trust</b>.</li>
+        </ul>
+
+        <h2 id="en-12">12. TLS and cryptography implementation</h2>
+        <p>Cryptography can sit at various layers of the OSI model:</p>
+        <ul>
+            <li><b>SSL/TLS</b> — at the transport layer;</li>
+            <li><b>IPSec</b> — at the network layer, the basis of <b>VPNs</b>; <b>IKE</b> handles key exchange.</li>
+        </ul>
+        <p><b>Why not always at the lowest layer?</b> Some logic requires knowledge only available higher up — user authentication, email delivery.</p>
+
+        <h3>TLS / SSL</h3>
+        <ul>
+            <li>Cryptographic protocol that lets two computers exchange messages only with each other.</li>
+            <li>Browser ↔ web server; secure credit-card transmission.</li>
+            <li>The server is verified by a <b>certificate</b>.</li>
+            <li>Asymmetric crypto is used to <b>establish a symmetric session key</b>; bulk traffic uses the symmetric key (much faster).</li>
+        </ul>
+
+        <h2 id="en-13">13. User authentication</h2>
+        <p>Identifying the user correctly is critical — protection depends on user IDs. Usually done via <b>passwords</b>.</p>
+
+        <h3>Password rules</h3>
+        <ul>
+            <li>Kept secret, rotated, no repeats.</li>
+            <li>No "guessable" passwords.</li>
+            <li>Log invalid attempts (but <b>not</b> the passwords themselves!).</li>
+            <li>Store encrypted or use one-time passwords.</li>
+        </ul>
+
+        <h3>Threats to passwords</h3>
+        <ul>
+            <li>Sniffing (network) — encryption helps.</li>
+            <li>Shoulder surfing.</li>
+            <li>Trojan keystroke loggers.</li>
+        </ul>
+
+        <h3>How passwords are stored</h3>
+        <ul>
+            <li>Only the <b>hash</b> is stored (UNIX: <code>/etc/shadow</code>, readable only by root).</li>
+            <li>Easy to compute, hard to invert.</li>
+            <li><b>Salt</b> — added to the password so identical passwords hash differently; defeats rainbow tables.</li>
+        </ul>
+
+        <h3>One-time passwords (OTP)</h3>
+        <p>Both user and server compute the password from a function over a seed; hardware token / calculator / key fob. Changes frequently → <b>no replay possible</b>.</p>
+
+        <h3>Biometrics</h3>
+        <p>A physical attribute: fingerprint, hand scan, etc.</p>
+
+        <h3>Multi-Factor Authentication (MFA)</h3>
+        <p>Two or more factors, e.g.: USB dongle + biometric + password.</p>
+
+        <h2 id="en-14">14. Security defenses</h2>
+        <p><b>Defense in depth</b> is the key principle: multiple layers of security.</p>
+        <ul>
+            <li><b>Security policy</b> — what exactly is being secured.</li>
+            <li><b>Vulnerability assessment</b> — comparing reality to the policy.</li>
+            <li><b>Intrusion Detection (IDS)</b>:
+                <ul>
+                    <li><b>Signature-based</b> — looks for known bad patterns.</li>
+                    <li><b>Anomaly detection</b> — flags deviations from normal; can catch <b>zero-days</b>.</li>
+                    <li>Issues: <b>false positives</b> and <b>false negatives</b>.</li>
+                </ul>
+            </li>
+            <li><b>Virus protection</b> — signature search or <b>sandbox</b> execution.</li>
+            <li><b>Auditing, accounting, logging</b> of system/network activities.</li>
+            <li><b>Safe computing</b> — avoid sketchy sources.</li>
+        </ul>
+
+        <h3>Best-practice checklist</h3>
+        <ul>
+            <li>Educate users: don't attach unknown devices, don't share passwords, beware social engineering, remember that email isn't private.</li>
+            <li>Phishing protection: don't click unknown links/attachments; verify requests by phone.</li>
+            <li>Use secure communication; physically protect hardware.</li>
+            <li>Minimize <b>attack surface</b> — disable unused services.</li>
+            <li>Use modern HW/SW; patch regularly; install only trusted (code-signed) apps.</li>
+            <li>Enable logs + automated alerts.</li>
+            <li>Antivirus, IDS, firewall.</li>
+            <li>Strong passwords; don't write them in obvious places.</li>
+            <li>Encrypt disks and important files.</li>
+            <li>Maintain an up-to-date security policy.</li>
+        </ul>
+
+        <h2 id="en-15">15. Firewalls and security classifications</h2>
+
+        <h3>Firewall</h3>
+        <ul>
+            <li>Sits between <b>trusted</b> and <b>untrusted</b> hosts.</li>
+            <li>Limits network access between the two security domains.</li>
+            <li>Can be <b>circumvented</b>: tunneling (e.g., telnet inside HTTP), spoofing (rules based on IP/host names that can be forged).</li>
+            <li><b>Personal firewall</b> — software layer on a host.</li>
+            <li><b>Application proxy firewall</b> — understands the protocol (e.g., SMTP).</li>
+            <li><b>System-call firewall</b> — monitors syscalls and applies rules to each program.</li>
+        </ul>
+
+        <h3>Computer Security Classifications (DoD)</h3>
+        <p>The U.S. Department of Defense defines four divisions: <b>A, B, C, D</b>.</p>
+        <table>
+            <tr><th>Class</th><th>What it provides</th></tr>
+            <tr><td><b>D</b></td><td>Minimal security.</td></tr>
+            <tr><td><b>C</b></td><td>Discretionary protection via auditing.<br><b>C1</b> — cooperating users at one protection level.<br><b>C2</b> — user-level access control.</td></tr>
+            <tr><td><b>B</b></td><td>All of C plus <b>unique sensitivity labels</b> per object. Subdivided into <b>B1, B2, B3</b>.</td></tr>
+            <tr><td><b>A</b></td><td>Formal design and verification techniques.</td></tr>
+        </table>
+
+        <h2 id="en-16">16. Example: Windows 10</h2>
+        <ul>
+            <li>Security is built around <b>user accounts</b>: each user has a unique <b>security ID</b>.</li>
+            <li>Login creates a <b>security access token</b>: user SID, group SIDs, special privileges.</li>
+            <li>Every process receives a <b>copy of the token</b>. The system checks the token on access.</li>
+            <li>A <b>subject model</b> is used: a subject tracks permissions for each program a user runs.</li>
+            <li>Every Windows object has a <b>security descriptor</b>: owner SID, group SID, discretionary ACL, system ACL.</li>
+            <li>Windows added <b>mandatory integrity controls</b> — integrity labels on every securable object/subject.</li>
+            <li>Objects are <b>container</b> objects (e.g., a directory) or <b>noncontainer</b>; by default, objects in a container inherit permissions from the parent.</li>
+            <li><b>Windows 10 challenges:</b> weak defaults, many bundled services, many installed applications.</li>
+        </ul>
+
+        <div class="card">
+            <b>Take-away:</b> absolute security is impossible. The aim is to raise the attacker's cost above the expected gain — which requires <b>defense in depth</b>: physical security, safe applications, a well-configured OS, a protected network; cryptography for confidentiality and authentication; thoughtful user authentication (salted passwords, OTP, biometrics, MFA); IDS, antivirus, sandboxing, firewalls; and a constant reminder that <b>the weakest link is usually the human</b>.
+        </div>
+    </section>
+
+    <footer>
+        Advanced Operating Systems · Lecture 9 · Security<br>
+        Adapted from <i>Operating System Concepts</i>, 10th Edition — Silberschatz, Galvin and Gagne ©2018
+    </footer>
+
+</div>
+<script>
+    (function(){var buttons=document.querySelectorAll(".lang-tabs button");var sections=document.querySelectorAll("section.lang");buttons.forEach(function(btn){btn.addEventListener("click",function(){var lang=btn.dataset.lang;buttons.forEach(function(b){b.classList.toggle("active",b===btn);});sections.forEach(function(s){s.classList.toggle("active",s.id===lang);});window.scrollTo({top:0,behavior:"smooth"});});});})();
+</script>
+</body>
+</html>

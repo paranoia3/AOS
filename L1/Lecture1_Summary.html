@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lecture 1 — Introduction to Operating Systems</title>
+    <style>
+        :root {
+            --bg: #fafaf8;
+            --fg: #1a1a1a;
+            --muted: #6b6b6b;
+            --accent: #2b6cb0;
+            --border: #e5e5e0;
+            --card: #ffffff;
+            --code-bg: #f3f3ee;
+        }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+        }
+        .wrap {
+            max-width: 880px;
+            margin: 0 auto;
+            padding: 64px 28px 96px;
+        }
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 24px;
+            margin-bottom: 40px;
+        }
+        .eyebrow {
+            font-size: 13px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+        header h1 {
+            font-size: 34px;
+            font-weight: 600;
+            margin: 0 0 8px;
+            letter-spacing: -0.01em;
+        }
+        header p {
+            color: var(--muted);
+            margin: 0;
+            font-size: 16px;
+        }
+        .lang-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 4px;
+            margin: 24px 0 48px;
+            width: fit-content;
+        }
+        .lang-tabs button {
+            background: transparent;
+            border: none;
+            padding: 8px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--muted);
+            cursor: pointer;
+            border-radius: 7px;
+            transition: all 0.15s ease;
+        }
+        .lang-tabs button.active {
+            background: var(--accent);
+            color: #fff;
+        }
+        .lang-tabs button:hover:not(.active) {
+            color: var(--fg);
+        }
+        section.lang { display: none; }
+        section.lang.active { display: block; }
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 48px 0 16px;
+            letter-spacing: -0.01em;
+        }
+        h2:first-child { margin-top: 0; }
+        h3 {
+            font-size: 17px;
+            font-weight: 600;
+            margin: 28px 0 10px;
+            color: var(--fg);
+        }
+        p { margin: 0 0 14px; }
+        ul {
+            margin: 0 0 16px;
+            padding-left: 22px;
+        }
+        ul li { margin-bottom: 6px; }
+        ul li::marker { color: var(--muted); }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 22px 26px;
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h3::before {
+            content: "";
+            width: 4px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 600px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .wrap { padding: 32px 18px 64px; }
+            header h1 { font-size: 26px; }
+        }
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "SF Mono", Menlo, Consolas, monospace;
+            font-size: 14px;
+        }
+        .key {
+            display: inline-block;
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            margin: 2px 4px 2px 0;
+        }
+        .toc {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 26px;
+            margin-bottom: 32px;
+        }
+        .toc h3 {
+            margin: 0 0 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            font-weight: 500;
+        }
+        .toc ol {
+            margin: 0;
+            padding-left: 22px;
+            columns: 2;
+            column-gap: 24px;
+        }
+        .toc ol li {
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .toc a {
+            color: var(--fg);
+            text-decoration: none;
+        }
+        .toc a:hover { color: var(--accent); }
+        .summary-box {
+            border-left: 3px solid var(--accent);
+            padding: 4px 0 4px 18px;
+            margin: 16px 0 28px;
+            color: var(--muted);
+            font-size: 15px;
+        }
+        footer {
+            margin-top: 64px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 13px;
+            text-align: center;
+        }
+    </style>
+    <style>
+        html[data-theme="dark"]{--bg:#15171a;--fg:#e7e9ec;--muted:#9aa0a6;--accent:#5aa2ff;--line:#2c3137;--border:#2c3137;--card:#1e2125;--code-bg:#2a2f35;--ok:#5fd39a;--ok-bg:#16271d;--ok-line:#234d38;--bad:#ff8c8c;--bad-bg:#2a1718;--bad-line:#5a2a2c;--sel-bg:#16304d;--shadow:rgba(0,0,0,.45)}
+        html[data-theme="dark"] .key{background:#16304d;color:#9ec3ff}
+        .theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border:1px solid var(--line,#e5e5e0);background:var(--card,#fff);color:var(--fg,#1a1a1a);border-radius:8px;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+        .theme-toggle:hover{border-color:var(--accent,#2b6cb0)}
+    </style>
+</head>
+<body>
+<script>
+    (function(){try{var t=localStorage.getItem("aos_quiz_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+        function lbl(){return document.documentElement.getAttribute("data-theme")==="dark"?"Светлая тема":"Тёмная тема";}
+        document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.className="theme-toggle";b.type="button";b.textContent=lbl();b.addEventListener("click",function(){var d=document.documentElement.getAttribute("data-theme")==="dark";var n=d?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("aos_quiz_theme",n);}catch(e){}b.textContent=lbl();});document.body.appendChild(b);});})();
+</script>
+
+<div class="wrap">
+    <div class="lec-nav" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:22px;font-size:14px;font-weight:600">
+        <a href="../index.html" style="color:var(--accent);text-decoration:none">На главную</a>
+        <a href="../L2/lecture02_summary.html" style="color:var(--accent);text-decoration:none">Лекция 2 →</a>
+    </div>
+
+    <header>
+        <div class="eyebrow">Advanced Operating Systems · Lecture 1</div>
+        <h1>Lecture 1 — Introduction to Operating Systems</h1>
+        <p>Summary &amp; explanation of the core concepts</p>
+    </header>
+
+    <div class="lang-tabs">
+        <button class="active" data-lang="ru">Русский</button>
+        <button data-lang="en">English</button>
+    </div>
+
+    <!-- ============================== RUSSIAN ============================== -->
+    <section class="lang active" id="ru">
+
+        <div class="summary-box">
+            Лекция вводит понятие операционной системы (ОС), её роли в компьютере, базовой архитектуры, способов управления процессами, памятью и хранилищем, а также обзор современных вычислительных сред.
+        </div>
+
+        <div class="toc">
+            <h3>Содержание</h3>
+            <ol>
+                <li><a href="#ru-1">Что такое ОС</a></li>
+                <li><a href="#ru-2">Структура компьютера</a></li>
+                <li><a href="#ru-3">Загрузка и работа ОС</a></li>
+                <li><a href="#ru-4">Прерывания и I/O</a></li>
+                <li><a href="#ru-5">Иерархия хранилища</a></li>
+                <li><a href="#ru-6">Архитектура систем</a></li>
+                <li><a href="#ru-7">Многозадачность</a></li>
+                <li><a href="#ru-8">Управление процессами</a></li>
+                <li><a href="#ru-9">Управление памятью</a></li>
+                <li><a href="#ru-10">Защита и безопасность</a></li>
+                <li><a href="#ru-11">Среды вычислений</a></li>
+                <li><a href="#ru-12">Open-Source ОС</a></li>
+            </ol>
+        </div>
+
+        <h2 id="ru-1">1. Что такое операционная система</h2>
+        <p><strong>ОС — это программа-посредник между пользователем и аппаратурой компьютера.</strong> Её главные задачи:</p>
+        <ul>
+            <li>Выполнять программы пользователя и упрощать решение задач</li>
+            <li>Делать компьютер удобным в использовании</li>
+            <li>Эффективно использовать аппаратные ресурсы</li>
+        </ul>
+
+        <div class="grid-2">
+            <div class="card">
+                <h3>ОС как распределитель ресурсов</h3>
+                <p>Управляет всеми ресурсами и принимает решения при конфликтующих запросах для справедливого и эффективного использования.</p>
+            </div>
+            <div class="card">
+                <h3>ОС как программа управления</h3>
+                <p>Контролирует выполнение программ, чтобы предотвратить ошибки и неправильное использование компьютера.</p>
+            </div>
+        </div>
+
+        <p><strong>Ядро (kernel)</strong> — это единственная программа, работающая постоянно. Всё остальное — это либо <em>системные программы</em>, либо <em>прикладные программы</em>.</p>
+
+        <h2 id="ru-2">2. Структура компьютерной системы</h2>
+        <p>Компьютерная система состоит из четырёх компонентов:</p>
+        <ul>
+            <li><strong>Аппаратура</strong> — CPU, память, устройства ввода/вывода</li>
+            <li><strong>Операционная система</strong> — координирует использование аппаратуры</li>
+            <li><strong>Прикладные программы</strong> — текстовые редакторы, компиляторы, браузеры, СУБД, игры</li>
+            <li><strong>Пользователи</strong> — люди, машины, другие компьютеры</li>
+        </ul>
+
+        <h2 id="ru-3">3. Запуск и работа компьютера</h2>
+        <div class="card">
+            <h3>Bootstrap-программа</h3>
+            <p>При включении компьютера запускается загрузочная программа, хранящаяся в ROM/EPROM (прошивка). Она инициализирует систему и загружает ядро ОС, после чего передаёт ему управление.</p>
+        </div>
+
+        <h2 id="ru-4">4. Прерывания и подсистема ввода/вывода</h2>
+        <p><strong>ОС управляется прерываниями</strong> (interrupt-driven). Прерывание передаёт управление сервисной процедуре через <em>вектор прерываний</em>.</p>
+        <ul>
+            <li><span class="key">Hardware interrupt</span> — от устройства</li>
+            <li><span class="key">Trap / Exception</span> — программное прерывание (ошибка или системный вызов)</li>
+            <li><span class="key">DMA</span> — прямой доступ устройств к памяти; одно прерывание на блок, а не на байт</li>
+        </ul>
+        <p>Контроллер устройства имеет локальный буфер, обменивается данными с памятью, а по окончании операции сигнализирует CPU прерыванием.</p>
+
+        <h2 id="ru-5">5. Хранилище данных и его иерархия</h2>
+        <p>Основная единица — <code>bit</code>. <code>1 байт = 8 бит</code>. Слово (word) — собственный размер данных архитектуры (обычно 64 бита).</p>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Основная память (RAM)</h3>
+                <p>Единственное крупное хранилище, к которому CPU обращается напрямую. Произвольный доступ, обычно энергозависимая.</p>
+            </div>
+            <div class="card">
+                <h3>Вторичное хранилище</h3>
+                <p>HDD, SSD — большой нелетучий объём. SSD быстрее HDD и набирает популярность.</p>
+            </div>
+        </div>
+        <p><strong>Кэширование</strong> — копирование информации из медленного хранилища в быстрое. Применяется на всех уровнях: аппаратура, ОС, ПО. Главные задачи — размер кэша и политика замены.</p>
+
+        <h2 id="ru-6">6. Архитектура компьютерных систем</h2>
+        <ul>
+            <li><strong>Однопроцессорные</strong> — один процессор общего назначения + специализированные</li>
+            <li><strong>Мультипроцессорные (параллельные)</strong> — выше производительность, экономия масштаба, отказоустойчивость
+                <ul>
+                    <li><em>Asymmetric MP</em> — каждый процессор имеет свою задачу</li>
+                    <li><em>Symmetric MP</em> — все процессоры выполняют любые задачи</li>
+                </ul>
+            </li>
+            <li><strong>Кластерные системы</strong> — несколько систем, разделяющих хранилище через SAN, для высокой доступности и HPC</li>
+        </ul>
+
+        <h2 id="ru-7">7. Структура ОС: многозадачность</h2>
+        <div class="card">
+            <h3>Multiprogramming (пакетная обработка)</h3>
+            <p>В памяти держится несколько задач; пока одна ждёт I/O, CPU переключается на другую — CPU не простаивает.</p>
+        </div>
+        <div class="card">
+            <h3>Timesharing / Multitasking</h3>
+            <p>CPU переключается между задачами так часто, что пользователь может взаимодействовать с каждой. Время отклика должно быть менее 1 секунды. Используется <strong>планирование CPU</strong>, <strong>swapping</strong> и <strong>виртуальная память</strong>.</p>
+        </div>
+
+        <h2>Режимы работы ОС</h2>
+        <p>Аппаратура поддерживает <strong>двойной режим</strong> (mode bit):</p>
+        <ul>
+            <li><span class="key">User mode</span> — обычный режим выполнения программ</li>
+            <li><span class="key">Kernel mode</span> — привилегированный режим для системных операций</li>
+        </ul>
+        <p>Системный вызов переключает режим в kernel; возврат — обратно в user. <strong>Таймер</strong> предотвращает бесконечные циклы — по истечении он генерирует прерывание, возвращая управление ОС.</p>
+
+        <h2 id="ru-8">8. Управление процессами</h2>
+        <p><strong>Процесс</strong> — программа в исполнении, единица работы в системе. Программа — пассивна, процесс — активен.</p>
+        <p>ОС отвечает за:</p>
+        <ul>
+            <li>Создание и удаление процессов</li>
+            <li>Приостановку и возобновление</li>
+            <li>Синхронизацию между процессами</li>
+            <li>Межпроцессное взаимодействие (IPC)</li>
+            <li>Разрешение тупиков (deadlock handling)</li>
+        </ul>
+        <p>Однопоточный процесс имеет один program counter; многопоточный — по одному на поток.</p>
+
+        <h2 id="ru-9">9. Управление памятью и хранилищем</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Memory Management</h3>
+                <p>Отслеживание занятых областей, решение о загрузке/выгрузке процессов, выделение и освобождение памяти.</p>
+            </div>
+            <div class="card">
+                <h3>Storage Management</h3>
+                <p>Абстракция физического носителя в логическое понятие — <strong>файл</strong>. Управление каталогами, правами доступа, резервным копированием.</p>
+            </div>
+        </div>
+
+        <h3>Подсистема ввода/вывода</h3>
+        <p>Скрывает особенности устройств. Отвечает за <strong>буферизацию</strong>, <strong>кэширование</strong>, <strong>спулинг</strong> и общий интерфейс драйверов.</p>
+
+        <h2 id="ru-10">10. Защита и безопасность</h2>
+        <ul>
+            <li><strong>Protection</strong> — контроль доступа процессов и пользователей к ресурсам</li>
+            <li><strong>Security</strong> — защита от внутренних и внешних атак (вирусы, DoS, кража учётных данных)</li>
+        </ul>
+        <p>Каждому пользователю присваивается <code>user ID</code>; группы — <code>group ID</code>. <em>Privilege escalation</em> позволяет временно повысить права.</p>
+
+        <h2 id="ru-11">11. Среды вычислений</h2>
+        <div class="card">
+            <h3>Традиционная</h3>
+            <p>Автономные ПК, объединённые через Интернет, защищённые межсетевыми экранами.</p>
+        </div>
+        <div class="card">
+            <h3>Мобильная</h3>
+            <p>Смартфоны, планшеты с GPS, гироскопами, беспроводной связью. Лидеры — iOS и Android.</p>
+        </div>
+        <div class="card">
+            <h3>Распределённая</h3>
+            <p>Сети: LAN, WAN, MAN, PAN. ОС создаёт иллюзию единой системы через TCP/IP.</p>
+        </div>
+        <div class="card">
+            <h3>Клиент-серверная</h3>
+            <p>Серверы обслуживают запросы клиентов (compute-server, file-server).</p>
+        </div>
+        <div class="card">
+            <h3>Peer-to-Peer</h3>
+            <p>Узлы равноправны: каждый может быть клиентом и сервером одновременно. Примеры: Napster, Gnutella, Skype (VoIP).</p>
+        </div>
+        <div class="card">
+            <h3>Виртуализация</h3>
+            <p>Запуск гостевых ОС внутри host-ОС с помощью VMM (например, VMware, VirtualBox). Используется для разработки, тестирования и в дата-центрах.</p>
+        </div>
+        <div class="card">
+            <h3>Облачные вычисления</h3>
+            <p>Логическое расширение виртуализации. Типы: <strong>Public</strong>, <strong>Private</strong>, <strong>Hybrid</strong>. Модели: <strong>SaaS</strong>, <strong>PaaS</strong>, <strong>IaaS</strong>.</p>
+        </div>
+        <div class="card">
+            <h3>Встраиваемые системы реального времени</h3>
+            <p>Самая распространённая форма компьютеров. Real-time ОС имеют жёсткие временны́е ограничения — корректная работа только при их соблюдении.</p>
+        </div>
+
+        <h2 id="ru-12">12. Open-Source ОС</h2>
+        <p>ОС с открытым исходным кодом — противоположность закрытым проприетарным системам. Начало положено <strong>FSF</strong> с лицензией <strong>GPL</strong> (copyleft). Примеры: GNU/Linux, BSD UNIX (включая ядро Mac OS X).</p>
+
+        <h2>Ключевые выводы</h2>
+        <div class="card">
+            <ul>
+                <li>ОС — посредник между пользователем и аппаратурой; ядро — её сердце</li>
+                <li>ОС управляется прерываниями и работает в привилегированном режиме</li>
+                <li>Иерархия хранилища и кэширование — основа производительности</li>
+                <li>Многозадачность и виртуальная память позволяют эффективно использовать ресурсы</li>
+                <li>Современные среды: мобильные, распределённые, виртуальные, облачные</li>
+            </ul>
+        </div>
+
+    </section>
+
+    <!-- ============================== ENGLISH ============================== -->
+    <section class="lang" id="en">
+
+        <div class="summary-box">
+            This lecture introduces operating systems — their purpose, the basic computer architecture they manage, how they handle processes, memory, and storage, and an overview of modern computing environments.
+        </div>
+
+        <div class="toc">
+            <h3>Contents</h3>
+            <ol>
+                <li><a href="#en-1">What an OS Is</a></li>
+                <li><a href="#en-2">Computer Structure</a></li>
+                <li><a href="#en-3">Startup &amp; Operation</a></li>
+                <li><a href="#en-4">Interrupts &amp; I/O</a></li>
+                <li><a href="#en-5">Storage Hierarchy</a></li>
+                <li><a href="#en-6">System Architecture</a></li>
+                <li><a href="#en-7">Multitasking</a></li>
+                <li><a href="#en-8">Process Management</a></li>
+                <li><a href="#en-9">Memory Management</a></li>
+                <li><a href="#en-10">Protection &amp; Security</a></li>
+                <li><a href="#en-11">Computing Environments</a></li>
+                <li><a href="#en-12">Open-Source OS</a></li>
+            </ol>
+        </div>
+
+        <h2 id="en-1">1. What Is an Operating System</h2>
+        <p><strong>An OS is a program that acts as an intermediary between the user and the computer hardware.</strong> Its main goals:</p>
+        <ul>
+            <li>Execute user programs and make problem-solving easier</li>
+            <li>Make the computer convenient to use</li>
+            <li>Use hardware resources efficiently</li>
+        </ul>
+
+        <div class="grid-2">
+            <div class="card">
+                <h3>OS as Resource Allocator</h3>
+                <p>Manages all resources and arbitrates conflicting requests for efficient, fair use.</p>
+            </div>
+            <div class="card">
+                <h3>OS as Control Program</h3>
+                <p>Controls program execution to prevent errors and improper use of the computer.</p>
+            </div>
+        </div>
+
+        <p>The <strong>kernel</strong> is the single program running at all times. Everything else is either a <em>system program</em> (ships with the OS) or an <em>application program</em>.</p>
+
+        <h2 id="en-2">2. Computer System Structure</h2>
+        <p>A computer system has four components:</p>
+        <ul>
+            <li><strong>Hardware</strong> — CPU, memory, I/O devices</li>
+            <li><strong>Operating system</strong> — coordinates hardware use</li>
+            <li><strong>Applications</strong> — word processors, compilers, browsers, databases, games</li>
+            <li><strong>Users</strong> — people, machines, other computers</li>
+        </ul>
+
+        <h2 id="en-3">3. Computer Startup &amp; Operation</h2>
+        <div class="card">
+            <h3>Bootstrap Program</h3>
+            <p>Loaded at power-up from ROM/EPROM (firmware). It initializes the system, loads the OS kernel, and transfers control to it.</p>
+        </div>
+
+        <h2 id="en-4">4. Interrupts &amp; I/O</h2>
+        <p>An OS is <strong>interrupt-driven</strong>. An interrupt transfers control to a service routine via the <em>interrupt vector</em>.</p>
+        <ul>
+            <li><span class="key">Hardware interrupt</span> — raised by a device</li>
+            <li><span class="key">Trap / Exception</span> — software-generated (error or syscall)</li>
+            <li><span class="key">DMA</span> — devices transfer to memory directly; one interrupt per block instead of per byte</li>
+        </ul>
+        <p>Each device controller has a local buffer, exchanges data with main memory, and signals the CPU on completion.</p>
+
+        <h2 id="en-5">5. Storage &amp; Its Hierarchy</h2>
+        <p>The basic unit is a <code>bit</code>. <code>1 byte = 8 bits</code>. A <em>word</em> is the architecture's native data size (typically 64 bits).</p>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Main Memory (RAM)</h3>
+                <p>The only large storage the CPU accesses directly. Random access, typically volatile.</p>
+            </div>
+            <div class="card">
+                <h3>Secondary Storage</h3>
+                <p>HDDs and SSDs — large, non-volatile capacity. SSDs are faster and increasingly popular.</p>
+            </div>
+        </div>
+        <p><strong>Caching</strong> — copying information from slower to faster storage. Applied at every level (hardware, OS, software). Key design issues: cache size and replacement policy.</p>
+
+        <h2 id="en-6">6. Computer System Architecture</h2>
+        <ul>
+            <li><strong>Single-processor</strong> — one general-purpose CPU plus special-purpose ones</li>
+            <li><strong>Multiprocessor (parallel)</strong> — higher throughput, economy of scale, fault tolerance
+                <ul>
+                    <li><em>Asymmetric MP</em> — each processor has a specific task</li>
+                    <li><em>Symmetric MP</em> — every processor performs all tasks</li>
+                </ul>
+            </li>
+            <li><strong>Clustered systems</strong> — multiple machines share storage via a SAN for high availability and HPC</li>
+        </ul>
+
+        <h2 id="en-7">7. OS Structure: Multitasking</h2>
+        <div class="card">
+            <h3>Multiprogramming (Batch)</h3>
+            <p>Several jobs are kept in memory; when one waits for I/O, the CPU switches to another — the CPU is never idle.</p>
+        </div>
+        <div class="card">
+            <h3>Timesharing / Multitasking</h3>
+            <p>The CPU switches between jobs so quickly users can interact with each. Response time should be &lt; 1 second. Requires <strong>CPU scheduling</strong>, <strong>swapping</strong>, and <strong>virtual memory</strong>.</p>
+        </div>
+
+        <h2>OS Operation Modes</h2>
+        <p>Hardware supports <strong>dual-mode operation</strong> (mode bit):</p>
+        <ul>
+            <li><span class="key">User mode</span> — normal program execution</li>
+            <li><span class="key">Kernel mode</span> — privileged mode for system operations</li>
+        </ul>
+        <p>A system call switches to kernel mode; returning resets to user mode. A <strong>timer</strong> prevents infinite loops — when it expires it generates an interrupt and returns control to the OS.</p>
+
+        <h2 id="en-8">8. Process Management</h2>
+        <p>A <strong>process</strong> is a program in execution — the unit of work in the system. A program is passive; a process is active.</p>
+        <p>The OS is responsible for:</p>
+        <ul>
+            <li>Creating and deleting processes</li>
+            <li>Suspending and resuming them</li>
+            <li>Process synchronization</li>
+            <li>Inter-process communication (IPC)</li>
+            <li>Deadlock handling</li>
+        </ul>
+        <p>A single-threaded process has one program counter; a multi-threaded one has a PC per thread.</p>
+
+        <h2 id="en-9">9. Memory &amp; Storage Management</h2>
+        <div class="grid-2">
+            <div class="card">
+                <h3>Memory Management</h3>
+                <p>Tracks which parts of memory are in use, decides what to swap in/out, and allocates/frees memory.</p>
+            </div>
+            <div class="card">
+                <h3>Storage Management</h3>
+                <p>Abstracts physical media into the logical concept of a <strong>file</strong>. Handles directories, access control, and backup.</p>
+            </div>
+        </div>
+
+        <h3>I/O Subsystem</h3>
+        <p>Hides device peculiarities. Provides <strong>buffering</strong>, <strong>caching</strong>, <strong>spooling</strong>, and a uniform device-driver interface.</p>
+
+        <h2 id="en-10">10. Protection &amp; Security</h2>
+        <ul>
+            <li><strong>Protection</strong> — controls process/user access to resources</li>
+            <li><strong>Security</strong> — defends against internal and external attacks (viruses, DoS, identity theft)</li>
+        </ul>
+        <p>Each user has a <code>user ID</code>; groups have a <code>group ID</code>. <em>Privilege escalation</em> temporarily grants elevated rights.</p>
+
+        <h2 id="en-11">11. Computing Environments</h2>
+        <div class="card">
+            <h3>Traditional</h3>
+            <p>Stand-alone PCs interconnected via the Internet, protected by firewalls.</p>
+        </div>
+        <div class="card">
+            <h3>Mobile</h3>
+            <p>Smartphones and tablets with GPS, gyroscopes, wireless connectivity. Leaders: iOS and Android.</p>
+        </div>
+        <div class="card">
+            <h3>Distributed</h3>
+            <p>Networks: LAN, WAN, MAN, PAN. The OS creates the illusion of a single system over TCP/IP.</p>
+        </div>
+        <div class="card">
+            <h3>Client-Server</h3>
+            <p>Servers respond to client requests (compute-server, file-server).</p>
+        </div>
+        <div class="card">
+            <h3>Peer-to-Peer</h3>
+            <p>All nodes are peers — each can act as client and server. Examples: Napster, Gnutella, Skype (VoIP).</p>
+        </div>
+        <div class="card">
+            <h3>Virtualization</h3>
+            <p>Guest OSes run within a host OS through a VMM (VMware, VirtualBox). Used in development, testing, and data centers.</p>
+        </div>
+        <div class="card">
+            <h3>Cloud Computing</h3>
+            <p>A logical extension of virtualization. Types: <strong>Public</strong>, <strong>Private</strong>, <strong>Hybrid</strong>. Models: <strong>SaaS</strong>, <strong>PaaS</strong>, <strong>IaaS</strong>.</p>
+        </div>
+        <div class="card">
+            <h3>Real-Time Embedded Systems</h3>
+            <p>The most prevalent form of computers. Real-time OSes have strict time constraints — correct behavior requires they be met.</p>
+        </div>
+
+        <h2 id="en-12">12. Open-Source Operating Systems</h2>
+        <p>OSes shipped in source form — the opposite of closed proprietary systems. Started by the <strong>FSF</strong> with the <strong>GPL</strong> copyleft license. Examples: GNU/Linux, BSD UNIX (including the core of Mac OS X).</p>
+
+        <h2>Key Takeaways</h2>
+        <div class="card">
+            <ul>
+                <li>The OS mediates between user and hardware; the kernel is its core</li>
+                <li>OSes are interrupt-driven and run in a privileged mode</li>
+                <li>Storage hierarchy and caching are the foundation of performance</li>
+                <li>Multitasking and virtual memory enable efficient resource use</li>
+                <li>Modern environments: mobile, distributed, virtual, cloud</li>
+            </ul>
+        </div>
+
+    </section>
+
+    <footer>
+        Lecture 1 — Introduction to Operating Systems · Summary
+    </footer>
+
+</div>
+
+<script>
+    const buttons = document.querySelectorAll('.lang-tabs button');
+    const sections = document.querySelectorAll('section.lang');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const lang = btn.dataset.lang;
+            buttons.forEach(b => b.classList.toggle('active', b === btn));
+            sections.forEach(s => s.classList.toggle('active', s.id === lang));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+</script>
+</body>
+</html>

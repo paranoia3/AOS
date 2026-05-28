@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 8 — File System Internals</title>
+    <style>
+        :root{
+            --bg:#fafaf8;
+            --fg:#1a1a1a;
+            --muted:#6b6b6b;
+            --accent:#2b6cb0;
+            --line:#e5e5e0;
+            --card:#ffffff;
+            --code-bg:#f3f3ee;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
+            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+            line-height:1.65;font-size:16px;}
+        .wrap{max-width:880px;margin:0 auto;padding:64px 28px 96px}
+        header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:48px}
+        .eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+        h1{font-size:34px;font-weight:600;margin:0 0 8px;letter-spacing:-.01em}
+        .sub{color:var(--muted);font-size:16px}
+        nav.lang{display:flex;gap:8px;margin-top:24px}
+        nav.lang a{font-size:14px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;
+            text-decoration:none;color:var(--fg);background:var(--card)}
+        nav.lang a:hover{border-color:var(--accent);color:var(--accent)}
+        section.lang-section{margin-top:56px}
+        h2{font-size:24px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+        h3{font-size:18px;font-weight:600;margin:28px 0 10px;color:var(--fg)}
+        p{margin:10px 0}
+        ul{margin:10px 0 16px;padding-left:22px}
+        li{margin:5px 0}
+        .lede{font-size:17px;color:var(--muted);margin:0 0 24px}
+        .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:16px 0}
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}
+        .pill{display:inline-block;font-size:12px;padding:2px 10px;border:1px solid var(--line);
+            border-radius:999px;color:var(--muted);background:var(--card);margin-right:6px}
+        code,kbd{background:var(--code-bg);padding:1px 6px;border-radius:4px;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px}
+        pre{background:var(--code-bg);padding:14px 16px;border-radius:8px;overflow-x:auto;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px;line-height:1.5;margin:14px 0}
+        table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px}
+        th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+        th{font-weight:600;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+        .divider{height:1px;background:var(--line);margin:64px 0}
+        .toc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:24px 0}
+        .toc h4{margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+        .toc ol{margin:0;padding-left:22px;color:var(--fg)}
+        .toc li{margin:3px 0}
+        .toc a{color:var(--fg);text-decoration:none}
+        .toc a:hover{color:var(--accent)}
+        .stack{display:flex;flex-direction:column;gap:0;margin:14px 0;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px}
+        .stack .layer{padding:10px 16px;border:1px solid var(--line);background:var(--card);text-align:center}
+        .stack .layer + .layer{border-top:none}
+        .stack .layer:first-child{border-radius:8px 8px 0 0}
+        .stack .layer:last-child{border-radius:0 0 8px 8px}
+        .stack .muted{color:var(--muted);font-size:12px;margin-top:4px}
+        footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--line);
+            color:var(--muted);font-size:13px;text-align:center}
+        .lang-tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px;margin:24px 0 8px;width:fit-content}
+        .lang-tabs button{background:transparent;border:none;padding:8px 18px;font:inherit;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-radius:7px;transition:all .15s}
+        .lang-tabs button.active{background:var(--accent);color:#fff}
+        .lang-tabs button:hover:not(.active){color:var(--fg)}
+        section.lang{display:none}
+        section.lang.active{display:block}
+    </style>
+    <style>
+        html[data-theme="dark"]{--bg:#15171a;--fg:#e7e9ec;--muted:#9aa0a6;--accent:#5aa2ff;--line:#2c3137;--border:#2c3137;--card:#1e2125;--code-bg:#2a2f35;--ok:#5fd39a;--ok-bg:#16271d;--ok-line:#234d38;--bad:#ff8c8c;--bad-bg:#2a1718;--bad-line:#5a2a2c;--sel-bg:#16304d;--shadow:rgba(0,0,0,.45)}
+        html[data-theme="dark"] .key{background:#16304d;color:#9ec3ff}
+        .theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border:1px solid var(--line,#e5e5e0);background:var(--card,#fff);color:var(--fg,#1a1a1a);border-radius:8px;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+        .theme-toggle:hover{border-color:var(--accent,#2b6cb0)}
+    </style>
+</head>
+<body>
+<script>
+    (function(){try{var t=localStorage.getItem("aos_quiz_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+        function lbl(){return document.documentElement.getAttribute("data-theme")==="dark"?"Светлая тема":"Тёмная тема";}
+        document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.className="theme-toggle";b.type="button";b.textContent=lbl();b.addEventListener("click",function(){var d=document.documentElement.getAttribute("data-theme")==="dark";var n=d?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("aos_quiz_theme",n);}catch(e){}b.textContent=lbl();});document.body.appendChild(b);});})();
+</script>
+
+<div class="wrap">
+    <div class="lec-nav" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:22px;font-size:14px;font-weight:600">
+        <a href="../L7/lecture07_summary.html" style="color:var(--accent);text-decoration:none">← Лекция 7</a>
+        <a href="../index.html" style="color:var(--accent);text-decoration:none">На главную</a>
+        <a href="../L9/lecture09_summary.html" style="color:var(--accent);text-decoration:none">Лекция 9 →</a>
+    </div>
+
+    <header>
+        <div class="eyebrow">Advanced Operating Systems · Lecture 8</div>
+        <h1>File System Internals</h1>
+        <div class="sub">Внутреннее устройство файловых систем — резюме и пояснения</div>
+        <div class="lang-tabs">
+            <button class="active" data-lang="ru">Русский</button>
+            <button data-lang="en">English</button>
+        </div>
+    </header>
+
+    <!-- ===================== РУССКАЯ ВЕРСИЯ ===================== -->
+    <section id="ru" class="lang active">
+        <p class="lede">Эта лекция углубляется во <b>внутреннее устройство файловых систем</b>: типы ФС и тома, разделы и загрузочные блоки, монтирование и проверка целостности, виртуальная файловая система (VFS) как объектно-ориентированный слой над разными ФС, удалённые ФС и их аутентификация, модели семантики согласованности (UNIX / session / immutable-shared-files) и сетевая ФС <b>Sun NFS</b> — её протоколы mount и собственно NFS, трансляцию путей, кэширование атрибутов и блоков, stateless-семантику.</p>
+
+        <div class="toc">
+            <h4>Содержание</h4>
+            <ol>
+                <li><a href="#ru-1">Цели лекции и общая картина</a></li>
+                <li><a href="#ru-2">Файловые системы и тома</a></li>
+                <li><a href="#ru-3">Разделы и монтирование</a></li>
+                <li><a href="#ru-4">Совместный доступ и аутентификация</a></li>
+                <li><a href="#ru-5">Виртуальная файловая система (VFS)</a></li>
+                <li><a href="#ru-6">Реализация VFS в Linux</a></li>
+                <li><a href="#ru-7">Удалённые файловые системы</a></li>
+                <li><a href="#ru-8">Семантика согласованности</a></li>
+                <li><a href="#ru-9">Sun NFS: концепция и монтирование</a></li>
+                <li><a href="#ru-10">NFS Mount Protocol</a></li>
+                <li><a href="#ru-11">NFS Protocol</a></li>
+                <li><a href="#ru-12">Архитектура NFS — три слоя</a></li>
+                <li><a href="#ru-13">Path-name translation и кэширование</a></li>
+            </ol>
+        </div>
+
+        <h2 id="ru-1">1. Цели лекции и общая картина</h2>
+        <ul>
+            <li>ОС общего назначения предоставляют <b>много типов ФС</b> — от специальных до универсальных.</li>
+            <li>Тома с файловыми системами могут быть смонтированы в общее пространство файловой системы компьютера.</li>
+            <li>В зависимости от ОС, это пространство либо <b>«бесшовное»</b> (примонтированные ФС встраиваются в общее дерево каталогов, как в UNIX), либо <b>«различимое»</b> (у каждой ФС свой идентификатор, как буквы дисков в Windows).</li>
+            <li>Хотя бы одна ФС должна быть <b>загрузочной</b> — содержать ОС. Сначала запускается <b>boot loader</b>: простая программа, умеющая найти ядро в ФС, загрузить его и передать управление.</li>
+            <li>Система может содержать <b>несколько загрузочных разделов</b> — администратор выбирает, какой запускать.</li>
+        </ul>
+
+        <h2 id="ru-2">2. Файловые системы и тома</h2>
+        <ul>
+            <li>Большинство систем многопользовательские — нужна <b>защита</b> и <b>совместный доступ</b>.</li>
+            <li>Файлы и каталоги содержат <b>метаданные</b>: владелец, пользователь, права для группы и т.д.</li>
+            <li>Разделы накопителя используются либо для <b>raw block I/O</b>, либо под файловую систему.</li>
+            <li>Каждая ФС живёт в <b>томе</b>, который может состоять из <b>одного раздела</b> или <b>нескольких</b>, объединённых <b>volume manager</b>'ом.</li>
+        </ul>
+
+        <h2 id="ru-3">3. Разделы и монтирование</h2>
+        <ul>
+            <li>Раздел может быть либо томом с файловой системой (<b>«cooked»</b>), либо <b>raw</b> — просто последовательностью блоков.</li>
+            <li><b>Boot block</b> указывает на загрузочный том или на набор блоков boot-загрузчика, в которых лежит код, умеющий загрузить ядро из ФС.</li>
+            <li>Также возможна <b>boot management program</b> для мультизагрузки.</li>
+            <li><b>Root partition</b> содержит ОС; другие могут содержать иные ОС, иные ФС или быть raw.</li>
+            <li>Root монтируется при загрузке; остальные — автоматически или вручную.</li>
+        </ul>
+
+        <h3>Проверка целостности при монтировании</h3>
+        <ul>
+            <li>В момент монтирования <b>проверяется консистентность</b> метаданных.</li>
+            <li>Если что-то некорректно — попытка починить, повторная проверка.</li>
+            <li>Если всё в порядке — ФС добавляется в <b>mount table</b>, доступ разрешается.</li>
+        </ul>
+
+        <h2 id="ru-4">4. Совместный доступ и аутентификация</h2>
+        <ul>
+            <li>Удалённые ФС можно реализовать просто через <b>ftp</b> или Web (HTTP-серверы и клиенты), либо полноценно — через <b>client-server</b>.</li>
+            <li><b>Mount requests</b> и <b>User IDs</b> должны быть <b>аутентифицированы</b>, иначе любой сможет смонтировать чужую ФС.</li>
+            <li>Сам по себе client-server обмен не делится информацией о пользователях. Чтобы её разделять, используют <b>распределённую информационную систему</b>:
+                <ul>
+                    <li><b>DNS</b> — единое пространство имён;</li>
+                    <li>Microsoft <b>CIFS</b> использует <b>Active Directory</b>, поверх которого работает <b>Kerberos</b> — полная служба именования и аутентификации между компьютерами сети.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2 id="ru-5">5. Виртуальная файловая система (VFS)</h2>
+        <p>Поддерживать несколько ФС внутри одной ОС сложно. Решение — <b>уровневая архитектура</b> с <b>VFS-интерфейсом</b>, который делает доступ к разнородным ФС <b>прозрачным</b> для приложений.</p>
+
+        <div class="stack">
+            <div class="layer">Системные вызовы приложения<div class="muted">open, read, write, close, mmap…</div></div>
+            <div class="layer">VFS (Virtual File System)<div class="muted">единый API; vnode/dentry; диспетчеризация</div></div>
+            <div class="layer">Конкретные реализации ФС<div class="muted">ext4, NTFS, ZFS, NFS, procfs, …</div></div>
+            <div class="layer">Блочный/сетевой ввод-вывод</div>
+        </div>
+
+        <ul>
+            <li>VFS даёт <b>один и тот же системный API</b> для любой ФС — локальной или сетевой.</li>
+            <li>Разделяет <b>общие операции ФС</b> и <b>детали реализации</b>.</li>
+            <li>Реализует <b>vnodes</b>, которые хранят inode или сведения о сетевом файле.</li>
+            <li>Маршрутизирует вызовы в нужную реализацию ФС.</li>
+        </ul>
+
+        <h2 id="ru-6">6. Реализация VFS в Linux</h2>
+        <p>В Linux у VFS четыре основных объекта:</p>
+        <ul>
+            <li><b>inode</b> — узел индекса файла (метаданные),</li>
+            <li><b>file</b> — открытый файл,</li>
+            <li><b>superblock</b> — описание примонтированной ФС,</li>
+            <li><b>dentry</b> — directory entry (элемент кэша имён каталогов).</li>
+        </ul>
+
+        <p>VFS определяет набор операций, которые каждый объект должен реализовывать. У каждого объекта — <b>указатель на таблицу функций</b>, в которой адреса процедур, выполняющих операцию для именно этого объекта. Например:</p>
+        <pre>int      open(...);    // открыть файл
+int      close(...);   // закрыть файл
+ssize_t  read(...);    // прочитать
+ssize_t  write(...);   // записать
+int      mmap(...);    // отобразить в память</pre>
+
+        <p>Это <b>объектно-ориентированный</b> подход: каждая ФС поставляет свою таблицу функций, и VFS вызывает нужную через указатель.</p>
+
+        <h2 id="ru-7">7. Удалённые файловые системы</h2>
+        <ul>
+            <li><b>Полнофункциональная</b> удалённая ФС включает:
+                <ul>
+                    <li>протокол связи с удалёнными операциями;</li>
+                    <li>трансляцию имён путей.</li>
+                </ul>
+            </li>
+            <li>Простейшие способы — FTP или HTTP; продвинутые — client-server (NFS).</li>
+        </ul>
+
+        <h2 id="ru-8">8. Семантика согласованности</h2>
+        <p>Когда совместный доступ возможен, надо выбрать модель — <b>как разруливаются одновременные обращения</b> к одному файлу.</p>
+
+        <table>
+            <tr><th>Модель</th><th>Поведение</th></tr>
+            <tr><td><b>UNIX semantics</b></td><td>Запись в открытый файл <b>немедленно</b> видна другим открывшим. Файловый указатель может быть разделяемым.</td></tr>
+            <tr><td><b>Session semantics</b></td><td>Изменения видны только сессиям, открытым <i>после</i> того, как файл был закрыт (AFS).</td></tr>
+            <tr><td><b>Immutable-shared-files</b></td><td>Объявлённый разделяемым файл <i>нельзя</i> изменять — переименован, можно создать новую версию, но не править.</td></tr>
+        </table>
+
+        <h2 id="ru-9">9. Sun NFS: концепция и монтирование</h2>
+        <p><b>NFS</b> — и спецификация, и реализация системы доступа к удалённым файлам через LAN/WAN. Реализована в Solaris и SunOS на рабочих станциях Sun поверх <b>ненадёжного датаграммного протокола</b> (UDP/IP + Ethernet).</p>
+
+        <ul>
+            <li>Соединённые рабочие станции рассматриваются как набор <b>независимых машин с независимыми ФС</b>; шаринг — прозрачный.</li>
+            <li>Удалённый каталог монтируется <b>поверх</b> локального каталога — становится его поддеревом.</li>
+            <li>Указание удалённого каталога для mount-операции <b>не прозрачно</b>: нужно указать имя сервера.</li>
+            <li>После монтирования доступ к файлам прозрачен.</li>
+            <li>Любая ФС или каталог могут быть смонтированы поверх любого локального каталога, при условии прохождения проверки прав доступа.</li>
+        </ul>
+
+        <h3>Гетерогенность</h3>
+        <ul>
+            <li>NFS работает в среде разных машин, ОС и сетевых архитектур.</li>
+            <li>Независимость от реализации достигается через:
+                <ul>
+                    <li><b>RPC</b>-примитивы поверх</li>
+                    <li><b>XDR</b> (External Data Representation) — протокол для сериализации данных.</li>
+                </ul>
+            </li>
+            <li>Спецификация NFS чётко <b>разделяет</b>:
+                <ul>
+                    <li><b>mount mechanism</b> — установление связи;</li>
+                    <li>собственно <b>remote file access</b>.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>Каскадное монтирование</h3>
+        <p><b>Cascading mounts:</b> можно монтировать ФС поверх каталога, который сам пришёл из удалённой ФС, — получается «вложенный» mount.</p>
+
+        <h2 id="ru-10">10. NFS Mount Protocol</h2>
+        <ul>
+            <li>Устанавливает <b>начальное логическое соединение</b> между сервером и клиентом.</li>
+            <li>В mount-запросе передаётся: имя удалённого каталога + имя сервера.</li>
+            <li>Запрос превращается в соответствующий <b>RPC</b> и направляется к <b>mount-серверу</b> на сервере.</li>
+            <li><b>Export list</b> — список локальных ФС, которые сервер разрешает монтировать, и имена машин, которым это разрешено.</li>
+            <li>Если запрос соответствует export list, сервер возвращает <b>file handle</b> — ключ для последующих обращений:
+                <ul>
+                    <li>идентификатор ФС;</li>
+                    <li>номер inode внутри экспортируемой ФС, идентифицирующий смонтированный каталог.</li>
+                </ul>
+            </li>
+            <li>Операция mount меняет <b>только взгляд клиента</b>; сервер о ней толком не помнит.</li>
+        </ul>
+
+        <h2 id="ru-11">11. NFS Protocol</h2>
+        <p>Это набор <b>удалённых процедурных вызовов</b> для файловых операций. Поддерживает:</p>
+        <ul>
+            <li>поиск файла в каталоге;</li>
+            <li>чтение записей каталога;</li>
+            <li>работа со ссылками (links) и каталогами;</li>
+            <li>доступ к атрибутам файла;</li>
+            <li>чтение и запись файлов.</li>
+        </ul>
+
+        <div class="card">
+            <b>Ключевые свойства NFS:</b>
+            <ul>
+                <li><b>Stateless servers</b>: каждый запрос должен содержать <b>полный набор аргументов</b> — сервер не помнит сессии. <i>Замечание: NFS v4 — уже stateful, сильно отличается.</i></li>
+                <li>Изменённые данные <b>должны быть записаны на диск</b> сервера, прежде чем результат вернётся клиенту → теряются преимущества кэширования записи.</li>
+                <li>Сам протокол NFS <b>не предоставляет механизмов контроля параллелизма</b> (concurrency control).</li>
+            </ul>
+        </div>
+
+        <h2 id="ru-12">12. Архитектура NFS — три слоя</h2>
+
+        <div class="stack">
+            <div class="layer">Интерфейс UNIX-ФС<div class="muted">open / read / write / close + file descriptors</div></div>
+            <div class="layer">VFS-слой<div class="muted">отличает локальные файлы от удалённых; для локальных — определяет тип ФС</div></div>
+            <div class="layer">NFS Service Layer<div class="muted">реализует NFS-протокол</div></div>
+        </div>
+
+        <ul>
+            <li><b>UNIX file-system interface</b> — открытые приложениям системные вызовы.</li>
+            <li><b>VFS layer</b>:
+                <ul>
+                    <li>отличает локальные файлы от удалённых;</li>
+                    <li>для локальных запросов вызывает методы конкретной ФС;</li>
+                    <li>для удалённых — обращается к NFS-процедурам.</li>
+                </ul>
+            </li>
+            <li><b>NFS service layer</b> — нижний слой, реализующий собственно NFS-протокол.</li>
+        </ul>
+
+        <h2 id="ru-13">13. Path-name translation и кэширование</h2>
+
+        <h3>Трансляция путей</h3>
+        <ul>
+            <li>Путь разбивается на компоненты — для каждой пары (имя компонента, vnode каталога) выполняется <b>отдельный NFS lookup</b>.</li>
+            <li>Чтобы ускорить — на клиенте есть <b>directory name lookup cache</b>, который хранит vnodes для имён удалённых каталогов.</li>
+        </ul>
+
+        <h3>Remote operations и кэширование</h3>
+        <ul>
+            <li>Почти <b>1-к-1</b> соответствие обычных UNIX-вызовов и NFS RPC (кроме open/close).</li>
+            <li>NFS — это <b>remote-service</b> парадигма, но <b>с кэшированием</b> ради производительности.</li>
+            <li><b>File-blocks cache:</b> при открытии файла ядро спрашивает у сервера, надо ли подгрузить или ревалидировать кэшированные атрибуты.</li>
+            <li>Кэшированные блоки используются <b>только</b>, если соответствующие <b>атрибуты в кэше актуальны</b>.</li>
+            <li><b>File-attribute cache:</b> обновляется каждый раз, когда от сервера приходят новые атрибуты.</li>
+            <li>Клиенты <b>не освобождают</b> delayed-write блоки, пока сервер не подтвердит, что данные записаны на диск.</li>
+        </ul>
+
+        <div class="card">
+            <b>Главный вывод:</b> внутреннее устройство файловой системы — это не одна монолитная сущность, а слоистая архитектура: разделы и тома снизу, VFS как объектно-ориентированный фасад в середине, конкретные ФС и сетевые ФС (NFS) сбоку. NFS показывает все основные компромиссы распределённой ФС: stateless-сервер ради простоты восстановления, отдельный mount-протокол с file handles, кэширование атрибутов и блоков с явной ревалидацией, и сознательный отказ от контроля параллелизма на уровне самого протокола.
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ===================== ENGLISH VERSION ===================== -->
+    <section id="en" class="lang">
+        <p class="lede">This lecture goes deeper into <b>how file systems are implemented</b>: file-system types and volumes, partitions and boot blocks, mounting and consistency checks, the Virtual File System (VFS) as an object-oriented layer above diverse file systems, remote file systems and authentication, consistency-semantics models (UNIX / session / immutable-shared-files), and the Sun NFS network file system — its mount and NFS protocols, path-name translation, attribute and block caching, and stateless semantics.</p>
+
+        <div class="toc">
+            <h4>Contents</h4>
+            <ol>
+                <li><a href="#en-1">Objectives and big picture</a></li>
+                <li><a href="#en-2">File systems and volumes</a></li>
+                <li><a href="#en-3">Partitions and mounting</a></li>
+                <li><a href="#en-4">Sharing and authentication</a></li>
+                <li><a href="#en-5">The Virtual File System (VFS)</a></li>
+                <li><a href="#en-6">VFS implementation in Linux</a></li>
+                <li><a href="#en-7">Remote file systems</a></li>
+                <li><a href="#en-8">Consistency semantics</a></li>
+                <li><a href="#en-9">Sun NFS: concept and mounting</a></li>
+                <li><a href="#en-10">NFS Mount Protocol</a></li>
+                <li><a href="#en-11">NFS Protocol</a></li>
+                <li><a href="#en-12">NFS architecture — three layers</a></li>
+                <li><a href="#en-13">Path-name translation and caching</a></li>
+            </ol>
+        </div>
+
+        <h2 id="en-1">1. Objectives and big picture</h2>
+        <ul>
+            <li>General-purpose OSes provide <b>many file-system types</b>, from special-purpose to general.</li>
+            <li>Volumes carrying file systems can be mounted into the machine's file-system space.</li>
+            <li>Depending on the OS, that space is either <b>seamless</b> (mounted FSes blend into the directory tree, as in UNIX) or <b>distinct</b> (each gets its own designation, as drive letters in Windows).</li>
+            <li>At least one FS must be <b>bootable</b> — it has to contain an OS. The <b>boot loader</b> runs first: a small program that locates the kernel in the FS, loads it, and transfers control.</li>
+            <li>A system may contain <b>multiple bootable partitions</b> — the administrator picks which to boot.</li>
+        </ul>
+
+        <h2 id="en-2">2. File systems and volumes</h2>
+        <ul>
+            <li>Most systems are multi-user — they need <b>protection</b> and <b>file sharing</b>.</li>
+            <li>Files and directories carry <b>metadata</b>: owner, user, group permissions, etc.</li>
+            <li>Storage partitions are used either for <b>raw block I/O</b> or for a file system.</li>
+            <li>Each FS lives in a <b>volume</b> — one partition, or several partitions coordinated by a <b>volume manager</b>.</li>
+        </ul>
+
+        <h2 id="en-3">3. Partitions and mounting</h2>
+        <ul>
+            <li>A partition is either a volume with a file system (<b>"cooked"</b>) or <b>raw</b> — a plain sequence of blocks.</li>
+            <li>The <b>boot block</b> points to the boot volume or to a set of blocks holding the boot loader — enough code to find the kernel in the FS.</li>
+            <li>Or a <b>boot management program</b> for multi-OS booting.</li>
+            <li>The <b>root partition</b> holds the OS; other partitions can hold other OSes, other FSes, or be raw.</li>
+            <li>Root is mounted at boot; the rest mount automatically or manually.</li>
+        </ul>
+
+        <h3>Consistency check at mount</h3>
+        <ul>
+            <li>At mount time, metadata <b>consistency is checked</b>.</li>
+            <li>If something is wrong — repair and retry.</li>
+            <li>If OK — add to the <b>mount table</b>, grant access.</li>
+        </ul>
+
+        <h2 id="en-4">4. Sharing and authentication</h2>
+        <ul>
+            <li>Remote FSes can be set up simply via <b>ftp</b> or the Web (HTTP servers and clients), or fully via a <b>client-server</b> model.</li>
+            <li><b>Mount requests</b> and <b>user IDs</b> must be <b>authenticated</b> — otherwise anyone could mount someone else's FS.</li>
+            <li>Pure client-server doesn't natively share information. To share it, a <b>distributed information system</b> is used:
+                <ul>
+                    <li><b>DNS</b> — a unified name space;</li>
+                    <li>Microsoft <b>CIFS</b> uses <b>Active Directory</b>, which is built on a version of <b>Kerberos</b> — full naming and authentication services across the network.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2 id="en-5">5. The Virtual File System (VFS)</h2>
+        <p>Supporting many FSes in one OS is hard. The solution is a <b>layered architecture</b> with a <b>VFS interface</b> that makes access to dissimilar file systems <b>seamless</b> to applications.</p>
+
+        <div class="stack">
+            <div class="layer">Application system calls<div class="muted">open, read, write, close, mmap…</div></div>
+            <div class="layer">VFS (Virtual File System)<div class="muted">unified API; vnodes/dentries; dispatch</div></div>
+            <div class="layer">Concrete FS implementations<div class="muted">ext4, NTFS, ZFS, NFS, procfs, …</div></div>
+            <div class="layer">Block / network I/O</div>
+        </div>
+
+        <ul>
+            <li>VFS exposes the <b>same system-call API</b> for any FS — local or networked.</li>
+            <li>It separates <b>generic FS operations</b> from <b>implementation details</b>.</li>
+            <li>It implements <b>vnodes</b>, which hold inodes or remote-file details.</li>
+            <li>It dispatches each call to the right FS implementation routine.</li>
+        </ul>
+
+        <h2 id="en-6">6. VFS implementation in Linux</h2>
+        <p>Linux's VFS has four core object types:</p>
+        <ul>
+            <li><b>inode</b> — file index node (metadata),</li>
+            <li><b>file</b> — an open file,</li>
+            <li><b>superblock</b> — a mounted FS description,</li>
+            <li><b>dentry</b> — a directory entry (in the name cache).</li>
+        </ul>
+
+        <p>VFS defines the operations each object must support. Every object has a <b>pointer to a function table</b> containing the addresses of routines that implement those operations on that object. For example:</p>
+        <pre>int      open(...);    // open a file
+int      close(...);   // close an open file
+ssize_t  read(...);    // read
+ssize_t  write(...);   // write
+int      mmap(...);    // memory-map a file</pre>
+
+        <p>This is the <b>object-oriented</b> approach: each FS provides its own function table, and VFS calls the right routine through the pointer.</p>
+
+        <h2 id="en-7">7. Remote file systems</h2>
+        <ul>
+            <li>A <b>full-featured</b> remote FS includes:
+                <ul>
+                    <li>a communication protocol with remote operations;</li>
+                    <li>path-name translation.</li>
+                </ul>
+            </li>
+            <li>Simpler approaches use FTP or HTTP; the polished one is client-server (NFS).</li>
+        </ul>
+
+        <h2 id="en-8">8. Consistency semantics</h2>
+        <p>Once sharing is possible, you must pick a model — <b>how concurrent accesses to one file are resolved</b>.</p>
+
+        <table>
+            <tr><th>Model</th><th>Behavior</th></tr>
+            <tr><td><b>UNIX semantics</b></td><td>A write to an open file is <b>immediately</b> visible to other openers. The file pointer can be shared.</td></tr>
+            <tr><td><b>Session semantics</b></td><td>Changes are visible only to sessions opened <i>after</i> the file is closed (AFS).</td></tr>
+            <tr><td><b>Immutable-shared-files</b></td><td>A file declared shared <i>cannot</i> be modified — only renamed or replaced with a new version.</td></tr>
+        </table>
+
+        <h2 id="en-9">9. Sun NFS: concept and mounting</h2>
+        <p><b>NFS</b> is both a specification and an implementation of remote-file access across LANs/WANs. It is part of Solaris and SunOS on Sun workstations, running over an <b>unreliable datagram protocol</b> (UDP/IP + Ethernet).</p>
+
+        <ul>
+            <li>Interconnected workstations are seen as a set of <b>independent machines with independent file systems</b>; sharing is transparent.</li>
+            <li>A remote directory is mounted <b>on top of</b> a local directory — it becomes that subtree.</li>
+            <li>Specifying the remote directory at mount time is <b>not transparent</b>: you must give the server's host name.</li>
+            <li>After mounting, file access itself is transparent.</li>
+            <li>Subject to access-rights checks, any FS or any directory inside one can be mounted on top of any local directory.</li>
+        </ul>
+
+        <h3>Heterogeneity</h3>
+        <ul>
+            <li>NFS is designed for environments with different machines, OSes and network architectures.</li>
+            <li>Implementation independence is achieved through:
+                <ul>
+                    <li><b>RPC</b> primitives layered over</li>
+                    <li><b>XDR</b> (External Data Representation), a protocol for serializing data.</li>
+                </ul>
+            </li>
+            <li>The NFS specification clearly <b>separates</b>:
+                <ul>
+                    <li>the <b>mount mechanism</b> — establishing the link;</li>
+                    <li>and the actual <b>remote-file-access</b> services.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>Cascading mounts</h3>
+        <p>You can mount a file system on top of a directory that itself came from a remote FS — yielding nested, <b>cascading mounts</b>.</p>
+
+        <h2 id="en-10">10. NFS Mount Protocol</h2>
+        <ul>
+            <li>Establishes the <b>initial logical connection</b> between server and client.</li>
+            <li>The mount request carries: the remote directory name + the server name.</li>
+            <li>It's mapped to an <b>RPC</b> and forwarded to the <b>mount server</b> on the server machine.</li>
+            <li>An <b>export list</b> on the server specifies which local FSes it exports for mounting and which machines are allowed to mount them.</li>
+            <li>If the request matches the export list, the server returns a <b>file handle</b> — the key for further accesses:
+                <ul>
+                    <li>a file-system identifier;</li>
+                    <li>and an inode number identifying the mounted directory inside the exported FS.</li>
+                </ul>
+            </li>
+            <li>The mount changes <b>only the user's view</b>; the server side is barely affected.</li>
+        </ul>
+
+        <h2 id="en-11">11. NFS Protocol</h2>
+        <p>A set of <b>remote procedure calls</b> for file operations. Supports:</p>
+        <ul>
+            <li>searching for a file within a directory;</li>
+            <li>reading directory entries;</li>
+            <li>manipulating links and directories;</li>
+            <li>accessing file attributes;</li>
+            <li>reading and writing files.</li>
+        </ul>
+
+        <div class="card">
+            <b>Key NFS properties:</b>
+            <ul>
+                <li><b>Stateless servers</b>: every request must carry a <b>full set of arguments</b> — the server doesn't remember sessions. <i>Note: NFS v4 is stateful and very different.</i></li>
+                <li>Modified data <b>must be committed to the server's disk</b> before results return to the client → write-caching benefits are lost.</li>
+                <li>The NFS protocol itself <b>does not provide concurrency-control mechanisms</b>.</li>
+            </ul>
+        </div>
+
+        <h2 id="en-12">12. NFS architecture — three layers</h2>
+
+        <div class="stack">
+            <div class="layer">UNIX file-system interface<div class="muted">open / read / write / close + file descriptors</div></div>
+            <div class="layer">VFS layer<div class="muted">distinguishes local vs. remote; for local — picks the FS type</div></div>
+            <div class="layer">NFS service layer<div class="muted">implements the NFS protocol</div></div>
+        </div>
+
+        <ul>
+            <li><b>UNIX file-system interface</b> — the system calls exposed to applications.</li>
+            <li><b>VFS layer</b>:
+                <ul>
+                    <li>distinguishes local files from remote ones;</li>
+                    <li>for local requests it dispatches to a concrete FS's methods;</li>
+                    <li>for remote ones it calls NFS protocol procedures.</li>
+                </ul>
+            </li>
+            <li><b>NFS service layer</b> — the bottom layer that actually speaks NFS.</li>
+        </ul>
+
+        <h2 id="en-13">13. Path-name translation and caching</h2>
+
+        <h3>Path translation</h3>
+        <ul>
+            <li>The path is broken into components — for each (component name, directory vnode) pair a <b>separate NFS lookup</b> is performed.</li>
+            <li>To speed this up, the client keeps a <b>directory name lookup cache</b> holding vnodes for remote directory names.</li>
+        </ul>
+
+        <h3>Remote operations and caching</h3>
+        <ul>
+            <li>There's a near <b>1-to-1</b> correspondence between UNIX system calls and NFS RPCs (except open/close).</li>
+            <li>NFS follows the <b>remote-service</b> paradigm but uses <b>buffering and caching</b> for performance.</li>
+            <li><b>File-blocks cache:</b> when a file is opened, the kernel checks with the server whether to fetch or revalidate cached attributes.</li>
+            <li>Cached blocks are used <b>only</b> if the corresponding <b>cached attributes are up to date</b>.</li>
+            <li><b>File-attribute cache:</b> updated whenever new attributes arrive from the server.</li>
+            <li>Clients <b>do not free</b> delayed-write blocks until the server confirms the data has been written to disk.</li>
+        </ul>
+
+        <div class="card">
+            <b>Take-away:</b> a file system's internals form a layered stack: partitions and volumes at the bottom, VFS as an object-oriented façade in the middle, and concrete file systems (including network ones like NFS) plugged in on the side. NFS itself showcases the classic distributed-FS trade-offs: a stateless server for simple recovery, a separate mount protocol with file handles, careful attribute and block caching with explicit revalidation, and a deliberate punt on concurrency control at the protocol level.
+        </div>
+    </section>
+
+    <footer>
+        Advanced Operating Systems · Lecture 8 · File System Internals<br>
+        Adapted from <i>Operating System Concepts</i>, 10th Edition — Silberschatz, Galvin and Gagne ©2018
+    </footer>
+
+</div>
+<script>
+    (function(){var buttons=document.querySelectorAll(".lang-tabs button");var sections=document.querySelectorAll("section.lang");buttons.forEach(function(btn){btn.addEventListener("click",function(){var lang=btn.dataset.lang;buttons.forEach(function(b){b.classList.toggle("active",b===btn);});sections.forEach(function(s){s.classList.toggle("active",s.id===lang);});window.scrollTo({top:0,behavior:"smooth"});});});})();
+</script>
+</body>
+</html>

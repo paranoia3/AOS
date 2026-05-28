@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 2 — Operating-System Structures</title>
+    <style>
+        :root{
+            --bg:#fafaf8;
+            --fg:#1a1a1a;
+            --muted:#6b6b6b;
+            --accent:#2b6cb0;
+            --line:#e5e5e0;
+            --card:#ffffff;
+            --code-bg:#f3f3ee;
+        }
+        *{box-sizing:border-box}
+        html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);
+            font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+            line-height:1.65;font-size:16px;}
+        .wrap{max-width:880px;margin:0 auto;padding:64px 28px 96px}
+        header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:48px}
+        .eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+        h1{font-size:34px;font-weight:600;margin:0 0 8px;letter-spacing:-.01em}
+        .sub{color:var(--muted);font-size:16px}
+        nav.lang{display:flex;gap:8px;margin-top:24px}
+        nav.lang a{font-size:14px;padding:6px 14px;border:1px solid var(--line);border-radius:999px;
+            text-decoration:none;color:var(--fg);background:var(--card)}
+        nav.lang a:hover{border-color:var(--accent);color:var(--accent)}
+        section.lang-section{margin-top:56px}
+        h2{font-size:24px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+        h3{font-size:18px;font-weight:600;margin:28px 0 10px;color:var(--fg)}
+        p{margin:10px 0}
+        ul{margin:10px 0 16px;padding-left:22px}
+        li{margin:5px 0}
+        .lede{font-size:17px;color:var(--muted);margin:0 0 24px}
+        .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:16px 0}
+        .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}
+        .pill{display:inline-block;font-size:12px;padding:2px 10px;border:1px solid var(--line);
+            border-radius:999px;color:var(--muted);background:var(--card);margin-right:6px}
+        code,kbd{background:var(--code-bg);padding:1px 6px;border-radius:4px;font-family:"JetBrains Mono",Consolas,monospace;font-size:14px}
+        table{width:100%;border-collapse:collapse;margin:14px 0;font-size:15px}
+        th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+        th{font-weight:600;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+        .divider{height:1px;background:var(--line);margin:64px 0}
+        .toc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:24px 0}
+        .toc h4{margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+        .toc ol{margin:0;padding-left:22px;color:var(--fg)}
+        .toc li{margin:3px 0}
+        .toc a{color:var(--fg);text-decoration:none}
+        .toc a:hover{color:var(--accent)}
+        footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--line);
+            color:var(--muted);font-size:13px;text-align:center}
+        .lang-tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px;margin:24px 0 8px;width:fit-content}
+        .lang-tabs button{background:transparent;border:none;padding:8px 18px;font:inherit;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;border-radius:7px;transition:all .15s}
+        .lang-tabs button.active{background:var(--accent);color:#fff}
+        .lang-tabs button:hover:not(.active){color:var(--fg)}
+        section.lang{display:none}
+        section.lang.active{display:block}
+    </style>
+    <style>
+        html[data-theme="dark"]{--bg:#15171a;--fg:#e7e9ec;--muted:#9aa0a6;--accent:#5aa2ff;--line:#2c3137;--border:#2c3137;--card:#1e2125;--code-bg:#2a2f35;--ok:#5fd39a;--ok-bg:#16271d;--ok-line:#234d38;--bad:#ff8c8c;--bad-bg:#2a1718;--bad-line:#5a2a2c;--sel-bg:#16304d;--shadow:rgba(0,0,0,.45)}
+        html[data-theme="dark"] .key{background:#16304d;color:#9ec3ff}
+        .theme-toggle{position:fixed;top:14px;right:14px;z-index:9999;padding:8px 14px;border:1px solid var(--line,#e5e5e0);background:var(--card,#fff);color:var(--fg,#1a1a1a);border-radius:8px;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+        .theme-toggle:hover{border-color:var(--accent,#2b6cb0)}
+    </style>
+</head>
+<body>
+<script>
+    (function(){try{var t=localStorage.getItem("aos_quiz_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+        function lbl(){return document.documentElement.getAttribute("data-theme")==="dark"?"Светлая тема":"Тёмная тема";}
+        document.addEventListener("DOMContentLoaded",function(){var b=document.createElement("button");b.className="theme-toggle";b.type="button";b.textContent=lbl();b.addEventListener("click",function(){var d=document.documentElement.getAttribute("data-theme")==="dark";var n=d?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("aos_quiz_theme",n);}catch(e){}b.textContent=lbl();});document.body.appendChild(b);});})();
+</script>
+
+<div class="wrap">
+    <div class="lec-nav" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:22px;font-size:14px;font-weight:600">
+        <a href="../L1/Lecture1_Summary.html" style="color:var(--accent);text-decoration:none">← Лекция 1</a>
+        <a href="../index.html" style="color:var(--accent);text-decoration:none">На главную</a>
+        <a href="../L3/lecture03_summary.html" style="color:var(--accent);text-decoration:none">Лекция 3 →</a>
+    </div>
+
+    <header>
+        <div class="eyebrow">Advanced Operating Systems · Lecture 2</div>
+        <h1>Operating-System Structures</h1>
+        <div class="sub">Структура операционных систем — резюме и пояснения</div>
+        <div class="lang-tabs">
+            <button class="active" data-lang="ru">Русский</button>
+            <button data-lang="en">English</button>
+        </div>
+    </header>
+
+    <!-- ===================== РУССКАЯ ВЕРСИЯ ===================== -->
+    <section id="ru" class="lang active">
+        <p class="lede">Эта лекция отвечает на три вопроса: <b>что</b> ОС предоставляет пользователю и программам, <b>как</b> она устроена внутри и <b>как</b> она загружается и настраивается под конкретное оборудование.</p>
+
+        <div class="toc">
+            <h4>Содержание</h4>
+            <ol>
+                <li><a href="#ru-1">Сервисы ОС</a></li>
+                <li><a href="#ru-2">Интерфейс пользователя: CLI, GUI, Touch</a></li>
+                <li><a href="#ru-3">Системные вызовы (System Calls)</a></li>
+                <li><a href="#ru-4">Типы системных вызовов</a></li>
+                <li><a href="#ru-5">Системные программы</a></li>
+                <li><a href="#ru-6">Проектирование и реализация ОС</a></li>
+                <li><a href="#ru-7">Структуры ОС</a></li>
+                <li><a href="#ru-8">Гибридные системы: Mac OS X, iOS, Android</a></li>
+                <li><a href="#ru-9">Отладка и тюнинг</a></li>
+                <li><a href="#ru-10">Генерация и загрузка системы</a></li>
+            </ol>
+        </div>
+
+        <h2 id="ru-1">1. Сервисы операционной системы</h2>
+        <p>ОС — это среда выполнения программ. Её сервисы делятся на две группы: <b>помощь пользователю</b> и <b>эффективная работа самой системы</b>.</p>
+
+        <h3>Сервисы для пользователя</h3>
+        <ul>
+            <li><b>Пользовательский интерфейс (UI)</b> — CLI, GUI или batch.</li>
+            <li><b>Выполнение программ</b> — загрузка в память, запуск, нормальное или аварийное завершение.</li>
+            <li><b>Операции ввода-вывода (I/O)</b> — работа с файлами и устройствами.</li>
+            <li><b>Файловая система</b> — создание, чтение, запись, поиск, права доступа.</li>
+            <li><b>Коммуникации</b> — через разделяемую память или передачу сообщений (пакетов).</li>
+            <li><b>Обнаружение ошибок</b> — в CPU, памяти, устройствах I/O, программах пользователя.</li>
+        </ul>
+
+        <h3>Сервисы для самой системы</h3>
+        <ul>
+            <li><b>Распределение ресурсов</b> — CPU, память, дисковое пространство, устройства.</li>
+            <li><b>Учёт (Accounting)</b> — сколько и каких ресурсов потребляет каждый пользователь.</li>
+            <li><b>Защита (Protection)</b> — контроль доступа к ресурсам системы.</li>
+            <li><b>Безопасность (Security)</b> — аутентификация и защита от внешних угроз.</li>
+        </ul>
+
+        <h2 id="ru-2">2. Интерфейс пользователя</h2>
+        <div class="grid">
+            <div class="card">
+                <span class="pill">CLI</span>
+                <h3 style="margin-top:8px">Командная строка</h3>
+                <p>Командный интерпретатор (shell) получает команду и выполняет её. Часто бывает несколько «shell»-ов: bash, zsh, PowerShell. Если команды — это просто имена программ, добавление новых функций не требует модификации shell.</p>
+            </div>
+            <div class="card">
+                <span class="pill">GUI</span>
+                <h3 style="margin-top:8px">Графический интерфейс</h3>
+                <p>Метафора «рабочего стола», изобретена в <b>Xerox PARC</b>. Современные ОС обычно совмещают CLI и GUI: Windows, macOS (Aqua + UNIX kernel), Linux (CDE/KDE/GNOME).</p>
+            </div>
+            <div class="card">
+                <span class="pill">Touch</span>
+                <h3 style="margin-top:8px">Сенсорный интерфейс</h3>
+                <p>Жесты вместо мыши, виртуальная клавиатура, голосовые команды. Требует нового подхода к проектированию.</p>
+            </div>
+        </div>
+
+        <h2 id="ru-3">3. Системные вызовы (System Calls)</h2>
+        <p>System call — это программный интерфейс к сервисам ОС. Обычно программисты не вызывают их напрямую, а используют <b>API</b>:</p>
+        <ul>
+            <li><b>Win32 API</b> — Windows</li>
+            <li><b>POSIX API</b> — UNIX, Linux, macOS</li>
+            <li><b>Java API</b> — для JVM</li>
+        </ul>
+
+        <h3>Как это работает</h3>
+        <ol>
+            <li>Каждому системному вызову присвоен <b>номер</b>.</li>
+            <li>Интерфейс системных вызовов хранит таблицу, индексированную этими номерами.</li>
+            <li>Интерфейс вызывает нужный сервис в ядре и возвращает статус и результат.</li>
+            <li>Программист работает только с API — детали реализации скрыты библиотекой времени выполнения.</li>
+        </ol>
+
+        <h3>Способы передачи параметров</h3>
+        <table>
+            <tr><th>Способ</th><th>Описание</th><th>Особенности</th></tr>
+            <tr><td>Регистры</td><td>Параметры передаются в регистрах CPU</td><td>Простой, но ограниченный по числу параметров</td></tr>
+            <tr><td>Блок в памяти</td><td>Адрес блока передаётся в регистре</td><td>Linux, Solaris — без ограничения по длине</td></tr>
+            <tr><td>Стек</td><td>Программа кладёт параметры в стек, ОС снимает</td><td>Без ограничения по длине</td></tr>
+        </table>
+
+        <h2 id="ru-4">4. Типы системных вызовов</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Управление процессами</h3>
+                <ul>
+                    <li>create / terminate</li>
+                    <li>load / execute</li>
+                    <li>get / set attributes</li>
+                    <li>wait, signal events</li>
+                    <li>allocate / free memory</li>
+                    <li>locks для разделяемых данных</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Управление файлами</h3>
+                <ul>
+                    <li>create / delete</li>
+                    <li>open / close</li>
+                    <li>read / write / reposition</li>
+                    <li>get / set атрибуты файла</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Управление устройствами</h3>
+                <ul>
+                    <li>request / release</li>
+                    <li>read / write</li>
+                    <li>attach / detach устройств</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Поддержка информации</h3>
+                <ul>
+                    <li>get / set time, date</li>
+                    <li>системные данные</li>
+                    <li>атрибуты процессов и файлов</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Коммуникации</h3>
+                <ul>
+                    <li>создание/удаление соединений</li>
+                    <li>передача сообщений (client → server)</li>
+                    <li>shared-memory модель</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Защита</h3>
+                <ul>
+                    <li>контроль доступа к ресурсам</li>
+                    <li>get / set permissions</li>
+                    <li>allow / deny user access</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>Примеры систем</h3>
+        <div class="card">
+            <b>MS-DOS</b> — однозадачная. Shell запускается при загрузке, загружает программу в память поверх себя. После выхода программы shell перезагружается. Процессы не создаются.
+        </div>
+        <div class="card">
+            <b>FreeBSD</b> — многозадачная, UNIX-подобная. Логин запускает shell, который через <code>fork()</code> создаёт процесс и через <code>exec()</code> загружает программу. Код выхода: <code>0</code> — успех, <code>&gt;0</code> — ошибка.
+        </div>
+
+        <h2 id="ru-5">5. Системные программы</h2>
+        <p>Это то, как пользователь обычно «видит» ОС — а не системные вызовы.</p>
+        <ul>
+            <li><b>Работа с файлами</b>: create, delete, copy, rename, print, list.</li>
+            <li><b>Информация о состоянии</b>: дата, время, память, диск, число пользователей; иногда — <b>реестр</b>.</li>
+            <li><b>Модификация файлов</b>: текстовые редакторы, поиск, преобразования.</li>
+            <li><b>Поддержка языков</b>: компиляторы, ассемблеры, отладчики, интерпретаторы.</li>
+            <li><b>Загрузка и выполнение программ</b>: loader'ы, linkage editors, overlay-loaders.</li>
+            <li><b>Коммуникации</b>: e-mail, удалённый вход, передача файлов, веб-страницы.</li>
+            <li><b>Фоновые службы (daemons)</b>: запускаются при boot, работают в user context — диск, печать, журналирование.</li>
+            <li><b>Прикладные программы</b> — не считаются частью ОС.</li>
+        </ul>
+
+        <h2 id="ru-6">6. Проектирование и реализация ОС</h2>
+        <p>Задача проектирования ОС <b>не имеет «единственного правильного решения»</b>. Начинают с целей:</p>
+        <ul>
+            <li><b>Цели пользователя:</b> удобство, лёгкость освоения, надёжность, безопасность, скорость.</li>
+            <li><b>Цели системы:</b> простота проектирования, реализации, поддержки; гибкость, надёжность, эффективность.</li>
+        </ul>
+
+        <div class="card">
+            <b>Главный принцип — разделить политику и механизм:</b><br>
+            <b>Mechanism</b> — <i>как</i> что-то делать.<br>
+            <b>Policy</b> — <i>что</i> именно делать.<br>
+            Такое разделение даёт максимальную гибкость: политику можно менять без изменения механизма (пример — таймер).
+        </div>
+
+        <h3>Языки реализации</h3>
+        <p>Раньше — ассемблер, потом Algol/PL/1, сейчас — <b>C/C++</b>. Обычно смешанные: нижние уровни на ассемблере, основная часть на C, утилиты на Perl/Python/shell. Высокоуровневые языки портируются легче, но работают медленнее.</p>
+
+        <h2 id="ru-7">7. Структуры ОС</h2>
+
+        <h3>Простая структура — MS-DOS</h3>
+        <p>Не разделена на модули, интерфейсы и уровни функциональности перемешаны. Цель — максимум функций при минимуме места.</p>
+
+        <h3>Монолитная структура — UNIX</h3>
+        <p>Состоит из <b>двух частей</b>: системные программы и ядро. Ядро — всё между интерфейсом системных вызовов и аппаратурой. Много функций на одном уровне.</p>
+
+        <h3>Слоистая (Layered) структура</h3>
+        <p>ОС разделена на уровни (0 — оборудование, N — пользовательский интерфейс). Каждый слой использует только функции нижележащих слоёв. Преимущество — модульность, недостаток — производительность.</p>
+
+        <h3>Микроядро (Microkernel) — Mach</h3>
+        <p>Минимум функциональности в ядре, остальное — в user space. Коммуникация модулей через <b>message passing</b>.</p>
+        <table>
+            <tr><th>+ Плюсы</th><th>− Минусы</th></tr>
+            <tr><td>Легче расширять</td><td>Накладные расходы на user↔kernel коммуникацию</td></tr>
+            <tr><td>Легче портировать</td><td></td></tr>
+            <tr><td>Надёжнее (меньше кода в kernel mode)</td><td></td></tr>
+            <tr><td>Безопаснее</td><td></td></tr>
+        </table>
+
+        <h3>Модули (Modules)</h3>
+        <p>Современные ОС используют <b>загружаемые модули ядра</b> (Linux, Solaris). Объектно-ориентированный подход: компоненты общаются через известные интерфейсы и подгружаются по необходимости.</p>
+
+        <h2 id="ru-8">8. Гибридные системы</h2>
+        <p>На практике <b>чистых моделей не существует</b> — современные ОС комбинируют подходы.</p>
+        <ul>
+            <li><b>Linux / Solaris</b> — монолитное ядро + модульная загрузка.</li>
+            <li><b>Windows</b> — преимущественно монолитная + микроядро для подсистем.</li>
+            <li><b>Mac OS X</b> — гибрид: микроядро Mach + BSD UNIX + I/O Kit + загружаемые kernel extensions; сверху Aqua UI и Cocoa.</li>
+            <li><b>iOS</b> — на базе macOS, ARM, Cocoa Touch (Objective-C), Core Services (облако, БД).</li>
+            <li><b>Android</b> — на базе модифицированного Linux. Приложения на Java компилируются в bytecode и исполняются в <b>Dalvik VM</b>. Open Source, разработан Open Handset Alliance.</li>
+        </ul>
+
+        <h2 id="ru-9">9. Отладка и тюнинг</h2>
+        <ul>
+            <li><b>Логи</b> с информацией об ошибках.</li>
+            <li><b>Core dump</b> — снимок памяти упавшего процесса.</li>
+            <li><b>Crash dump</b> — снимок памяти ядра при падении ОС.</li>
+            <li><b>Profiling</b> — периодическая выборка instruction pointer для статистического анализа.</li>
+            <li><b>DTrace</b> (Solaris, FreeBSD, macOS) — живая инструментовка production-систем через probes.</li>
+        </ul>
+        <div class="card">
+            <b>Закон Кернигана:</b> «Отладка вдвое сложнее, чем написание кода. Поэтому если вы пишете код настолько умно, насколько способны, то по определению вы недостаточно умны, чтобы его отладить.»
+        </div>
+
+        <h2 id="ru-10">10. Генерация и загрузка системы</h2>
+        <h3>SYSGEN</h3>
+        <p>Программа, которая собирает информацию о конкретной конфигурации оборудования и собирает <b>специализированное ядро</b> — оно эффективнее, чем универсальное.</p>
+
+        <h3>Загрузка системы (Boot)</h3>
+        <ol>
+            <li>При включении CPU начинает выполнение с фиксированного адреса.</li>
+            <li>В <b>ROM/EEPROM</b> хранится начальный boot-код — <b>bootstrap loader</b>.</li>
+            <li>Bootstrap loader находит ядро, загружает его в память и запускает.</li>
+            <li>Иногда — двухступенчатая загрузка: boot block с фиксированного места → bootstrap loader с диска.</li>
+            <li><b>GRUB</b> — популярный загрузчик, позволяет выбирать ядро из нескольких дисков/версий/опций.</li>
+        </ol>
+
+        <h2>Главные выводы</h2>
+        <div class="card">
+            <ul>
+                <li>ОС предоставляет сервисы двух категорий: для пользователя и для самой себя.</li>
+                <li>Доступ к сервисам — через системные вызовы, обычно скрытые за API.</li>
+                <li>Главный принцип проектирования: <b>отделять политику от механизма</b>.</li>
+                <li>Структуры: простая → монолитная → слоистая → микроядро → модульная → гибридная.</li>
+                <li>Современные ОС — почти всегда гибридные.</li>
+                <li>Загрузка идёт через bootstrap loader из ROM.</li>
+            </ul>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ===================== ENGLISH VERSION ===================== -->
+    <section id="en" class="lang">
+        <p class="lede">This lecture answers three questions: <b>what</b> the OS provides to users and programs, <b>how</b> it is structured internally, and <b>how</b> it is installed and booted on real hardware.</p>
+
+        <div class="toc">
+            <h4>Contents</h4>
+            <ol>
+                <li><a href="#en-1">Operating System Services</a></li>
+                <li><a href="#en-2">User Interface: CLI, GUI, Touch</a></li>
+                <li><a href="#en-3">System Calls</a></li>
+                <li><a href="#en-4">Types of System Calls</a></li>
+                <li><a href="#en-5">System Programs</a></li>
+                <li><a href="#en-6">OS Design and Implementation</a></li>
+                <li><a href="#en-7">OS Structures</a></li>
+                <li><a href="#en-8">Hybrid Systems: Mac OS X, iOS, Android</a></li>
+                <li><a href="#en-9">Debugging and Performance Tuning</a></li>
+                <li><a href="#en-10">System Generation and Boot</a></li>
+            </ol>
+        </div>
+
+        <h2 id="en-1">1. Operating System Services</h2>
+        <p>An OS provides an environment for executing programs. Its services fall into two groups: <b>helping the user</b> and <b>running the system itself efficiently</b>.</p>
+
+        <h3>Services for the user</h3>
+        <ul>
+            <li><b>User Interface (UI)</b> — CLI, GUI, or batch.</li>
+            <li><b>Program execution</b> — load into memory, run, end normally or abnormally.</li>
+            <li><b>I/O operations</b> — with files or devices.</li>
+            <li><b>File-system manipulation</b> — read/write, create/delete, search, permissions.</li>
+            <li><b>Communications</b> — shared memory or message passing across the network.</li>
+            <li><b>Error detection</b> — in CPU, memory, devices, user programs.</li>
+        </ul>
+
+        <h3>Services for the system itself</h3>
+        <ul>
+            <li><b>Resource allocation</b> — CPU cycles, RAM, disk, I/O devices.</li>
+            <li><b>Accounting</b> — track who consumes what resources.</li>
+            <li><b>Protection</b> — controlled access to system resources.</li>
+            <li><b>Security</b> — authentication and external threat defense.</li>
+        </ul>
+
+        <h2 id="en-2">2. User Interface</h2>
+        <div class="grid">
+            <div class="card">
+                <span class="pill">CLI</span>
+                <h3 style="margin-top:8px">Command Line</h3>
+                <p>The command interpreter (shell) fetches a command and executes it. Often multiple flavors exist (bash, zsh, PowerShell). When commands are just program names, new features don't require shell modification.</p>
+            </div>
+            <div class="card">
+                <span class="pill">GUI</span>
+                <h3 style="margin-top:8px">Graphical UI</h3>
+                <p>The desktop metaphor, invented at <b>Xerox PARC</b>. Modern systems combine CLI and GUI: Windows, macOS (Aqua + UNIX kernel), Linux (CDE/KDE/GNOME).</p>
+            </div>
+            <div class="card">
+                <span class="pill">Touch</span>
+                <h3 style="margin-top:8px">Touchscreen</h3>
+                <p>Gestures instead of mouse, virtual keyboard, voice commands. Requires fresh UX design.</p>
+            </div>
+        </div>
+
+        <h2 id="en-3">3. System Calls</h2>
+        <p>A system call is the programming interface to OS services. Programmers rarely call them directly — they use an <b>API</b>:</p>
+        <ul>
+            <li><b>Win32 API</b> — Windows</li>
+            <li><b>POSIX API</b> — UNIX, Linux, macOS</li>
+            <li><b>Java API</b> — JVM</li>
+        </ul>
+
+        <h3>How it works</h3>
+        <ol>
+            <li>Each system call has a <b>number</b>.</li>
+            <li>The system-call interface keeps a table indexed by these numbers.</li>
+            <li>The interface invokes the call in kernel and returns status and values.</li>
+            <li>The programmer only sees the API — implementation details are hidden by the run-time library.</li>
+        </ol>
+
+        <h3>Parameter passing</h3>
+        <table>
+            <tr><th>Method</th><th>Description</th><th>Notes</th></tr>
+            <tr><td>Registers</td><td>Parameters in CPU registers</td><td>Simplest, limited by register count</td></tr>
+            <tr><td>Memory block</td><td>Address passed in a register</td><td>Used by Linux and Solaris; no length limit</td></tr>
+            <tr><td>Stack</td><td>Program pushes, OS pops</td><td>No length limit</td></tr>
+        </table>
+
+        <h2 id="en-4">4. Types of System Calls</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Process control</h3>
+                <ul>
+                    <li>create / terminate</li>
+                    <li>load / execute</li>
+                    <li>get / set attributes</li>
+                    <li>wait, signal events</li>
+                    <li>allocate / free memory</li>
+                    <li>locks for shared data</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>File management</h3>
+                <ul>
+                    <li>create / delete</li>
+                    <li>open / close</li>
+                    <li>read / write / reposition</li>
+                    <li>get / set file attributes</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Device management</h3>
+                <ul>
+                    <li>request / release</li>
+                    <li>read / write</li>
+                    <li>logically attach / detach</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Information maintenance</h3>
+                <ul>
+                    <li>get / set time, date</li>
+                    <li>system data</li>
+                    <li>process / file attributes</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Communications</h3>
+                <ul>
+                    <li>create / delete connections</li>
+                    <li>message passing (client → server)</li>
+                    <li>shared-memory model</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3>Protection</h3>
+                <ul>
+                    <li>access control</li>
+                    <li>get / set permissions</li>
+                    <li>allow / deny user access</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>System examples</h3>
+        <div class="card">
+            <b>MS-DOS</b> — single-tasking. Shell loads at boot, loads a program into memory overwriting itself. On program exit, the shell is reloaded. No processes are created.
+        </div>
+        <div class="card">
+            <b>FreeBSD</b> — multitasking, UNIX-like. Login invokes a shell; <code>fork()</code> creates a process; <code>exec()</code> loads the program. Exit codes: <code>0</code> = success, <code>&gt;0</code> = error.
+        </div>
+
+        <h2 id="en-5">5. System Programs</h2>
+        <p>Most users' view of the OS is shaped by system programs — not by system calls.</p>
+        <ul>
+            <li><b>File manipulation</b> — create, delete, copy, rename, print, list.</li>
+            <li><b>Status info</b> — date, time, memory, disk, users; sometimes a <b>registry</b>.</li>
+            <li><b>File modification</b> — text editors, search, transformations.</li>
+            <li><b>Language support</b> — compilers, assemblers, debuggers, interpreters.</li>
+            <li><b>Loading and execution</b> — loaders, linkage editors, overlays.</li>
+            <li><b>Communications</b> — e-mail, remote login, file transfer, web.</li>
+            <li><b>Background services / daemons</b> — start at boot, run in user context (disk check, printing, logging).</li>
+            <li><b>Application programs</b> — not part of the OS.</li>
+        </ul>
+
+        <h2 id="en-6">6. OS Design and Implementation</h2>
+        <p>OS design has <b>no single solution</b>. Start with goals:</p>
+        <ul>
+            <li><b>User goals:</b> convenient, easy to learn, reliable, safe, fast.</li>
+            <li><b>System goals:</b> easy to design, implement, maintain; flexible, reliable, error-free, efficient.</li>
+        </ul>
+
+        <div class="card">
+            <b>Key principle — separate policy from mechanism:</b><br>
+            <b>Mechanism</b> — <i>how</i> to do something.<br>
+            <b>Policy</b> — <i>what</i> to do.<br>
+            The separation maximizes flexibility — policies can change without touching the mechanism (timer is a classic example).
+        </div>
+
+        <h3>Implementation languages</h3>
+        <p>Early: assembly. Then Algol / PL/1. Now <b>C and C++</b>, usually mixed: assembly at the lowest level, C in the main body, scripting languages (Perl, Python, shell) for utilities. Higher-level code is more portable but slower.</p>
+
+        <h2 id="en-7">7. OS Structures</h2>
+
+        <h3>Simple — MS-DOS</h3>
+        <p>Not divided into modules; interfaces and functional levels are not well-separated. Goal: maximum functionality in minimum space.</p>
+
+        <h3>Monolithic — UNIX</h3>
+        <p>Two parts: system programs and the kernel. Kernel = everything between the system-call interface and the hardware — file system, CPU scheduling, memory management — all on one level.</p>
+
+        <h3>Layered</h3>
+        <p>OS split into layers (level 0 = hardware, level N = user interface). Each layer uses only services from lower layers. Pros: modularity. Cons: performance cost.</p>
+
+        <h3>Microkernel — Mach</h3>
+        <p>Move as much as possible <i>out</i> of the kernel into user space. Modules communicate via <b>message passing</b>.</p>
+        <table>
+            <tr><th>+ Pros</th><th>− Cons</th></tr>
+            <tr><td>Easier to extend</td><td>Overhead of user↔kernel communication</td></tr>
+            <tr><td>Easier to port</td><td></td></tr>
+            <tr><td>More reliable (less kernel-mode code)</td><td></td></tr>
+            <tr><td>More secure</td><td></td></tr>
+        </table>
+
+        <h3>Modules</h3>
+        <p>Modern systems (Linux, Solaris) use <b>loadable kernel modules</b>. Object-oriented in spirit: separate components talk over known interfaces and load on demand.</p>
+
+        <h2 id="en-8">8. Hybrid Systems</h2>
+        <p>No real-world OS is a pure model — modern systems mix approaches.</p>
+        <ul>
+            <li><b>Linux / Solaris</b> — monolithic kernel + dynamic module loading.</li>
+            <li><b>Windows</b> — mostly monolithic + microkernel for subsystem personalities.</li>
+            <li><b>Mac OS X</b> — hybrid: Mach microkernel + BSD UNIX + I/O Kit + kernel extensions; Aqua UI and Cocoa on top.</li>
+            <li><b>iOS</b> — based on macOS, ARM CPU, Cocoa Touch (Objective-C), Core Services for cloud and databases.</li>
+            <li><b>Android</b> — modified Linux kernel. Java apps compile to bytecode, run on <b>Dalvik VM</b>. Open Source, Open Handset Alliance.</li>
+        </ul>
+
+        <h2 id="en-9">9. Debugging and Performance Tuning</h2>
+        <ul>
+            <li><b>Log files</b> with error information.</li>
+            <li><b>Core dump</b> — memory snapshot of a crashed process.</li>
+            <li><b>Crash dump</b> — kernel memory snapshot on OS failure.</li>
+            <li><b>Profiling</b> — periodic sampling of the instruction pointer for statistical trends.</li>
+            <li><b>DTrace</b> (Solaris, FreeBSD, macOS) — live instrumentation of production systems via probes.</li>
+        </ul>
+        <div class="card">
+            <b>Kernighan's Law:</b> "Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it."
+        </div>
+
+        <h2 id="en-10">10. System Generation and Boot</h2>
+        <h3>SYSGEN</h3>
+        <p>A program that gathers info about the specific hardware configuration and produces a <b>system-tuned kernel</b> — more efficient than a generic one.</p>
+
+        <h3>System Boot</h3>
+        <ol>
+            <li>Power-on: CPU starts executing at a fixed memory address.</li>
+            <li><b>ROM/EEPROM</b> holds the initial boot code — the <b>bootstrap loader</b>.</li>
+            <li>The bootstrap loader locates the kernel, loads it into memory, and starts it.</li>
+            <li>Sometimes two-step: a boot block at a fixed location loaded by ROM code, which loads a bootstrap loader from disk.</li>
+            <li><b>GRUB</b> — popular bootloader; supports kernel selection across disks, versions, and options.</li>
+        </ol>
+
+        <h2>Key Takeaways</h2>
+        <div class="card">
+            <ul>
+                <li>The OS provides two categories of services: for users and for itself.</li>
+                <li>Services are accessed via system calls, usually hidden behind an API.</li>
+                <li>Core design principle: <b>separate policy from mechanism</b>.</li>
+                <li>Structures: simple → monolithic → layered → microkernel → modular → hybrid.</li>
+                <li>Real modern systems are almost always hybrid.</li>
+                <li>Booting begins in ROM with a bootstrap loader.</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer>
+        Lecture 2 · Operating-System Structures · summary by topic
+    </footer>
+
+</div>
+<script>
+    (function(){var buttons=document.querySelectorAll(".lang-tabs button");var sections=document.querySelectorAll("section.lang");buttons.forEach(function(btn){btn.addEventListener("click",function(){var lang=btn.dataset.lang;buttons.forEach(function(b){b.classList.toggle("active",b===btn);});sections.forEach(function(s){s.classList.toggle("active",s.id===lang);});window.scrollTo({top:0,behavior:"smooth"});});});})();
+</script>
+</body>
+</html>
