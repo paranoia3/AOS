@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poisson Distribution — Notes</title>
+
+<!-- MathJax 3 -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)'], ['$', '$']],
+      displayMath: [['\\[', '\\]'], ['$$', '$$']],
+      processEscapes: true,
+      tags: 'none'
+    },
+    svg: { fontCache: 'global' },
+    options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<style>
+  :root {
+    --bg: #fafaf7;
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #666;
+    --accent: #2c5f8d;
+    --accent-soft: #eaf2f8;
+    --border: #d8d4cc;
+    --border-soft: #e8e5dd;
+    --warn-bg: #fdf6e3;
+    --warn-border: #d4a373;
+    --def-bg: #f4f7f5;
+    --def-border: #6a9c89;
+    --thm-bg: #f5f3f9;
+    --thm-border: #7a6fa1;
+    --key-bg: #fffefa;
+    --key-border: #1a1a1a;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; background: var(--bg); }
+
+  body {
+    font-family: 'Charter', 'Georgia', 'Cambria', 'Times New Roman', serif;
+    color: var(--ink);
+    line-height: 1.65;
+    font-size: 17px;
+  }
+
+  main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 50px 100px;
+    background: var(--paper);
+    box-shadow: 0 0 40px rgba(0,0,0,0.04);
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0 0 0.3em;
+    padding-bottom: 0.4em;
+    border-bottom: 2px solid var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  h1 .ru-subtitle {
+    display: block;
+    font-size: 0.55em;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 0.3em;
+    letter-spacing: 0;
+  }
+
+  h2 {
+    font-size: 1.4em;
+    font-weight: 700;
+    margin-top: 2.2em;
+    margin-bottom: 0.6em;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  h3 {
+    font-size: 1.1em;
+    font-weight: 700;
+    margin-top: 1.4em;
+    margin-bottom: 0.4em;
+    color: var(--ink);
+  }
+
+  h3 .en {
+    font-weight: 400;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.9em;
+  }
+
+  p { margin: 0.7em 0; }
+
+  ul, ol { padding-left: 1.5em; }
+  li { margin: 0.3em 0; }
+
+  strong { color: var(--ink); }
+  em { color: var(--muted); }
+
+  /* Английские эквиваленты терминов */
+  .en-term {
+    font-style: italic;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* Ключевая формула — главные формулы темы */
+  .key-formula {
+    border: 1.5px solid var(--key-border);
+    background: var(--key-bg);
+    padding: 18px 24px;
+    margin: 1.5em 0;
+    border-radius: 2px;
+    position: relative;
+  }
+  .key-formula .label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--paper);
+    padding: 0 8px;
+    font-size: 0.78em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+  }
+  .key-formula .caption {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9em;
+    margin-top: 0.5em;
+    font-style: italic;
+  }
+
+  /* Определение */
+  .definition {
+    border-left: 4px solid var(--def-border);
+    background: var(--def-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .definition::before {
+    content: "Определение (Definition)";
+    display: block;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--def-border);
+    margin-bottom: 0.4em;
+  }
+
+  /* Теорема / свойство */
+  .theorem {
+    border-left: 4px solid var(--thm-border);
+    background: var(--thm-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .theorem::before {
+    content: "Свойство (Property)";
+    display: block;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--thm-border);
+    margin-bottom: 0.4em;
+  }
+  .theorem.named::before { content: attr(data-label); }
+
+  /* Примечание / важное */
+  .note {
+    border-left: 4px solid var(--warn-border);
+    background: var(--warn-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .note::before {
+    content: "Заметка (Note)";
+    display: block;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--warn-border);
+    margin-bottom: 0.4em;
+  }
+
+  /* --- Стили для файла решений --- */
+
+  .topic-label {
+    color: var(--muted);
+    font-style: italic;
+    margin-top: -0.5em;
+    margin-bottom: 2em;
+  }
+
+  .problem {
+    margin: 3em 0;
+    padding-top: 1em;
+    border-top: 1px solid var(--border-soft);
+  }
+  .problem:first-of-type { border-top: none; }
+
+  .problem h2 {
+    color: var(--accent);
+    border-bottom: none;
+    margin-top: 0.5em;
+  }
+
+  .problem-statement {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 14px 20px;
+    margin: 1em 0 1.5em;
+    border-radius: 0 4px 4px 0;
+  }
+  .problem-statement h3 { margin-top: 0; color: var(--accent); }
+  .problem-statement .translation {
+    margin-top: 0.8em;
+    padding-top: 0.8em;
+    border-top: 1px dashed var(--border);
+    color: var(--muted);
+    font-size: 0.95em;
+  }
+
+  .given, .find, .solution, .answer {
+    margin: 1.2em 0;
+  }
+
+  .answer {
+    border: 1.5px solid var(--ink);
+    padding: 12px 20px;
+    background: var(--key-bg);
+    border-radius: 2px;
+  }
+  .answer h3 { margin-top: 0; }
+
+  /* Таблицы */
+  table {
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.95em;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    text-align: center;
+  }
+  th { background: var(--def-bg); font-weight: 700; }
+
+  /* --- Диаграммы и графики (SVG) --- */
+  figure.diagram {
+    margin: 1.8em auto;
+    text-align: center;
+    max-width: 100%;
+  }
+  figure.diagram svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    overflow: visible;
+  }
+  figure.diagram figcaption {
+    margin-top: 0.8em;
+    font-size: 0.9em;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  /* SVG-классы для согласованного оформления графиков */
+  .diagram .axis        { stroke: var(--ink); stroke-width: 1.4; fill: none; stroke-linecap: round; }
+  .diagram .axis-arrow  { fill: var(--ink); stroke: none; }
+  .diagram .grid        { stroke: var(--border-soft); stroke-width: 0.6; stroke-dasharray: 3 3; }
+  .diagram .curve       { stroke: var(--accent); stroke-width: 2; fill: none; stroke-linejoin: round; }
+  .diagram .curve-alt   { stroke: var(--thm-border); stroke-width: 2; fill: none; stroke-linejoin: round; }
+  .diagram .area        { fill: var(--accent); opacity: 0.22; }
+  .diagram .area-alt    { fill: var(--thm-border); opacity: 0.22; }
+  .diagram .bar         { fill: var(--accent); opacity: 0.55; stroke: var(--accent); stroke-width: 1; }
+  .diagram .bar-hl      { fill: var(--thm-border); opacity: 0.75; stroke: var(--thm-border); stroke-width: 1; }
+  .diagram .point       { fill: var(--ink); stroke: none; }
+  .diagram .point-hl    { fill: var(--accent); stroke: var(--paper); stroke-width: 2; }
+  .diagram .guide       { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 3; fill: none; }
+  .diagram .label       { font-family: 'Charter', 'Georgia', serif; font-size: 13px; fill: var(--ink); }
+  .diagram .label-muted { font-family: 'Charter', 'Georgia', serif; font-size: 12px; fill: var(--muted); }
+  .diagram .label-math  { font-family: 'Charter', 'Georgia', serif; font-style: italic; font-size: 14px; fill: var(--ink); }
+  .diagram .node-box    { fill: var(--paper); stroke: var(--ink); stroke-width: 1.4; }
+  .diagram .node-circle { fill: var(--def-bg); stroke: var(--def-border); stroke-width: 1.5; }
+  .diagram .edge        { stroke: var(--ink); stroke-width: 1.2; fill: none; }
+
+  /* MathJax контейнер */
+  mjx-container { margin: 0.4em 0; }
+  mjx-container[display="true"] { margin: 1em 0 !important; }
+
+  /* Печать */
+  @media print {
+    body { background: white; }
+    main { box-shadow: none; max-width: 100%; padding: 20px; }
+  }
+
+  /* Мобильные */
+  @media (max-width: 720px) {
+    main { padding: 30px 20px 60px; }
+    body { font-size: 16px; }
+    h1 { font-size: 1.6em; }
+  }
+</style>
+<script>try{if(localStorage.getItem('ps-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="notes" data-topic="PS5">
+
+<main>
+  <h1>Poisson Distribution <span class="ru-subtitle">(Распределение Пуассона)</span></h1>
+
+  <h2>When to use it <span class="en" style="font-weight:400;color:var(--muted);font-style:italic;font-size:0.7em;">(Когда применять)</span></h2>
+  <p><strong>Распределение Пуассона</strong> (<em>Poisson distribution</em>) описывает число <strong>случайных событий</strong> (<em>random events</em>), происходящих за фиксированный интервал времени, длины или площади, если события случаются независимо и с постоянной средней интенсивностью \( \lambda \).</p>
+  <p>Ключевые слова в условии задачи на английском, подсказывающие распределение Пуассона:</p>
+  <ul>
+    <li>«<em>at a rate of … per hour / per minute / per year</em>», «<em>an average of … per …</em>» — задана средняя интенсивность \( \lambda \);</li>
+    <li>«<em>calls / accidents / breakdowns / errors / particles occur at random</em>» — события возникают случайно во времени или пространстве;</li>
+    <li>нет фиксированного числа опытов \(n\) и нет понятия «успех/неудача за попытку» — есть только поток событий;</li>
+    <li>«<em>number of … per unit (time / area / length)</em>» — считаем количество за единицу измерения.</li>
+  </ul>
+  <div class="note">
+    <p>Отличие от <strong>биномиального</strong> (<em>binomial</em>): в биномиальном есть фиксированное число опытов \(n\) и вероятность успеха \(p\) (например, «20 стрел, вероятность попадания»). В Пуассоне нет \(n\) — есть только средняя частота событий \( \lambda \) за интервал (например, «3 аварии в год»).</p>
+  </div>
+
+  <h2>Definitions <span class="en" style="font-weight:400;color:var(--muted);font-style:italic;font-size:0.7em;">(Определения)</span></h2>
+
+  <div class="definition">
+    <p><strong>Случайная величина Пуассона</strong> (<em>Poisson random variable</em>) \(X\) — число событий за фиксированный интервал. Записывается \( X \sim \mathrm{Po}(\lambda) \), где \( \lambda \) — <strong>среднее число событий</strong> (<em>mean number of events</em>) за этот интервал (\( \lambda > 0 \)).</p>
+  </div>
+
+  <div class="definition">
+    <p><strong>Параметр</strong> \( \lambda \) (<em>parameter / rate</em>) — это одновременно и <strong>математическое ожидание</strong> (<em>mean / expected value</em>), и <strong>дисперсия</strong> (<em>variance</em>) распределения. Если интенсивность задана на единицу интервала, то для интервала другой длины \( \lambda \) нужно пропорционально пересчитать.</p>
+  </div>
+
+  <h2>Key formulas <span class="en" style="font-weight:400;color:var(--muted);font-style:italic;font-size:0.7em;">(Ключевые формулы)</span></h2>
+
+  <div class="key-formula">
+    <span class="label">Формула 1</span>
+    \[ P(X = x) = e^{-\lambda}\,\frac{\lambda^{x}}{x!}, \qquad x = 0, 1, 2, \dots \]
+    <div class="caption">Вероятность ровно \(x\) событий при \( X \sim \mathrm{Po}(\lambda) \)</div>
+  </div>
+
+  <div class="key-formula">
+    <span class="label">Формула 2</span>
+    \[ \mathrm{E}(X) = \lambda \qquad \text{и} \qquad \mathrm{Var}(X) = \lambda \]
+    <div class="caption">У Пуассона среднее и дисперсия равны и обе равны \( \lambda \)</div>
+  </div>
+
+  <div class="key-formula">
+    <span class="label">Формула 3</span>
+    \[ \text{Если } X \sim \mathrm{B}(n, p),\ n \text{ велико},\ p \text{ мало} \;\Rightarrow\; X \approx \mathrm{Po}(\lambda),\quad \lambda = np \]
+    <div class="caption">Аппроксимация биномиального распределения распределением Пуассона</div>
+  </div>
+
+  <h2>Conditions for a Poisson model <span class="en" style="font-weight:400;color:var(--muted);font-style:italic;font-size:0.7em;">(Условия применимости)</span></h2>
+
+  <div class="theorem named" data-label="Условия (Conditions)">
+    <p>Распределение Пуассона подходит для моделирования числа событий, если:</p>
+    <ul>
+      <li>события происходят <strong>независимо</strong> (<em>events occur independently</em>);</li>
+      <li>события происходят <strong>случайно</strong> во времени или пространстве (<em>events occur singly and at random</em>);</li>
+      <li><strong>средняя интенсивность постоянна</strong> (<em>events occur at a constant average rate</em>) — за равные интервалы ожидается одинаковое среднее число событий.</li>
+    </ul>
+  </div>
+
+  <div class="theorem named" data-label="Свойство суммы (Sum property)">
+    <p>Если \( X \sim \mathrm{Po}(\lambda_1) \) и \( Y \sim \mathrm{Po}(\lambda_2) \) независимы, то \( X + Y \sim \mathrm{Po}(\lambda_1 + \lambda_2) \). Поэтому при увеличении интервала в \(k\) раз параметр становится \( k\lambda \).</p>
+  </div>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Гистограмма распределения Пуассона Po(3)">
+      <!-- Ось Y -->
+      <line class="axis" x1="80" y1="40" x2="80" y2="270"/>
+      <polygon class="axis-arrow" points="80,40 76,48 84,48"/>
+      <!-- Ось X -->
+      <line class="axis" x1="80" y1="270" x2="560" y2="270"/>
+      <polygon class="axis-arrow" points="560,270 552,266 552,274"/>
+      <!-- Столбцы Po(3): высота = P*920, base y=270 -->
+      <!-- P: .0498 .1494 .2240 .2240 .1680 .1008 .0504 .0216 .0081 .0027 -->
+      <rect class="bar" x="92"  y="224" width="36" height="46"/>
+      <rect class="bar" x="135" y="133" width="36" height="137"/>
+      <rect class="bar" x="178" y="64"  width="36" height="206"/>
+      <rect class="bar" x="221" y="64"  width="36" height="206"/>
+      <rect class="bar" x="264" y="115" width="36" height="155"/>
+      <rect class="bar" x="307" y="177" width="36" height="93"/>
+      <rect class="bar" x="350" y="224" width="36" height="46"/>
+      <rect class="bar" x="393" y="250" width="36" height="20"/>
+      <rect class="bar" x="436" y="263" width="36" height="7"/>
+      <rect class="bar" x="479" y="268" width="36" height="2"/>
+      <!-- Подписи под столбцами -->
+      <g class="label">
+        <text x="110" y="288" text-anchor="middle">0</text>
+        <text x="153" y="288" text-anchor="middle">1</text>
+        <text x="196" y="288" text-anchor="middle">2</text>
+        <text x="239" y="288" text-anchor="middle">3</text>
+        <text x="282" y="288" text-anchor="middle">4</text>
+        <text x="325" y="288" text-anchor="middle">5</text>
+        <text x="368" y="288" text-anchor="middle">6</text>
+        <text x="411" y="288" text-anchor="middle">7</text>
+        <text x="454" y="288" text-anchor="middle">8</text>
+        <text x="497" y="288" text-anchor="middle">9</text>
+      </g>
+      <!-- Подписи осей -->
+      <text class="label-math" x="565" y="275">x</text>
+      <text class="label" x="74" y="45" text-anchor="end">P(X = x)</text>
+    </svg>
+    <figcaption>Рис. 1. Распределение \( X \sim \mathrm{Po}(3) \): несимметричная гистограмма с максимумом возле \( \lambda = 3 \) и длинным «хвостом» вправо.</figcaption>
+  </figure>
+
+  <h2>How to use it (step by step) <span class="en" style="font-weight:400;color:var(--muted);font-style:italic;font-size:0.7em;">(Как пользоваться)</span></h2>
+  <ol>
+    <li>Найди среднюю интенсивность \( \lambda \) <strong>для нужного интервала</strong>. Если дана частота на час, а спрашивают про 2 минуты — пересчитай пропорционально.</li>
+    <li>Запиши модель: \( X \sim \mathrm{Po}(\lambda) \), где \(X\) — число событий за интервал.</li>
+    <li>Переведи вопрос в обозначения:
+      <ul>
+        <li>«<em>exactly \(k\)</em>» → \( P(X = k) \);</li>
+        <li>«<em>at least \(k\)</em>» → \( P(X \ge k) = 1 - P(X \le k-1) \);</li>
+        <li>«<em>fewer than \(k\) / no more than \(k\)</em>» → \( P(X < k) = P(X \le k-1) \) или \( P(X \le k) \);</li>
+        <li>«<em>none / no events</em>» → \( P(X = 0) = e^{-\lambda} \).</li>
+      </ul>
+    </li>
+    <li>Подставь в <strong>Формулу 1</strong> или используй <strong>таблицы кумулятивного распределения Пуассона</strong> (<em>cumulative Poisson tables</em>) для «хвостов».</li>
+    <li>Если события за разные независимые интервалы должны произойти одновременно — перемножай вероятности.</li>
+    <li>Для аппроксимации биномиального бери \( \lambda = np \) (когда \(n\) большое, \(p\) маленькое).</li>
+  </ol>
+
+  <h2>Common mistakes <span class="en" style="font-weight:400;color:var(--muted);font-style:italic;font-size:0.7em;">(Типичные ошибки)</span></h2>
+  <div class="note">
+    <ul>
+      <li><strong>Забывают пересчитать \( \lambda \).</strong> Если «5 в минуту», то за 2 минуты \( \lambda = 10 \), а не 5. \( \lambda \) масштабируется вместе с интервалом.</li>
+      <li><strong>Границы неравенств.</strong> «<em>at least 2</em>» это \( X \ge 2 = 1 - P(X \le 1) \); «<em>more than 10</em>» это \( X \ge 11 = 1 - P(X \le 10) \).</li>
+      <li><strong>Путают Пуассон и биномиальное.</strong> «20 стрел, вероятность попадания» — биномиальное; «аварии в год» — Пуассон.</li>
+      <li><strong>Условие применимости Пуассона-аппроксимации.</strong> Нужно большое \(n\) и маленькое \(p\); тогда \( \lambda = np \).</li>
+      <li><strong>Округление.</strong> \(e^{-\lambda}\) держи с запасом знаков; округляй финальный ответ до требуемой точности.</li>
+    </ul>
+  </div>
+
+  <h2>Mini example <span class="en" style="font-weight:400;color:var(--muted);font-style:italic;font-size:0.7em;">(Мини-пример)</span></h2>
+  <p>В среднем на горячую линию поступает 4 звонка в час. Найдём вероятность ровно 2 звонков за час.</p>
+  <p>Здесь \( X \sim \mathrm{Po}(4) \), \(X\) — число звонков за час. Применяем <strong>Формулу 1</strong>:</p>
+  \[
+  \begin{aligned}
+  P(X = 2) &= e^{-4}\,\frac{4^{2}}{2!} \\
+           &= e^{-4}\cdot \frac{16}{2} \\
+           &= 8\,e^{-4} \approx 8 \cdot 0.018316 \approx 0.1465
+  \end{aligned}
+  \]
+  <p>То есть примерно в 15% часов на линию поступит ровно 2 звонка.</p>
+</main>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

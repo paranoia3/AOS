@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random Variables — Solutions</title>
+
+<!-- MathJax 3 -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)'], ['$', '$']],
+      displayMath: [['\\[', '\\]'], ['$$', '$$']],
+      processEscapes: true,
+      tags: 'none'
+    },
+    svg: { fontCache: 'global' },
+    options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<style>
+  :root {
+    --bg: #fafaf7;
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #666;
+    --accent: #2c5f8d;
+    --accent-soft: #eaf2f8;
+    --border: #d8d4cc;
+    --border-soft: #e8e5dd;
+    --warn-bg: #fdf6e3;
+    --warn-border: #d4a373;
+    --def-bg: #f4f7f5;
+    --def-border: #6a9c89;
+    --thm-bg: #f5f3f9;
+    --thm-border: #7a6fa1;
+    --key-bg: #fffefa;
+    --key-border: #1a1a1a;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); }
+  body {
+    font-family: 'Charter', 'Georgia', 'Cambria', 'Times New Roman', serif;
+    color: var(--ink);
+    line-height: 1.65;
+    font-size: 17px;
+  }
+  main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 50px 100px;
+    background: var(--paper);
+    box-shadow: 0 0 40px rgba(0,0,0,0.04);
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0 0 0.3em;
+    padding-bottom: 0.4em;
+    border-bottom: 2px solid var(--ink);
+    letter-spacing: -0.01em;
+  }
+  h1 .ru-subtitle {
+    display: block;
+    font-size: 0.55em;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 0.3em;
+    letter-spacing: 0;
+  }
+  h2 {
+    font-size: 1.4em;
+    font-weight: 700;
+    margin-top: 2.2em;
+    margin-bottom: 0.6em;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  h3 {
+    font-size: 1.1em;
+    font-weight: 700;
+    margin-top: 1.4em;
+    margin-bottom: 0.4em;
+    color: var(--ink);
+  }
+  h3 .en {
+    font-weight: 400;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.9em;
+  }
+  p { margin: 0.7em 0; }
+  ul, ol { padding-left: 1.5em; }
+  li { margin: 0.3em 0; }
+  strong { color: var(--ink); }
+  em { color: var(--muted); }
+  .en-term { font-style: italic; color: var(--muted); font-weight: 400; }
+
+  .key-formula {
+    border: 1.5px solid var(--key-border);
+    background: var(--key-bg);
+    padding: 18px 24px;
+    margin: 1.5em 0;
+    border-radius: 2px;
+    position: relative;
+  }
+  .key-formula .label {
+    position: absolute; top: -10px; left: 16px;
+    background: var(--paper); padding: 0 8px;
+    font-size: 0.78em; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink);
+  }
+  .key-formula .caption { text-align: center; color: var(--muted); font-size: 0.9em; margin-top: 0.5em; font-style: italic; }
+
+  .definition {
+    border-left: 4px solid var(--def-border);
+    background: var(--def-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .definition::before {
+    content: "Определение (Definition)";
+    display: block; font-size: 0.78em; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--def-border); margin-bottom: 0.4em;
+  }
+
+  .theorem {
+    border-left: 4px solid var(--thm-border);
+    background: var(--thm-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .theorem::before {
+    content: "Свойство (Property)";
+    display: block; font-size: 0.78em; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--thm-border); margin-bottom: 0.4em;
+  }
+  .theorem.named::before { content: attr(data-label); }
+
+  .note {
+    border-left: 4px solid var(--warn-border);
+    background: var(--warn-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .note::before {
+    content: "Заметка (Note)";
+    display: block; font-size: 0.78em; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--warn-border); margin-bottom: 0.4em;
+  }
+
+  .topic-label { color: var(--muted); font-style: italic; margin-top: -0.5em; margin-bottom: 2em; }
+
+  .problem {
+    margin: 3em 0;
+    padding-top: 1em;
+    border-top: 1px solid var(--border-soft);
+  }
+  .problem:first-of-type { border-top: none; }
+  .problem h2 { color: var(--accent); border-bottom: none; margin-top: 0.5em; }
+
+  .problem-statement {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 14px 20px;
+    margin: 1em 0 1.5em;
+    border-radius: 0 4px 4px 0;
+  }
+  .problem-statement h3 { margin-top: 0; color: var(--accent); }
+  .problem-statement .translation {
+    margin-top: 0.8em; padding-top: 0.8em;
+    border-top: 1px dashed var(--border);
+    color: var(--muted); font-size: 0.95em;
+  }
+
+  .given, .find, .solution, .answer { margin: 1.2em 0; }
+
+  .answer {
+    border: 1.5px solid var(--ink);
+    padding: 12px 20px;
+    background: var(--key-bg);
+    border-radius: 2px;
+  }
+  .answer h3 { margin-top: 0; }
+
+  table { border-collapse: collapse; margin: 1em 0; font-size: 0.95em; }
+  th, td { border: 1px solid var(--border); padding: 8px 14px; text-align: center; }
+  th { background: var(--def-bg); font-weight: 700; }
+
+  figure.diagram { margin: 1.8em auto; text-align: center; max-width: 100%; }
+  figure.diagram svg { max-width: 100%; height: auto; display: block; margin: 0 auto; overflow: visible; }
+  figure.diagram figcaption { margin-top: 0.8em; font-size: 0.9em; color: var(--muted); font-style: italic; line-height: 1.4; }
+
+  .diagram .axis        { stroke: var(--ink); stroke-width: 1.4; fill: none; stroke-linecap: round; }
+  .diagram .axis-arrow  { fill: var(--ink); stroke: none; }
+  .diagram .grid        { stroke: var(--border-soft); stroke-width: 0.6; stroke-dasharray: 3 3; }
+  .diagram .curve       { stroke: var(--accent); stroke-width: 2; fill: none; stroke-linejoin: round; }
+  .diagram .curve-alt   { stroke: var(--thm-border); stroke-width: 2; fill: none; stroke-linejoin: round; }
+  .diagram .area        { fill: var(--accent); opacity: 0.22; }
+  .diagram .area-alt    { fill: var(--thm-border); opacity: 0.22; }
+  .diagram .bar         { fill: var(--accent); opacity: 0.55; stroke: var(--accent); stroke-width: 1; }
+  .diagram .point       { fill: var(--ink); stroke: none; }
+  .diagram .point-hl    { fill: var(--accent); stroke: var(--paper); stroke-width: 2; }
+  .diagram .guide       { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 3; fill: none; }
+  .diagram .label       { font-family: 'Charter', 'Georgia', serif; font-size: 13px; fill: var(--ink); }
+  .diagram .label-muted { font-family: 'Charter', 'Georgia', serif; font-size: 12px; fill: var(--muted); }
+  .diagram .label-math  { font-family: 'Charter', 'Georgia', serif; font-style: italic; font-size: 14px; fill: var(--ink); }
+  .diagram .node-box    { fill: var(--paper); stroke: var(--ink); stroke-width: 1.4; }
+  .diagram .node-circle { fill: var(--def-bg); stroke: var(--def-border); stroke-width: 1.5; }
+  .diagram .edge        { stroke: var(--ink); stroke-width: 1.2; fill: none; }
+
+  mjx-container { margin: 0.4em 0; }
+  mjx-container[display="true"] { margin: 1em 0 !important; }
+
+  @media print { body { background: white; } main { box-shadow: none; max-width: 100%; padding: 20px; } }
+  @media (max-width: 720px) { main { padding: 30px 20px 60px; } body { font-size: 16px; } h1 { font-size: 1.6em; } }
+</style>
+<script>try{if(localStorage.getItem('ps-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="solutions" data-topic="PS3">
+
+<main>
+
+<h1>Solutions <span class="ru-subtitle">(Решения задач)</span></h1>
+<p class="topic-label">Тема: Random Variables — Discrete &amp; Continuous (Случайные величины — дискретные и непрерывные). Practice 3.</p>
+
+<h2>Part A — Discrete Random Variables <span class="en">(Дискретные случайные величины)</span></h2>
+
+<!-- ============== PROBLEM 1 (Discrete) ============== -->
+<section class="problem">
+  <h2>Problem 1 (Discrete)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The random variable \(X\) has probability function</p>
+    \[ P(X = x) = \dfrac{x}{21}, \qquad x = 1, 2, 3, 4, 5, 6. \]
+    <p><strong>a</strong> Construct a table giving the probability distribution of \(X\).</p>
+    <p>Find <strong>b</strong> \(P(2 < X \leq 5)\), &nbsp;<strong>c</strong> \(\mathrm{E}(X)\), &nbsp;<strong>d</strong> \(\mathrm{Var}(X)\), &nbsp;<strong>e</strong> \(\mathrm{Var}(3 - 2X)\).</p>
+    <p class="translation">Случайная величина \(X\) имеет функцию вероятности \( P(X=x)=x/21 \) при \( x=1,2,3,4,5,6 \). Построить таблицу распределения и найти указанные характеристики.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\( P(X = x) = \dfrac{x}{21} \), \( x \in \{1, 2, 3, 4, 5, 6\} \)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>Таблицу распределения, \(P(2 < X \leq 5)\), \(\mathrm{E}(X)\), \(\mathrm{Var}(X)\), \(\mathrm{Var}(3-2X)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>(a) Таблица распределения вероятностей.</strong> Подставляем \( x = 1, 2, \ldots, 6 \) в формулу \( P(X=x)=x/21 \):</p>
+
+    <table>
+      <tr><th>\(x\)</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td></tr>
+      <tr><th>\(P(X=x)\)</th><td>\(\tfrac{1}{21}\)</td><td>\(\tfrac{2}{21}\)</td><td>\(\tfrac{3}{21}\)</td><td>\(\tfrac{4}{21}\)</td><td>\(\tfrac{5}{21}\)</td><td>\(\tfrac{6}{21}\)</td></tr>
+    </table>
+
+    <p>Проверим нормировку: \( \sum P = \dfrac{1+2+3+4+5+6}{21} = \dfrac{21}{21} = 1 \) ✓</p>
+
+    <p><strong>(b)</strong> \( P(2 < X \leq 5) \) включает значения \( X = 3, 4, 5 \) (не включает 2, но включает 5):</p>
+    \[ P(2 < X \leq 5) = \dfrac{3}{21} + \dfrac{4}{21} + \dfrac{5}{21} = \dfrac{12}{21} = \dfrac{4}{7} \]
+
+    <p><strong>(c) Математическое ожидание</strong> по формуле \( \mathrm{E}(X) = \sum x \cdot P(X=x) \):</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= 1 \cdot \tfrac{1}{21} + 2 \cdot \tfrac{2}{21} + 3 \cdot \tfrac{3}{21} + 4 \cdot \tfrac{4}{21} + 5 \cdot \tfrac{5}{21} + 6 \cdot \tfrac{6}{21} \\
+    &= \tfrac{1 + 4 + 9 + 16 + 25 + 36}{21} \\
+    &= \tfrac{91}{21} = \tfrac{13}{3}
+    \end{aligned}
+    \]
+
+    <p><strong>(d) Дисперсия.</strong> Сначала \( \mathrm{E}(X^2) \):</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X^2) &= 1 \cdot \tfrac{1}{21} + 4 \cdot \tfrac{2}{21} + 9 \cdot \tfrac{3}{21} + 16 \cdot \tfrac{4}{21} + 25 \cdot \tfrac{5}{21} + 36 \cdot \tfrac{6}{21} \\
+    &= \tfrac{1 + 8 + 27 + 64 + 125 + 216}{21} \\
+    &= \tfrac{441}{21} = 21
+    \end{aligned}
+    \]
+    \[ \mathrm{Var}(X) = \mathrm{E}(X^2) - [\mathrm{E}(X)]^2 = 21 - \left(\tfrac{13}{3}\right)^2 = 21 - \tfrac{169}{9} = \tfrac{189 - 169}{9} = \tfrac{20}{9} \]
+
+    <p><strong>(e)</strong> Используем свойство \( \mathrm{Var}(aX + b) = a^2 \mathrm{Var}(X) \) с \( a = -2 \):</p>
+    \[ \mathrm{Var}(3 - 2X) = (-2)^2 \cdot \mathrm{Var}(X) = 4 \cdot \tfrac{20}{9} = \tfrac{80}{9} \approx 8.8889 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{P(2 < X \leq 5) = \tfrac{4}{7}, \quad \mathrm{E}(X) = \tfrac{13}{3}, \quad \mathrm{Var}(X) = \tfrac{20}{9}, \quad \mathrm{Var}(3-2X) = \tfrac{80}{9}} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 2 (Discrete) ============== -->
+<section class="problem">
+  <h2>Problem 2 (Discrete)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The discrete random variable \(X\) has the probability distribution shown.</p>
+    <table>
+      <tr><th>\(x\)</th><td>-2</td><td>-1</td><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+      <tr><th>\(P(X=x)\)</th><td>0.1</td><td>0.2</td><td>0.3</td><td>\(r\)</td><td>0.1</td><td>0.1</td></tr>
+    </table>
+    <p>Find <strong>a</strong> \(r\), &nbsp;<strong>b</strong> \(P(-1 \leq X < 2)\), &nbsp;<strong>c</strong> \(F(0.6)\), &nbsp;<strong>d</strong> \(\mathrm{E}(2X + 3)\), &nbsp;<strong>e</strong> \(\mathrm{Var}(2X + 3)\).</p>
+    <p class="translation">Дискретная случайная величина \(X\) имеет распределение, заданное таблицей. Найти неизвестную вероятность \(r\) и указанные характеристики.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>Таблица распределения с неизвестным \( r \).</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(r\), \(P(-1 \leq X < 2)\), \(F(0.6)\), \(\mathrm{E}(2X+3)\), \(\mathrm{Var}(2X+3)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>(a)</strong> Используем условие нормировки \( \sum P(X=x) = 1 \):</p>
+    \[ 0.1 + 0.2 + 0.3 + r + 0.1 + 0.1 = 1 \]
+    \[ 0.8 + r = 1 \implies r = 0.2 \]
+
+    <p><strong>(b)</strong> \( P(-1 \leq X < 2) \) включает \( X = -1, 0, 1 \) (включает \(-1\), не включает 2):</p>
+    \[ P(-1 \leq X < 2) = 0.2 + 0.3 + 0.2 = 0.7 \]
+
+    <p><strong>(c)</strong> \( F(0.6) = P(X \leq 0.6) \). Так как \( X \) принимает целые значения, \( P(X \leq 0.6) = P(X \leq 0) \):</p>
+    \[ F(0.6) = P(X = -2) + P(X = -1) + P(X = 0) = 0.1 + 0.2 + 0.3 = 0.6 \]
+
+    <p><strong>(d)</strong> Сначала найдём \( \mathrm{E}(X) \):</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= (-2)(0.1) + (-1)(0.2) + (0)(0.3) + (1)(0.2) + (2)(0.1) + (3)(0.1) \\
+    &= -0.2 - 0.2 + 0 + 0.2 + 0.2 + 0.3 = 0.3
+    \end{aligned}
+    \]
+    <p>По свойству линейности: \( \mathrm{E}(2X + 3) = 2 \mathrm{E}(X) + 3 = 2(0.3) + 3 = 3.6 \).</p>
+
+    <p><strong>(e)</strong> Сначала найдём \( \mathrm{E}(X^2) \):</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X^2) &= 4(0.1) + 1(0.2) + 0(0.3) + 1(0.2) + 4(0.1) + 9(0.1) \\
+    &= 0.4 + 0.2 + 0 + 0.2 + 0.4 + 0.9 = 2.1
+    \end{aligned}
+    \]
+    \[ \mathrm{Var}(X) = 2.1 - (0.3)^2 = 2.1 - 0.09 = 2.01 \]
+    \[ \mathrm{Var}(2X + 3) = 2^2 \cdot \mathrm{Var}(X) = 4 \cdot 2.01 = 8.04 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{r = 0.2,\; P(-1 \leq X < 2) = 0.7,\; F(0.6) = 0.6,\; \mathrm{E}(2X+3) = 3.6,\; \mathrm{Var}(2X+3) = 8.04} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 3 (Discrete) ============== -->
+<section class="problem">
+  <h2>Problem 3 (Discrete)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>A discrete random variable \(X\) has the probability distribution shown in the table below.</p>
+    <table>
+      <tr><th>\(x\)</th><td>0</td><td>1</td><td>2</td></tr>
+      <tr><th>\(P(X=x)\)</th><td>\(\tfrac{1}{3}\)</td><td>\(b\)</td><td>\(\tfrac{1}{3} + b\)</td></tr>
+    </table>
+    <p><strong>a</strong> Find the value of \(b\). &nbsp; <strong>b</strong> Show that \(\mathrm{E}(X) = 1.3\). &nbsp; <strong>c</strong> Find the exact value of \(\mathrm{Var}(X)\). &nbsp; <strong>d</strong> Find the exact value of \(P(X \leq 1.5)\).</p>
+    <p class="translation">Дискретная случайная величина \(X\) имеет распределение из таблицы. Найти \(b\), показать что \(\mathrm{E}(X)=1.3\), найти точную дисперсию и \(P(X \leq 1.5)\).</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\( P(X=0) = \tfrac{1}{3} \), \( P(X=1) = b \), \( P(X=2) = \tfrac{1}{3} + b \)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(b\), \(\mathrm{E}(X)\), \(\mathrm{Var}(X)\), \(P(X \leq 1.5)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>(a)</strong> Из условия нормировки:</p>
+    \[ \tfrac{1}{3} + b + \tfrac{1}{3} + b = 1 \]
+    \[ \tfrac{2}{3} + 2b = 1 \implies 2b = \tfrac{1}{3} \implies b = \tfrac{1}{6} \]
+
+    <p>Тогда \( P(X=1) = \tfrac{1}{6} \), \( P(X=2) = \tfrac{1}{3} + \tfrac{1}{6} = \tfrac{2}{6} + \tfrac{1}{6} = \tfrac{3}{6} = \tfrac{1}{2} \).</p>
+
+    <p><strong>(b)</strong> Считаем \( \mathrm{E}(X) \):</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= 0 \cdot \tfrac{1}{3} + 1 \cdot \tfrac{1}{6} + 2 \cdot \tfrac{1}{2} \\
+    &= 0 + \tfrac{1}{6} + 1 = \tfrac{1}{6} + \tfrac{6}{6} = \tfrac{7}{6} \\
+    &\approx 1.1\overline{6}
+    \end{aligned}
+    \]
+    <p>Хм, получилось \( 7/6 \approx 1.167 \), а не 1.3.</p>
+
+    <div class="note">
+      <p>В этом случае значение, объявленное в условии (\(\mathrm{E}(X) = 1.3\)), не сходится с прямым расчётом — наша таблица даёт \( \mathrm{E}(X) = \tfrac{7}{6} \). Видимо, в исходной задаче последний столбец таблицы был \( P(X=2) = \tfrac{1}{3} + 2b \) (а не \( \tfrac{1}{3} + b \)), что соответствует учебному ответу.</p>
+      <p>Проверим эту гипотезу: при \( P(X=2) = \tfrac{1}{3} + 2b \) нормировка даёт \( \tfrac{1}{3} + b + \tfrac{1}{3} + 2b = 1 \implies 3b = \tfrac{1}{3} \implies b = \tfrac{1}{9} \). Тогда \( P(X=2) = \tfrac{1}{3} + \tfrac{2}{9} = \tfrac{5}{9} \), и \( \mathrm{E}(X) = 0 + \tfrac{1}{9} + 2 \cdot \tfrac{5}{9} = \tfrac{11}{9} \approx 1.22 \). Тоже не 1.3.</p>
+      <p>Ниже даём решение строго по таблице из PDF.</p>
+    </div>
+
+    <p><strong>(c) Точная дисперсия</strong> (на основе нашей таблицы):</p>
+    \[ \mathrm{E}(X^2) = 0 \cdot \tfrac{1}{3} + 1 \cdot \tfrac{1}{6} + 4 \cdot \tfrac{1}{2} = \tfrac{1}{6} + 2 = \tfrac{13}{6} \]
+    \[ \mathrm{Var}(X) = \tfrac{13}{6} - \left(\tfrac{7}{6}\right)^2 = \tfrac{13}{6} - \tfrac{49}{36} = \tfrac{78}{36} - \tfrac{49}{36} = \tfrac{29}{36} \]
+
+    <p><strong>(d)</strong> \( P(X \leq 1.5) = P(X = 0) + P(X = 1) = \tfrac{1}{3} + \tfrac{1}{6} = \tfrac{2}{6} + \tfrac{1}{6} = \tfrac{3}{6} = \tfrac{1}{2} \).</p>
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{b = \tfrac{1}{6},\; \mathrm{E}(X) = \tfrac{7}{6},\; \mathrm{Var}(X) = \tfrac{29}{36},\; P(X \leq 1.5) = \tfrac{1}{2}} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 4 (Discrete) ============== -->
+<section class="problem">
+  <h2>Problem 4 (Discrete)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The random variable \(X\) has a probability function</p>
+    \[ P(X = x) = \begin{cases} k(1-x), & x = 0, 1 \\ k(x-1), & x = 2, 3 \\ 0, & \text{otherwise} \end{cases} \]
+    <p>where \(k\) is a constant.</p>
+    <p><strong>a</strong> Show that \( k = \tfrac{1}{4} \). &nbsp; <strong>b</strong> Find \(\mathrm{E}(X)\) and show that \(\mathrm{E}(X^2) = 5.5\). &nbsp; <strong>c</strong> Find \(\mathrm{Var}(2X - 2)\).</p>
+    <p class="translation">Случайная величина \(X\) имеет функцию вероятности, заданную кусочно. Показать, что \(k=1/4\), найти \(\mathrm{E}(X)\), показать \(\mathrm{E}(X^2)=5.5\), найти \(\mathrm{Var}(2X-2)\).</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\( P(X=x) = k(1-x) \) при \( x=0,1 \)</li>
+      <li>\( P(X=x) = k(x-1) \) при \( x=2,3 \)</li>
+      <li>0 в остальных случаях</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(k\), \(\mathrm{E}(X)\), \(\mathrm{E}(X^2)\), \(\mathrm{Var}(2X-2)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>Шаг 1.</strong> Вычислим вероятности при заданном \( k \):</p>
+    <ul>
+      <li>\( P(X=0) = k(1-0) = k \)</li>
+      <li>\( P(X=1) = k(1-1) = 0 \)</li>
+      <li>\( P(X=2) = k(2-1) = k \)</li>
+      <li>\( P(X=3) = k(3-1) = 2k \)</li>
+    </ul>
+
+    <p><strong>(a)</strong> Из условия нормировки \( \sum P(X=x) = 1 \):</p>
+    \[ k + 0 + k + 2k = 4k = 1 \implies k = \tfrac{1}{4} \quad \checkmark \]
+
+    <p>Итак, распределение:</p>
+    <table>
+      <tr><th>\(x\)</th><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+      <tr><th>\(P(X=x)\)</th><td>\(\tfrac{1}{4}\)</td><td>0</td><td>\(\tfrac{1}{4}\)</td><td>\(\tfrac{2}{4} = \tfrac{1}{2}\)</td></tr>
+    </table>
+
+    <p><strong>(b)</strong> Математическое ожидание:</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= 0 \cdot \tfrac{1}{4} + 1 \cdot 0 + 2 \cdot \tfrac{1}{4} + 3 \cdot \tfrac{1}{2} \\
+    &= 0 + 0 + \tfrac{1}{2} + \tfrac{3}{2} = 2
+    \end{aligned}
+    \]
+    <p>Второй момент:</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X^2) &= 0 \cdot \tfrac{1}{4} + 1 \cdot 0 + 4 \cdot \tfrac{1}{4} + 9 \cdot \tfrac{1}{2} \\
+    &= 0 + 0 + 1 + 4.5 = 5.5 \quad \checkmark
+    \end{aligned}
+    \]
+
+    <p><strong>(c)</strong> Дисперсия \( X \):</p>
+    \[ \mathrm{Var}(X) = \mathrm{E}(X^2) - [\mathrm{E}(X)]^2 = 5.5 - 4 = 1.5 \]
+    \[ \mathrm{Var}(2X - 2) = 2^2 \cdot \mathrm{Var}(X) = 4 \cdot 1.5 = 6 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{k = \tfrac{1}{4},\; \mathrm{E}(X) = 2,\; \mathrm{Var}(2X - 2) = 6} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 5 (Discrete) ============== -->
+<section class="problem">
+  <h2>Problem 5 (Discrete)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>A discrete random variable \(X\) has the probability distribution,</p>
+    <table>
+      <tr><th>\(x\)</th><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+      <tr><th>\(P(X=x)\)</th><td>\(\tfrac{1}{4}\)</td><td>\(\tfrac{1}{2}\)</td><td>\(\tfrac{1}{8}\)</td><td>\(\tfrac{1}{8}\)</td></tr>
+    </table>
+    <p>Find <strong>a</strong> \(P(1 < X \leq 2)\), &nbsp;<strong>b</strong> \(F(1.5)\), &nbsp;<strong>c</strong> \(\mathrm{E}(X)\), &nbsp;<strong>d</strong> \(\mathrm{E}(3X - 1)\), &nbsp;<strong>e</strong> \(\mathrm{Var}(X)\).</p>
+    <p class="translation">Дискретная случайная величина \(X\) имеет распределение из таблицы. Найти указанные характеристики.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>Таблица распределения \(X\) на значениях \(0, 1, 2, 3\)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(P(1 < X \leq 2)\), \(F(1.5)\), \(\mathrm{E}(X)\), \(\mathrm{E}(3X-1)\), \(\mathrm{Var}(X)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>(a)</strong> \(P(1 < X \leq 2)\) включает только \(X = 2\):</p>
+    \[ P(1 < X \leq 2) = P(X = 2) = \tfrac{1}{8} \]
+
+    <p><strong>(b)</strong> \( F(1.5) = P(X \leq 1.5) = P(X = 0) + P(X = 1) \):</p>
+    \[ F(1.5) = \tfrac{1}{4} + \tfrac{1}{2} = \tfrac{1}{4} + \tfrac{2}{4} = \tfrac{3}{4} \]
+
+    <p><strong>(c)</strong> Математическое ожидание:</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= 0 \cdot \tfrac{1}{4} + 1 \cdot \tfrac{1}{2} + 2 \cdot \tfrac{1}{8} + 3 \cdot \tfrac{1}{8} \\
+    &= 0 + \tfrac{4}{8} + \tfrac{2}{8} + \tfrac{3}{8} = \tfrac{9}{8}
+    \end{aligned}
+    \]
+
+    <p><strong>(d)</strong> По свойству линейности:</p>
+    \[ \mathrm{E}(3X - 1) = 3 \cdot \mathrm{E}(X) - 1 = 3 \cdot \tfrac{9}{8} - 1 = \tfrac{27}{8} - \tfrac{8}{8} = \tfrac{19}{8} \]
+
+    <p><strong>(e)</strong> Второй момент и дисперсия:</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X^2) &= 0 \cdot \tfrac{1}{4} + 1 \cdot \tfrac{1}{2} + 4 \cdot \tfrac{1}{8} + 9 \cdot \tfrac{1}{8} \\
+    &= 0 + \tfrac{4}{8} + \tfrac{4}{8} + \tfrac{9}{8} = \tfrac{17}{8}
+    \end{aligned}
+    \]
+    \[ \mathrm{Var}(X) = \tfrac{17}{8} - \left(\tfrac{9}{8}\right)^2 = \tfrac{17}{8} - \tfrac{81}{64} = \tfrac{136}{64} - \tfrac{81}{64} = \tfrac{55}{64} \approx 0.8594 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{P(1<X\leq2) = \tfrac{1}{8},\; F(1.5) = \tfrac{3}{4},\; \mathrm{E}(X) = \tfrac{9}{8},\; \mathrm{E}(3X-1) = \tfrac{19}{8},\; \mathrm{Var}(X) = \tfrac{55}{64}} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 6 (Discrete) ============== -->
+<section class="problem">
+  <h2>Problem 6 (Discrete)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>A discrete random variable is such that each of its values is assumed to be equally likely.</p>
+    <p><strong>a</strong> Write the name of the distribution. &nbsp;<strong>b</strong> Give an example of such a distribution.</p>
+    <p>A discrete random variable \(X\) is defined above can take values \(0, 1, 2, 3\) and \(4\).</p>
+    <p>Find <strong>c</strong> \(\mathrm{E}(X)\), &nbsp;<strong>d</strong> \(\mathrm{Var}(X)\).</p>
+    <p class="translation">Дискретная случайная величина такова, что все её значения равновероятны. (a) Назвать распределение. (b) Привести пример. Затем \(X\) принимает значения \(0, 1, 2, 3, 4\). Найти \(\mathrm{E}(X)\) и \(\mathrm{Var}(X)\).</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(X\) принимает значения \(0, 1, 2, 3, 4\), все с равной вероятностью \( \tfrac{1}{5} \)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>Название распределения, пример, \(\mathrm{E}(X)\), \(\mathrm{Var}(X)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>(a) Название.</strong> Распределение, в котором все значения равновероятны, называется <strong>дискретным равномерным распределением</strong> (<em>discrete uniform distribution</em>).</p>
+
+    <p><strong>(b) Пример.</strong> Бросание правильной игральной кости: \( X \in \{1, 2, 3, 4, 5, 6\} \), каждая грань с вероятностью \( \tfrac{1}{6} \).</p>
+
+    <p><strong>(c) Математическое ожидание.</strong> Для \(X\) на значениях \(0, 1, 2, 3, 4\) с равными вероятностями \( \tfrac{1}{5} \):</p>
+    \[
+    \mathrm{E}(X) = \tfrac{1}{5}(0 + 1 + 2 + 3 + 4) = \tfrac{10}{5} = 2
+    \]
+
+    <p><strong>(d) Дисперсия.</strong> Сначала \( \mathrm{E}(X^2) \):</p>
+    \[
+    \mathrm{E}(X^2) = \tfrac{1}{5}(0 + 1 + 4 + 9 + 16) = \tfrac{30}{5} = 6
+    \]
+    \[ \mathrm{Var}(X) = 6 - 2^2 = 6 - 4 = 2 \]
+
+    <p>(Альтернативно: для равномерного распределения на \( \{0,1,\ldots,n\} \) — это сдвиг распределения на \( \{1, \ldots, n+1\} \); прямой расчёт быстрее.)</p>
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\text{Discrete uniform distribution},\; \mathrm{E}(X) = 2,\; \mathrm{Var}(X) = 2} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 7 (Discrete) ============== -->
+<section class="problem">
+  <h2>Problem 7 (Discrete)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The random variable \(X\) has a probability distribution</p>
+    <table>
+      <tr><th>\(x\)</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+      <tr><th>\(P(X=x)\)</th><td>0.1</td><td>\(p\)</td><td>\(q\)</td><td>0.3</td><td>0.1</td></tr>
+    </table>
+    <p><strong>a</strong> Given that \(\mathrm{E}(X) = 3.1\), write down two equations involving \(p\) and \(q\).</p>
+    <p>Find <strong>b</strong> the value of \(p\) and the value of \(q\), &nbsp;<strong>c</strong> \(\mathrm{Var}(X)\), &nbsp;<strong>d</strong> \(\mathrm{Var}(2X - 3)\).</p>
+    <p class="translation">Случайная величина \(X\) имеет распределение из таблицы, причём \(\mathrm{E}(X) = 3.1\). Составить два уравнения для \(p\) и \(q\), найти их, а затем дисперсии.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>Таблица распределения с неизвестными \(p\), \(q\)</li>
+      <li>\(\mathrm{E}(X) = 3.1\)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>Уравнения, \(p\), \(q\), \(\mathrm{Var}(X)\), \(\mathrm{Var}(2X-3)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>(a) Два уравнения.</strong></p>
+    <p>Уравнение 1 — нормировка:</p>
+    \[ 0.1 + p + q + 0.3 + 0.1 = 1 \implies p + q = 0.5 \]
+    <p>Уравнение 2 — \(\mathrm{E}(X) = 3.1\):</p>
+    \[ 1(0.1) + 2p + 3q + 4(0.3) + 5(0.1) = 3.1 \]
+    \[ 0.1 + 2p + 3q + 1.2 + 0.5 = 3.1 \]
+    \[ 2p + 3q = 1.3 \]
+
+    <p><strong>(b)</strong> Решаем систему: \(p + q = 0.5\), \(2p + 3q = 1.3\). Из первого: \(p = 0.5 - q\). Подставляем:</p>
+    \[ 2(0.5 - q) + 3q = 1.3 \implies 1 - 2q + 3q = 1.3 \implies q = 0.3 \]
+    \[ p = 0.5 - 0.3 = 0.2 \]
+
+    <p><strong>(c) Дисперсия.</strong> Полное распределение:</p>
+    <table>
+      <tr><th>\(x\)</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+      <tr><th>\(P(X=x)\)</th><td>0.1</td><td>0.2</td><td>0.3</td><td>0.3</td><td>0.1</td></tr>
+    </table>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X^2) &= 1(0.1) + 4(0.2) + 9(0.3) + 16(0.3) + 25(0.1) \\
+    &= 0.1 + 0.8 + 2.7 + 4.8 + 2.5 = 10.9
+    \end{aligned}
+    \]
+    \[ \mathrm{Var}(X) = 10.9 - 3.1^2 = 10.9 - 9.61 = 1.29 \]
+
+    <p><strong>(d)</strong> \( \mathrm{Var}(2X - 3) = 4 \mathrm{Var}(X) = 4 \cdot 1.29 = 5.16 \).</p>
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{p = 0.2,\; q = 0.3,\; \mathrm{Var}(X) = 1.29,\; \mathrm{Var}(2X-3) = 5.16} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 8 (Discrete) ============== -->
+<section class="problem">
+  <h2>Problem 8 (Discrete)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The random variable \(X\) has probability function</p>
+    \[ P(X = x) = \begin{cases} kx, & x = 1, 2 \\ k(x - 2), & x = 3, 4, 5 \end{cases} \]
+    <p>where \(k\) is a constant.</p>
+    <p><strong>a</strong> Find the value of \(k\). &nbsp;<strong>b</strong> Find the exact value of \(\mathrm{E}(X)\). &nbsp;<strong>c</strong> Show that, to three significant figures, \(\mathrm{Var}(X) = 2.02\). &nbsp;<strong>d</strong> Find, to one decimal place, \(\mathrm{Var}(3 - 2X)\).</p>
+    <p class="translation">Случайная величина \(X\) имеет кусочную функцию вероятности. Найти \(k\), точное \(\mathrm{E}(X)\), показать что \(\mathrm{Var}(X)\approx 2.02\) (3 знач. цифры), найти \(\mathrm{Var}(3-2X)\) (1 знак после запятой).</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\( P(X=x) = kx \) при \( x = 1, 2 \)</li>
+      <li>\( P(X=x) = k(x-2) \) при \( x = 3, 4, 5 \)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(k\), \(\mathrm{E}(X)\), \(\mathrm{Var}(X)\), \(\mathrm{Var}(3-2X)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>Шаг 1.</strong> Подставим значения и найдём вероятности:</p>
+    <ul>
+      <li>\(P(X=1) = k \cdot 1 = k\)</li>
+      <li>\(P(X=2) = k \cdot 2 = 2k\)</li>
+      <li>\(P(X=3) = k(3-2) = k\)</li>
+      <li>\(P(X=4) = k(4-2) = 2k\)</li>
+      <li>\(P(X=5) = k(5-2) = 3k\)</li>
+    </ul>
+
+    <p><strong>(a)</strong> Из нормировки:</p>
+    \[ k + 2k + k + 2k + 3k = 9k = 1 \implies k = \tfrac{1}{9} \]
+
+    <p>Распределение:</p>
+    <table>
+      <tr><th>\(x\)</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+      <tr><th>\(P(X=x)\)</th><td>\(\tfrac{1}{9}\)</td><td>\(\tfrac{2}{9}\)</td><td>\(\tfrac{1}{9}\)</td><td>\(\tfrac{2}{9}\)</td><td>\(\tfrac{3}{9}\)</td></tr>
+    </table>
+
+    <p><strong>(b)</strong> Математическое ожидание:</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= 1 \cdot \tfrac{1}{9} + 2 \cdot \tfrac{2}{9} + 3 \cdot \tfrac{1}{9} + 4 \cdot \tfrac{2}{9} + 5 \cdot \tfrac{3}{9} \\
+    &= \tfrac{1 + 4 + 3 + 8 + 15}{9} = \tfrac{31}{9}
+    \end{aligned}
+    \]
+
+    <p><strong>(c)</strong> Второй момент:</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X^2) &= 1 \cdot \tfrac{1}{9} + 4 \cdot \tfrac{2}{9} + 9 \cdot \tfrac{1}{9} + 16 \cdot \tfrac{2}{9} + 25 \cdot \tfrac{3}{9} \\
+    &= \tfrac{1 + 8 + 9 + 32 + 75}{9} = \tfrac{125}{9}
+    \end{aligned}
+    \]
+    \[ \mathrm{Var}(X) = \tfrac{125}{9} - \left(\tfrac{31}{9}\right)^2 = \tfrac{125}{9} - \tfrac{961}{81} = \tfrac{1125 - 961}{81} = \tfrac{164}{81} \]
+    \[ \mathrm{Var}(X) \approx 2.0247 \approx 2.02 \;(\text{до 3 знач. цифр}) \quad \checkmark \]
+
+    <p><strong>(d)</strong> \( \mathrm{Var}(3 - 2X) = (-2)^2 \cdot \mathrm{Var}(X) = 4 \cdot \tfrac{164}{81} = \tfrac{656}{81} \approx 8.0988 \approx 8.1 \).</p>
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{k = \tfrac{1}{9},\; \mathrm{E}(X) = \tfrac{31}{9},\; \mathrm{Var}(X) \approx 2.02,\; \mathrm{Var}(3 - 2X) \approx 8.1} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 9 (Discrete) ============== -->
+<section class="problem">
+  <h2>Problem 9 (Discrete)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The random variable \(X\) has the discrete uniform distribution</p>
+    \[ P(X = x) = \tfrac{1}{6}, \qquad x = 1, 2, 3, 4, 5, 6. \]
+    <p><strong>a</strong> Write down \(\mathrm{E}(X)\) and show that \(\mathrm{Var}(X) = \tfrac{35}{12}\). &nbsp;<strong>b</strong> Find \(\mathrm{E}(2X - 1)\). &nbsp;<strong>c</strong> Find \(\mathrm{Var}(3 - 2X)\).</p>
+    <p class="translation">\(X\) имеет дискретное равномерное распределение на \(1,\ldots,6\). Записать \(\mathrm{E}(X)\), показать что \(\mathrm{Var}(X) = 35/12\), найти \(\mathrm{E}(2X-1)\) и \(\mathrm{Var}(3-2X)\).</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(X \sim U\{1, 2, 3, 4, 5, 6\}\) (дискретное равномерное)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(\mathrm{E}(X)\), \(\mathrm{Var}(X)\), \(\mathrm{E}(2X-1)\), \(\mathrm{Var}(3-2X)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>(a)</strong> Для равномерного распределения на \(1, \ldots, n\) с \(n = 6\):</p>
+    \[ \mathrm{E}(X) = \tfrac{n+1}{2} = \tfrac{7}{2} = 3.5 \]
+    <p>Дисперсия:</p>
+    \[ \mathrm{Var}(X) = \tfrac{n^2 - 1}{12} = \tfrac{36 - 1}{12} = \tfrac{35}{12} \quad \checkmark \]
+
+    <p>Проверка прямым подсчётом:</p>
+    \[ \mathrm{E}(X^2) = \tfrac{1}{6}(1 + 4 + 9 + 16 + 25 + 36) = \tfrac{91}{6} \]
+    \[ \mathrm{Var}(X) = \tfrac{91}{6} - \left(\tfrac{7}{2}\right)^2 = \tfrac{91}{6} - \tfrac{49}{4} = \tfrac{182}{12} - \tfrac{147}{12} = \tfrac{35}{12} \quad \checkmark \]
+
+    <p><strong>(b)</strong> \( \mathrm{E}(2X - 1) = 2 \mathrm{E}(X) - 1 = 2 \cdot 3.5 - 1 = 6 \).</p>
+
+    <p><strong>(c)</strong> \( \mathrm{Var}(3 - 2X) = (-2)^2 \mathrm{Var}(X) = 4 \cdot \tfrac{35}{12} = \tfrac{140}{12} = \tfrac{35}{3} \approx 11.667 \).</p>
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\mathrm{E}(X) = 3.5,\; \mathrm{Var}(X) = \tfrac{35}{12},\; \mathrm{E}(2X-1) = 6,\; \mathrm{Var}(3-2X) = \tfrac{35}{3}} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 10 (Discrete) ============== -->
+<section class="problem">
+  <h2>Problem 10 (Discrete)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The random variable \(X\) has probability function</p>
+    \[ p(x) = \dfrac{3x - 1}{26}, \qquad x = 1, 2, 3, 4. \]
+    <p><strong>a</strong> Construct a table giving the probability distribution of \(X\).</p>
+    <p>Find <strong>b</strong> \(P(2 < X \leq 4)\), &nbsp;<strong>c</strong> the exact value of \(\mathrm{E}(X)\), &nbsp;<strong>d</strong> Show that \(\mathrm{Var}(X) = 0.92\) to two significant figures. &nbsp;<strong>e</strong> Find \(\mathrm{Var}(1 - 3X)\).</p>
+    <p class="translation">\(X\) имеет функцию вероятности \(p(x)=(3x-1)/26\) при \(x=1,2,3,4\). Построить таблицу и найти указанные величины.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(p(x) = \tfrac{3x - 1}{26}\), \(x \in \{1, 2, 3, 4\}\)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>Таблицу, \(P(2 < X \leq 4)\), \(\mathrm{E}(X)\), \(\mathrm{Var}(X)\), \(\mathrm{Var}(1-3X)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>(a) Таблица.</strong> Подставляем:</p>
+    <table>
+      <tr><th>\(x\)</th><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+      <tr><th>\(p(x)\)</th><td>\(\tfrac{2}{26}\)</td><td>\(\tfrac{5}{26}\)</td><td>\(\tfrac{8}{26}\)</td><td>\(\tfrac{11}{26}\)</td></tr>
+    </table>
+    <p>Проверка: \( \tfrac{2 + 5 + 8 + 11}{26} = \tfrac{26}{26} = 1 \) ✓</p>
+
+    <p><strong>(b)</strong> \(P(2 < X \leq 4)\) включает \(X = 3, 4\):</p>
+    \[ P(2 < X \leq 4) = \tfrac{8}{26} + \tfrac{11}{26} = \tfrac{19}{26} \]
+
+    <p><strong>(c)</strong> Математическое ожидание:</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= 1 \cdot \tfrac{2}{26} + 2 \cdot \tfrac{5}{26} + 3 \cdot \tfrac{8}{26} + 4 \cdot \tfrac{11}{26} \\
+    &= \tfrac{2 + 10 + 24 + 44}{26} = \tfrac{80}{26} = \tfrac{40}{13}
+    \end{aligned}
+    \]
+
+    <p><strong>(d)</strong> Второй момент:</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X^2) &= 1 \cdot \tfrac{2}{26} + 4 \cdot \tfrac{5}{26} + 9 \cdot \tfrac{8}{26} + 16 \cdot \tfrac{11}{26} \\
+    &= \tfrac{2 + 20 + 72 + 176}{26} = \tfrac{270}{26} = \tfrac{135}{13}
+    \end{aligned}
+    \]
+    \[ \mathrm{Var}(X) = \tfrac{135}{13} - \left(\tfrac{40}{13}\right)^2 = \tfrac{135}{13} - \tfrac{1600}{169} = \tfrac{1755 - 1600}{169} = \tfrac{155}{169} \approx 0.9172 \approx 0.92 \quad \checkmark \]
+
+    <p><strong>(e)</strong> \( \mathrm{Var}(1 - 3X) = (-3)^2 \mathrm{Var}(X) = 9 \cdot \tfrac{155}{169} = \tfrac{1395}{169} \approx 8.2544 \).</p>
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{P(2<X\leq4) = \tfrac{19}{26},\; \mathrm{E}(X) = \tfrac{40}{13},\; \mathrm{Var}(X) \approx 0.92,\; \mathrm{Var}(1-3X) = \tfrac{1395}{169} \approx 8.2544} \]
+  </div>
+</section>
+
+<h2>Part B — Continuous Random Variables <span class="en">(Непрерывные случайные величины)</span></h2>
+
+<!-- ============== PROBLEM 1 (Continuous) ============== -->
+<section class="problem">
+  <h2>Problem 1 (Continuous)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The random variable \(X\) has probability density function \(f(x)\) given by</p>
+    \[ f(x) = \begin{cases} \tfrac{1}{3}\left(1 + \tfrac{x}{2}\right), & 0 \leq x \leq 2 \\ 0, & \text{otherwise.} \end{cases} \]
+    <p>Find <strong>a</strong> \(\mathrm{E}(X)\) and \(\mathrm{E}(3X + 2)\), &nbsp;<strong>b</strong> \(\mathrm{Var}(X)\) and \(\mathrm{Var}(3X + 2)\), &nbsp;<strong>c</strong> \(P(X < 1)\), &nbsp;<strong>d</strong> \(P(X > \mu)\), &nbsp;<strong>e</strong> \(P(0.5 < X < 1.5)\).</p>
+    <p class="translation">Непрерывная случайная величина \(X\) имеет плотность \(f(x) = \tfrac{1}{3}(1 + x/2)\) на \([0, 2]\). Найти указанные характеристики.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\( f(x) = \tfrac{1}{3}(1 + \tfrac{x}{2}) = \tfrac{1}{3} + \tfrac{x}{6} \) при \(0 \leq x \leq 2\), 0 иначе</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(\mathrm{E}(X)\), \(\mathrm{E}(3X+2)\), \(\mathrm{Var}(X)\), \(\mathrm{Var}(3X+2)\), \(P(X<1)\), \(P(X>\mu)\), \(P(0.5<X<1.5)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>Проверка нормировки</strong> (не обязательно, но полезно):</p>
+    \[ \int_0^2 \tfrac{1}{3}\left(1 + \tfrac{x}{2}\right) dx = \tfrac{1}{3}\left[x + \tfrac{x^2}{4}\right]_0^2 = \tfrac{1}{3}(2 + 1) = 1 \quad \checkmark \]
+
+    <p><strong>(a) Математическое ожидание.</strong></p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= \int_0^2 x \cdot \tfrac{1}{3}\left(1 + \tfrac{x}{2}\right) dx = \tfrac{1}{3} \int_0^2 \left(x + \tfrac{x^2}{2}\right) dx \\
+    &= \tfrac{1}{3} \left[\tfrac{x^2}{2} + \tfrac{x^3}{6}\right]_0^2 = \tfrac{1}{3}\left(2 + \tfrac{8}{6}\right) = \tfrac{1}{3} \cdot \tfrac{10}{3} = \tfrac{10}{9}
+    \end{aligned}
+    \]
+    \[ \mathrm{E}(3X + 2) = 3 \mathrm{E}(X) + 2 = 3 \cdot \tfrac{10}{9} + 2 = \tfrac{30}{9} + \tfrac{18}{9} = \tfrac{48}{9} = \tfrac{16}{3} \]
+
+    <p><strong>(b) Дисперсия.</strong></p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X^2) &= \int_0^2 x^2 \cdot \tfrac{1}{3}\left(1 + \tfrac{x}{2}\right) dx = \tfrac{1}{3}\int_0^2 \left(x^2 + \tfrac{x^3}{2}\right) dx \\
+    &= \tfrac{1}{3}\left[\tfrac{x^3}{3} + \tfrac{x^4}{8}\right]_0^2 = \tfrac{1}{3}\left(\tfrac{8}{3} + 2\right) = \tfrac{1}{3} \cdot \tfrac{14}{3} = \tfrac{14}{9}
+    \end{aligned}
+    \]
+    \[ \mathrm{Var}(X) = \tfrac{14}{9} - \left(\tfrac{10}{9}\right)^2 = \tfrac{14}{9} - \tfrac{100}{81} = \tfrac{126 - 100}{81} = \tfrac{26}{81} \approx 0.3210 \]
+    \[ \mathrm{Var}(3X + 2) = 9 \mathrm{Var}(X) = \tfrac{234}{81} = \tfrac{26}{9} \approx 2.889 \]
+
+    <p><strong>(c)</strong> Найдём CDF, чтобы вычислять вероятности:</p>
+    \[ F(x) = \int_0^x \tfrac{1}{3}\left(1 + \tfrac{t}{2}\right) dt = \tfrac{1}{3}\left(x + \tfrac{x^2}{4}\right), \quad 0 \leq x \leq 2 \]
+    \[ P(X < 1) = F(1) = \tfrac{1}{3}\left(1 + \tfrac{1}{4}\right) = \tfrac{1}{3} \cdot \tfrac{5}{4} = \tfrac{5}{12} \approx 0.4167 \]
+
+    <p><strong>(d)</strong> \( \mu = \tfrac{10}{9} \), и</p>
+    \[ F(\mu) = \tfrac{1}{3}\left(\tfrac{10}{9} + \tfrac{(10/9)^2}{4}\right) = \tfrac{1}{3}\left(\tfrac{10}{9} + \tfrac{100}{324}\right) = \tfrac{1}{3}\left(\tfrac{10}{9} + \tfrac{25}{81}\right) \]
+    \[ = \tfrac{1}{3} \cdot \tfrac{90 + 25}{81} = \tfrac{115}{243} \]
+    \[ P(X > \mu) = 1 - F(\mu) = 1 - \tfrac{115}{243} = \tfrac{128}{243} \approx 0.5267 \]
+
+    <p><strong>(e)</strong></p>
+    \[ F(1.5) = \tfrac{1}{3}\left(1.5 + \tfrac{2.25}{4}\right) = \tfrac{1}{3}(1.5 + 0.5625) = \tfrac{2.0625}{3} = 0.6875 \]
+    \[ F(0.5) = \tfrac{1}{3}\left(0.5 + \tfrac{0.25}{4}\right) = \tfrac{1}{3}(0.5625) = 0.1875 \]
+    \[ P(0.5 < X < 1.5) = F(1.5) - F(0.5) = 0.6875 - 0.1875 = 0.5 \]
+
+    <figure class="diagram">
+      <svg viewBox="0 0 600 280" xmlns="http://www.w3.org/2000/svg">
+        <line class="axis" x1="80" y1="220" x2="560" y2="220"/>
+        <polygon class="axis-arrow" points="560,220 552,216 552,224"/>
+        <line class="axis" x1="80" y1="40" x2="80" y2="240"/>
+        <polygon class="axis-arrow" points="80,40 76,48 84,48"/>
+        <path class="area" d="M 220 220 L 220 168.75 L 380 137.5 L 380 220 Z"/>
+        <path class="curve" d="M 140 200 L 460 100"/>
+        <g class="label">
+          <text x="140" y="240" text-anchor="middle">0</text>
+          <text x="220" y="240" text-anchor="middle">0.5</text>
+          <text x="300" y="240" text-anchor="middle">1</text>
+          <text x="380" y="240" text-anchor="middle">1.5</text>
+          <text x="460" y="240" text-anchor="middle">2</text>
+        </g>
+        <text class="label-math" x="565" y="225">x</text>
+        <text class="label-math" x="60" y="45" text-anchor="end">f(x)</text>
+        <text class="label-muted" x="300" y="195" text-anchor="middle">P(0.5 &lt; X &lt; 1.5) = 0.5</text>
+      </svg>
+      <figcaption>Рис. 1. Плотность \(f(x) = \tfrac{1}{3}(1 + x/2)\) на \([0, 2]\); заштрихована площадь \(P(0.5 < X < 1.5)\).</figcaption>
+    </figure>
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\mathrm{E}(X) = \tfrac{10}{9},\; \mathrm{E}(3X+2) = \tfrac{16}{3},\; \mathrm{Var}(X) = \tfrac{26}{81},\; \mathrm{Var}(3X+2) = \tfrac{26}{9}} \]
+    \[ \boxed{P(X<1) = \tfrac{5}{12},\; P(X>\mu) = \tfrac{128}{243},\; P(0.5<X<1.5) = 0.5} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 2 (Continuous) ============== -->
+<section class="problem">
+  <h2>Problem 2 (Continuous)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The random variable \(X\) has probability density function \(f(x)\) given by</p>
+    \[ f(x) = \begin{cases} 2 - 2x, & 0 \leq x \leq 1 \\ 0, & \text{otherwise.} \end{cases} \]
+    <p><strong>a</strong> Evaluate \(\mathrm{E}(X)\). &nbsp;<strong>b</strong> Evaluate \(\mathrm{Var}(X)\). &nbsp;<strong>c</strong> Write down the values of \(\mathrm{E}(2X + 1)\) and \(\mathrm{Var}(2X + 1)\). &nbsp;<strong>d</strong> Specify fully the cumulative distribution function of \(X\). &nbsp;<strong>e</strong> Work out the median value of \(X\).</p>
+    <p class="translation">\(X\) имеет плотность \(f(x) = 2-2x\) на \([0,1]\). Найти \(\mathrm{E}(X)\), \(\mathrm{Var}(X)\), \(\mathrm{E}(2X+1)\), \(\mathrm{Var}(2X+1)\), CDF и медиану.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(f(x) = 2 - 2x\) для \(0 \leq x \leq 1\), 0 иначе</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(\mathrm{E}(X)\), \(\mathrm{Var}(X)\), \(\mathrm{E}(2X+1)\), \(\mathrm{Var}(2X+1)\), \(F(x)\), медиану.</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>Проверка нормировки:</strong> \(\int_0^1 (2 - 2x)\,dx = [2x - x^2]_0^1 = 1\) ✓</p>
+
+    <p><strong>(a)</strong></p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= \int_0^1 x(2 - 2x)\,dx = \int_0^1 (2x - 2x^2)\,dx \\
+    &= \left[x^2 - \tfrac{2x^3}{3}\right]_0^1 = 1 - \tfrac{2}{3} = \tfrac{1}{3}
+    \end{aligned}
+    \]
+
+    <p><strong>(b)</strong></p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X^2) &= \int_0^1 x^2(2 - 2x)\,dx = \int_0^1 (2x^2 - 2x^3)\,dx \\
+    &= \left[\tfrac{2x^3}{3} - \tfrac{x^4}{2}\right]_0^1 = \tfrac{2}{3} - \tfrac{1}{2} = \tfrac{1}{6}
+    \end{aligned}
+    \]
+    \[ \mathrm{Var}(X) = \tfrac{1}{6} - \left(\tfrac{1}{3}\right)^2 = \tfrac{1}{6} - \tfrac{1}{9} = \tfrac{3 - 2}{18} = \tfrac{1}{18} \]
+
+    <p><strong>(c)</strong> По формулам линейного преобразования:</p>
+    \[ \mathrm{E}(2X + 1) = 2 \mathrm{E}(X) + 1 = 2 \cdot \tfrac{1}{3} + 1 = \tfrac{5}{3} \]
+    \[ \mathrm{Var}(2X + 1) = 4 \mathrm{Var}(X) = 4 \cdot \tfrac{1}{18} = \tfrac{4}{18} = \tfrac{2}{9} \]
+
+    <p><strong>(d) CDF.</strong> Для \(0 \leq x \leq 1\):</p>
+    \[ F(x) = \int_0^x (2 - 2t)\,dt = \left[2t - t^2\right]_0^x = 2x - x^2 \]
+    <p>Полностью:</p>
+    \[ F(x) = \begin{cases} 0, & x < 0 \\ 2x - x^2, & 0 \leq x \leq 1 \\ 1, & x > 1 \end{cases} \]
+
+    <p><strong>(e) Медиана.</strong> Решаем \(F(m) = 0.5\):</p>
+    \[ 2m - m^2 = 0.5 \implies m^2 - 2m + 0.5 = 0 \]
+    \[ m = \tfrac{2 \pm \sqrt{4 - 2}}{2} = \tfrac{2 \pm \sqrt{2}}{2} = 1 \pm \tfrac{\sqrt{2}}{2} \]
+    <p>Так как \(0 \leq m \leq 1\), берём знак минус:</p>
+    \[ m = 1 - \tfrac{\sqrt{2}}{2} = 1 - \tfrac{1}{\sqrt{2}} \approx 0.2929 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\mathrm{E}(X) = \tfrac{1}{3},\; \mathrm{Var}(X) = \tfrac{1}{18},\; \mathrm{E}(2X+1) = \tfrac{5}{3},\; \mathrm{Var}(2X+1) = \tfrac{2}{9}} \]
+    \[ \boxed{F(x) = 2x - x^2 \text{ на } [0,1];\; m = 1 - \tfrac{\sqrt{2}}{2} \approx 0.2929} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 3 (Continuous) ============== -->
+<section class="problem">
+  <h2>Problem 3 (Continuous)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The continuous random variable \(Y\) has cumulative distribution function given by</p>
+    \[ F(y) = \begin{cases} 0, & y < 1 \\ k(y^2 - y), & 1 \leq y \leq 2 \\ 1, & y > 2 \end{cases} \]
+    <p>where \(k\) is a positive constant.</p>
+    <p><strong>a</strong> Show that \(k = \tfrac{1}{2}\). &nbsp;<strong>b</strong> Find \(P(Y < 1.5)\). &nbsp;<strong>c</strong> Find the value of the median. &nbsp;<strong>d</strong> Specify fully the probability density function \(f(y)\).</p>
+    <p class="translation">Непрерывная случайная величина \(Y\) имеет CDF, заданную кусочно. Показать, что \(k=1/2\), найти \(P(Y<1.5)\), медиану и PDF.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>CDF \(F(y) = k(y^2 - y)\) на \([1, 2]\), 0 и 1 вне.</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(k\), \(P(Y < 1.5)\), медиану, \(f(y)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>(a)</strong> Граничное условие \(F(2) = 1\):</p>
+    \[ k(4 - 2) = 2k = 1 \implies k = \tfrac{1}{2} \quad \checkmark \]
+
+    <p><strong>(b)</strong></p>
+    \[ P(Y < 1.5) = F(1.5) = \tfrac{1}{2}(1.5^2 - 1.5) = \tfrac{1}{2}(2.25 - 1.5) = \tfrac{1}{2} \cdot 0.75 = 0.375 \]
+
+    <p><strong>(c) Медиана.</strong> \(F(m) = 0.5\):</p>
+    \[ \tfrac{1}{2}(m^2 - m) = 0.5 \implies m^2 - m = 1 \implies m^2 - m - 1 = 0 \]
+    \[ m = \tfrac{1 \pm \sqrt{1 + 4}}{2} = \tfrac{1 \pm \sqrt{5}}{2} \]
+    <p>Берём положительный корень в \([1, 2]\):</p>
+    \[ m = \tfrac{1 + \sqrt{5}}{2} \approx 1.6180 \]
+
+    <p><strong>(d) PDF</strong> через производную CDF:</p>
+    \[ f(y) = F'(y) = \tfrac{1}{2}(2y - 1) = y - \tfrac{1}{2}, \quad 1 \leq y \leq 2 \]
+    <p>Полностью:</p>
+    \[ f(y) = \begin{cases} y - \tfrac{1}{2}, & 1 \leq y \leq 2 \\ 0, & \text{otherwise} \end{cases} \]
+
+    <p>Проверка: \( \int_1^2 (y - \tfrac{1}{2}) dy = [\tfrac{y^2}{2} - \tfrac{y}{2}]_1^2 = (2 - 1) - (\tfrac{1}{2} - \tfrac{1}{2}) = 1 \) ✓</p>
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{k = \tfrac{1}{2},\; P(Y < 1.5) = 0.375,\; m = \tfrac{1+\sqrt{5}}{2} \approx 1.618,\; f(y) = y - \tfrac{1}{2} \text{ на } [1, 2]} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 4 (Continuous) ============== -->
+<section class="problem">
+  <h2>Problem 4 (Continuous)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The continuous random variable \(X\) has cumulative distribution function</p>
+    \[ F(x) = \begin{cases} 0, & x < 2 \\ \tfrac{1}{5}(x^2 - 4), & 2 \leq x \leq 3 \\ 1, & x > 3 \end{cases} \]
+    <p><strong>a</strong> Find \(P(X > 2.4)\). &nbsp;<strong>b</strong> Find the median. &nbsp;<strong>c</strong> Find the probability density function, \(f(x)\). &nbsp;<strong>d</strong> Evaluate \(\mathrm{E}(X)\). &nbsp;<strong>e</strong> Find the mode of \(X\).</p>
+    <p class="translation">\(X\) имеет CDF, заданную кусочно. Найти \(P(X>2.4)\), медиану, PDF, \(\mathrm{E}(X)\) и моду.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>CDF \(F(x) = \tfrac{1}{5}(x^2 - 4)\) на \([2, 3]\)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(P(X > 2.4)\), медиану, \(f(x)\), \(\mathrm{E}(X)\), моду.</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p>Проверка: \(F(3) = \tfrac{1}{5}(9-4) = 1\) ✓.</p>
+
+    <p><strong>(a)</strong></p>
+    \[ P(X > 2.4) = 1 - F(2.4) = 1 - \tfrac{1}{5}(2.4^2 - 4) = 1 - \tfrac{1}{5}(5.76 - 4) = 1 - \tfrac{1.76}{5} = 1 - 0.352 = 0.648 \]
+
+    <p><strong>(b) Медиана.</strong> \(F(m) = 0.5\):</p>
+    \[ \tfrac{1}{5}(m^2 - 4) = 0.5 \implies m^2 - 4 = 2.5 \implies m^2 = 6.5 \implies m = \sqrt{6.5} \approx 2.5495 \]
+
+    <p><strong>(c) PDF:</strong></p>
+    \[ f(x) = F'(x) = \tfrac{2x}{5}, \quad 2 \leq x \leq 3; \quad f(x) = 0 \text{ иначе} \]
+
+    <p><strong>(d)</strong></p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= \int_2^3 x \cdot \tfrac{2x}{5}\,dx = \tfrac{2}{5}\int_2^3 x^2\,dx \\
+    &= \tfrac{2}{5}\left[\tfrac{x^3}{3}\right]_2^3 = \tfrac{2}{5} \cdot \tfrac{27 - 8}{3} = \tfrac{2}{5} \cdot \tfrac{19}{3} = \tfrac{38}{15} \approx 2.5333
+    \end{aligned}
+    \]
+
+    <p><strong>(e) Мода.</strong> \(f(x) = \tfrac{2x}{5}\) монотонно возрастает на \([2, 3]\), максимум достигается на правом конце:</p>
+    \[ \text{Mode} = 3 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{P(X>2.4) = 0.648,\; m = \sqrt{6.5} \approx 2.5495,\; f(x) = \tfrac{2x}{5} \text{ на } [2,3]} \]
+    \[ \boxed{\mathrm{E}(X) = \tfrac{38}{15} \approx 2.5333,\; \text{Mode} = 3} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 5 (Continuous) ============== -->
+<section class="problem">
+  <h2>Problem 5 (Continuous)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The random variable \(X\) has probability density function \(f(x)\) given by</p>
+    \[ f(x) = \begin{cases} kx^2, & 0 \leq x \leq 2 \\ 0, & \text{otherwise.} \end{cases} \]
+    <p>where \(k\) is a positive constant.</p>
+    <p><strong>a</strong> Show that \(k = \tfrac{3}{8}\). &nbsp;<strong>b</strong> Calculate \(\mathrm{E}(X)\). &nbsp;<strong>c</strong> Specify fully the cumulative distribution function of \(X\). &nbsp;<strong>d</strong> Find the value of the median. &nbsp;<strong>e</strong> Find the value of the mode.</p>
+    <p class="translation">\(X\) имеет PDF \(f(x) = kx^2\) на \([0,2]\). Показать, что \(k=3/8\), и найти \(\mathrm{E}(X)\), CDF, медиану, моду.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(f(x) = kx^2\) на \([0, 2]\), \(k > 0\)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(k\), \(\mathrm{E}(X)\), \(F(x)\), медиану, моду.</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>(a)</strong> Из нормировки:</p>
+    \[ \int_0^2 kx^2\,dx = k\left[\tfrac{x^3}{3}\right]_0^2 = \tfrac{8k}{3} = 1 \implies k = \tfrac{3}{8} \quad \checkmark \]
+
+    <p><strong>(b)</strong></p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= \int_0^2 x \cdot \tfrac{3}{8}x^2\,dx = \tfrac{3}{8}\int_0^2 x^3\,dx \\
+    &= \tfrac{3}{8}\left[\tfrac{x^4}{4}\right]_0^2 = \tfrac{3}{8} \cdot \tfrac{16}{4} = \tfrac{3}{8} \cdot 4 = \tfrac{3}{2}
+    \end{aligned}
+    \]
+
+    <p><strong>(c) CDF:</strong> для \(0 \leq x \leq 2\):</p>
+    \[ F(x) = \int_0^x \tfrac{3}{8}t^2\,dt = \tfrac{3}{8} \cdot \tfrac{x^3}{3} = \tfrac{x^3}{8} \]
+    \[ F(x) = \begin{cases} 0, & x < 0 \\ \tfrac{x^3}{8}, & 0 \leq x \leq 2 \\ 1, & x > 2 \end{cases} \]
+
+    <p><strong>(d) Медиана.</strong> \(F(m) = 0.5\):</p>
+    \[ \tfrac{m^3}{8} = 0.5 \implies m^3 = 4 \implies m = \sqrt[3]{4} \approx 1.5874 \]
+
+    <p><strong>(e) Мода.</strong> \(f(x) = \tfrac{3}{8}x^2\) возрастает на \([0, 2]\), значит максимум при \(x = 2\):</p>
+    \[ \text{Mode} = 2 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{k = \tfrac{3}{8},\; \mathrm{E}(X) = \tfrac{3}{2},\; F(x) = \tfrac{x^3}{8} \text{ на } [0,2],\; m = \sqrt[3]{4} \approx 1.587,\; \text{Mode} = 2} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 6 (Continuous) ============== -->
+<section class="problem">
+  <h2>Problem 6 (Continuous)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The random variable \(Y\) has probability density function \(f(y)\) given by</p>
+    \[ f(y) = \begin{cases} k(y^2 + 2y + 2), & 1 \leq y \leq 3 \\ 0, & \text{otherwise.} \end{cases} \]
+    <p>where \(k\) is a positive constant.</p>
+    <p><strong>a</strong> Show that \(k = \tfrac{3}{62}\). &nbsp;<strong>b</strong> Specify fully the cumulative distribution function of \(Y\). &nbsp;<strong>c</strong> Find \(P(Y \leq 2)\).</p>
+    <p class="translation">\(Y\) имеет плотность \(f(y) = k(y^2 + 2y + 2)\) на \([1,3]\). Показать, что \(k=3/62\), найти CDF и \(P(Y \leq 2)\).</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(f(y) = k(y^2 + 2y + 2)\) на \([1, 3]\)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(k\), \(F(y)\), \(P(Y \leq 2)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>(a)</strong> Из нормировки:</p>
+    \[
+    \begin{aligned}
+    \int_1^3 (y^2 + 2y + 2)\,dy &= \left[\tfrac{y^3}{3} + y^2 + 2y\right]_1^3 \\
+    &= \left(\tfrac{27}{3} + 9 + 6\right) - \left(\tfrac{1}{3} + 1 + 2\right) \\
+    &= (9 + 9 + 6) - \tfrac{1}{3} - 3 = 24 - \tfrac{10}{3} = \tfrac{72 - 10}{3} = \tfrac{62}{3}
+    \end{aligned}
+    \]
+    \[ k \cdot \tfrac{62}{3} = 1 \implies k = \tfrac{3}{62} \quad \checkmark \]
+
+    <p><strong>(b) CDF:</strong> для \(1 \leq y \leq 3\):</p>
+    \[
+    \begin{aligned}
+    F(y) &= \int_1^y \tfrac{3}{62}(t^2 + 2t + 2)\,dt \\
+    &= \tfrac{3}{62}\left[\tfrac{t^3}{3} + t^2 + 2t\right]_1^y \\
+    &= \tfrac{3}{62}\left(\tfrac{y^3}{3} + y^2 + 2y - \tfrac{1}{3} - 1 - 2\right) \\
+    &= \tfrac{3}{62}\left(\tfrac{y^3}{3} + y^2 + 2y - \tfrac{10}{3}\right) \\
+    &= \tfrac{y^3 + 3y^2 + 6y - 10}{62}
+    \end{aligned}
+    \]
+    <p>Полная запись:</p>
+    \[ F(y) = \begin{cases} 0, & y < 1 \\ \dfrac{y^3 + 3y^2 + 6y - 10}{62}, & 1 \leq y \leq 3 \\ 1, & y > 3 \end{cases} \]
+    <p>Проверка: \(F(1) = \tfrac{1+3+6-10}{62} = 0\) ✓; \(F(3) = \tfrac{27 + 27 + 18 - 10}{62} = \tfrac{62}{62} = 1\) ✓.</p>
+
+    <p><strong>(c)</strong></p>
+    \[ P(Y \leq 2) = F(2) = \tfrac{8 + 12 + 12 - 10}{62} = \tfrac{22}{62} = \tfrac{11}{31} \approx 0.3548 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{k = \tfrac{3}{62},\; F(y) = \tfrac{y^3 + 3y^2 + 6y - 10}{62} \text{ на } [1,3],\; P(Y \leq 2) = \tfrac{11}{31} \approx 0.3548} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 7 (Continuous) ============== -->
+<section class="problem">
+  <h2>Problem 7 (Continuous)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>A random variable \(X\) has probability density function \(f(x)\) given by</p>
+    \[ f(x) = \begin{cases} \tfrac{3}{32}(4 - x^2), & -2 \leq x \leq 2 \\ 0, & \text{otherwise.} \end{cases} \]
+    <p><strong>a</strong> Sketch the probability density function of \(X\). &nbsp;<strong>b</strong> Write down the mode of \(X\). &nbsp;<strong>c</strong> Specify fully the cumulative distribution function of \(X\). &nbsp;<strong>d</strong> Find \(P(0.5 < X < 1.5)\).</p>
+    <p class="translation">\(X\) имеет плотность \(f(x) = \tfrac{3}{32}(4-x^2)\) на \([-2, 2]\). Нарисовать PDF, записать моду, найти CDF и \(P(0.5<X<1.5)\).</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(f(x) = \tfrac{3}{32}(4 - x^2)\) на \([-2, 2]\), 0 иначе</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>Эскиз PDF, моду, CDF, \(P(0.5 < X < 1.5)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p>Проверка нормировки:</p>
+    \[ \int_{-2}^2 \tfrac{3}{32}(4 - x^2)\,dx = \tfrac{3}{32}\left[4x - \tfrac{x^3}{3}\right]_{-2}^2 = \tfrac{3}{32}\left((8 - \tfrac{8}{3}) - (-8 + \tfrac{8}{3})\right) = \tfrac{3}{32} \cdot \tfrac{32}{3} = 1 \quad \checkmark \]
+
+    <p><strong>(a) Эскиз.</strong> Это парабола с ветвями вниз, симметричная относительно \(x = 0\), достигающая максимума \(\tfrac{3 \cdot 4}{32} = \tfrac{3}{8} = 0.375\) при \(x = 0\), и равная 0 при \(x = \pm 2\):</p>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 600 280" xmlns="http://www.w3.org/2000/svg">
+        <line class="axis" x1="40" y1="220" x2="580" y2="220"/>
+        <polygon class="axis-arrow" points="580,220 572,216 572,224"/>
+        <line class="axis" x1="310" y1="40" x2="310" y2="240"/>
+        <polygon class="axis-arrow" points="310,40 306,48 314,48"/>
+        <path class="area" d="M 130 220 Q 310 -10 490 220 Z"/>
+        <path class="curve" d="M 130 220 Q 310 -10 490 220"/>
+        <g class="label">
+          <text x="130" y="240" text-anchor="middle">-2</text>
+          <text x="220" y="240" text-anchor="middle">-1</text>
+          <text x="310" y="240" text-anchor="middle">0</text>
+          <text x="400" y="240" text-anchor="middle">1</text>
+          <text x="490" y="240" text-anchor="middle">2</text>
+        </g>
+        <line class="guide" x1="310" y1="80" x2="280" y2="80"/>
+        <text class="label" x="275" y="85" text-anchor="end">3/8</text>
+        <text class="label-math" x="585" y="225">x</text>
+        <text class="label-math" x="305" y="50" text-anchor="end">f(x)</text>
+      </svg>
+      <figcaption>Рис. 2. Плотность \(f(x) = \tfrac{3}{32}(4 - x^2)\) — парабола, ветви вниз, максимум \(\tfrac{3}{8}\) при \(x=0\).</figcaption>
+    </figure>
+
+    <p><strong>(b) Мода.</strong> Максимум \(f\) — при \(x = 0\), значит:</p>
+    \[ \text{Mode} = 0 \]
+
+    <p><strong>(c) CDF</strong> для \(-2 \leq x \leq 2\):</p>
+    \[
+    \begin{aligned}
+    F(x) &= \int_{-2}^x \tfrac{3}{32}(4 - t^2)\,dt = \tfrac{3}{32}\left[4t - \tfrac{t^3}{3}\right]_{-2}^x \\
+    &= \tfrac{3}{32}\left(\left(4x - \tfrac{x^3}{3}\right) - \left(-8 + \tfrac{8}{3}\right)\right) \\
+    &= \tfrac{3}{32}\left(4x - \tfrac{x^3}{3} + \tfrac{16}{3}\right) \\
+    &= \tfrac{1}{32}(12x - x^3 + 16) = \tfrac{16 + 12x - x^3}{32}
+    \end{aligned}
+    \]
+    <p>Полная запись:</p>
+    \[ F(x) = \begin{cases} 0, & x < -2 \\ \dfrac{16 + 12x - x^3}{32}, & -2 \leq x \leq 2 \\ 1, & x > 2 \end{cases} \]
+    <p>Проверка: \(F(-2) = \tfrac{16 - 24 + 8}{32} = 0\) ✓; \(F(2) = \tfrac{16 + 24 - 8}{32} = 1\) ✓.</p>
+
+    <p><strong>(d)</strong></p>
+    \[ F(1.5) = \tfrac{16 + 18 - 3.375}{32} = \tfrac{30.625}{32} \]
+    \[ F(0.5) = \tfrac{16 + 6 - 0.125}{32} = \tfrac{21.875}{32} \]
+    \[ P(0.5 < X < 1.5) = F(1.5) - F(0.5) = \tfrac{30.625 - 21.875}{32} = \tfrac{8.75}{32} = \tfrac{35}{128} \approx 0.2734 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\text{Mode} = 0,\; F(x) = \tfrac{16 + 12x - x^3}{32} \text{ на } [-2, 2],\; P(0.5 < X < 1.5) = \tfrac{35}{128} \approx 0.2734} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 8 (Continuous) ============== -->
+<section class="problem">
+  <h2>Problem 8 (Continuous)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>A random variable \(X\) has probability density function \(f(x)\) given by</p>
+    \[ f(x) = \begin{cases} \tfrac{1}{3}, & 0 \leq x < 1 \\ \tfrac{2}{7}x^2, & 1 \leq x \leq 2 \\ 0, & \text{otherwise.} \end{cases} \]
+    <p><strong>a</strong> Find \(\mathrm{E}(X)\). &nbsp;<strong>b</strong> Specify fully the cumulative distribution function of \(X\). &nbsp;<strong>c</strong> Find the median of \(X\).</p>
+    <p class="translation">\(X\) имеет кусочную PDF (1/3 на \([0,1)\) и \(2x^2/7\) на \([1,2]\)). Найти \(\mathrm{E}(X)\), CDF и медиану.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(f(x) = 1/3\) на \([0, 1)\)</li>
+      <li>\(f(x) = \tfrac{2}{7}x^2\) на \([1, 2]\)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(\mathrm{E}(X)\), \(F(x)\), медиану.</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p>Проверка нормировки:</p>
+    \[ \int_0^1 \tfrac{1}{3}\,dx + \int_1^2 \tfrac{2}{7}x^2\,dx = \tfrac{1}{3} + \tfrac{2}{7}\cdot\tfrac{x^3}{3}\Big|_1^2 = \tfrac{1}{3} + \tfrac{2}{21}(8-1) = \tfrac{1}{3} + \tfrac{14}{21} = \tfrac{1}{3} + \tfrac{2}{3} = 1 \quad \checkmark \]
+
+    <p><strong>(a) Математическое ожидание:</strong></p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= \int_0^1 x \cdot \tfrac{1}{3}\,dx + \int_1^2 x \cdot \tfrac{2}{7}x^2\,dx \\
+    &= \tfrac{1}{3}\cdot\tfrac{x^2}{2}\Big|_0^1 + \tfrac{2}{7}\cdot\tfrac{x^4}{4}\Big|_1^2 \\
+    &= \tfrac{1}{6} + \tfrac{2}{7}\cdot\tfrac{16 - 1}{4} = \tfrac{1}{6} + \tfrac{2}{7}\cdot\tfrac{15}{4} \\
+    &= \tfrac{1}{6} + \tfrac{30}{28} = \tfrac{1}{6} + \tfrac{15}{14} \\
+    &= \tfrac{7}{42} + \tfrac{45}{42} = \tfrac{52}{42} = \tfrac{26}{21} \approx 1.2381
+    \end{aligned}
+    \]
+
+    <p><strong>(b) CDF.</strong> Для \(0 \leq x < 1\):</p>
+    \[ F(x) = \int_0^x \tfrac{1}{3}\,dt = \tfrac{x}{3} \]
+    <p>Для \(1 \leq x \leq 2\):</p>
+    \[ F(x) = \tfrac{1}{3} + \int_1^x \tfrac{2}{7}t^2\,dt = \tfrac{1}{3} + \tfrac{2}{21}(x^3 - 1) = \tfrac{7}{21} + \tfrac{2x^3 - 2}{21} = \tfrac{2x^3 + 5}{21} \]
+    <p>Полностью:</p>
+    \[ F(x) = \begin{cases} 0, & x < 0 \\ \tfrac{x}{3}, & 0 \leq x < 1 \\ \tfrac{2x^3 + 5}{21}, & 1 \leq x \leq 2 \\ 1, & x > 2 \end{cases} \]
+    <p>Проверка: \(F(1) = \tfrac{2+5}{21} = \tfrac{7}{21} = \tfrac{1}{3}\) ✓; \(F(2) = \tfrac{16+5}{21} = 1\) ✓.</p>
+
+    <p><strong>(c) Медиана.</strong> Так как \(F(1) = \tfrac{1}{3} < 0.5\), медиана лежит в \([1, 2]\). Решаем:</p>
+    \[ \tfrac{2m^3 + 5}{21} = 0.5 \implies 2m^3 + 5 = 10.5 \implies 2m^3 = 5.5 \implies m^3 = 2.75 \]
+    \[ m = \sqrt[3]{2.75} \approx 1.4015 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\mathrm{E}(X) = \tfrac{26}{21} \approx 1.2381,\; F(x) = \begin{cases} x/3, & 0 \leq x < 1 \\ (2x^3+5)/21, & 1 \leq x \leq 2 \end{cases},\; m = \sqrt[3]{2.75} \approx 1.4015} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 9 (Continuous) ============== -->
+<section class="problem">
+  <h2>Problem 9 (Continuous)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>A continuous random variable \(X\) has probability density function \(f(x)\) given by</p>
+    \[ f(x) = \begin{cases} kx - k, & 1 \leq x \leq 3 \\ 0, & \text{otherwise.} \end{cases} \]
+    <p>where \(k\) is a positive constant.</p>
+    <p><strong>a</strong> Show that \(k = \tfrac{1}{2}\). &nbsp;<strong>b</strong> Find \(\mathrm{E}(X)\). &nbsp;<strong>c</strong> Work out the cumulative distribution function, \(F(x)\). &nbsp;<strong>d</strong> Show that the median value lies between 2.4 and 2.5.</p>
+    <p class="translation">\(X\) имеет PDF \(f(x) = k(x-1)\) на \([1,3]\). Показать что \(k=1/2\), найти \(\mathrm{E}(X)\), CDF и показать, что медиана между 2.4 и 2.5.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(f(x) = k(x - 1)\) на \([1, 3]\), \(k > 0\)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>\(k\), \(\mathrm{E}(X)\), \(F(x)\), показать, что медиана \(\in (2.4, 2.5)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p><strong>(a)</strong> Из нормировки:</p>
+    \[ \int_1^3 k(x - 1)\,dx = k\left[\tfrac{(x-1)^2}{2}\right]_1^3 = k \cdot \tfrac{4}{2} = 2k = 1 \implies k = \tfrac{1}{2} \quad \checkmark \]
+
+    <p><strong>(b) Мат. ожидание:</strong></p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= \int_1^3 x \cdot \tfrac{1}{2}(x - 1)\,dx = \tfrac{1}{2}\int_1^3 (x^2 - x)\,dx \\
+    &= \tfrac{1}{2}\left[\tfrac{x^3}{3} - \tfrac{x^2}{2}\right]_1^3 \\
+    &= \tfrac{1}{2}\left(\left(9 - \tfrac{9}{2}\right) - \left(\tfrac{1}{3} - \tfrac{1}{2}\right)\right) \\
+    &= \tfrac{1}{2}\left(\tfrac{9}{2} - \left(-\tfrac{1}{6}\right)\right) = \tfrac{1}{2}\left(\tfrac{27}{6} + \tfrac{1}{6}\right) \\
+    &= \tfrac{1}{2} \cdot \tfrac{28}{6} = \tfrac{14}{6} = \tfrac{7}{3}
+    \end{aligned}
+    \]
+
+    <p><strong>(c) CDF</strong> для \(1 \leq x \leq 3\):</p>
+    \[ F(x) = \int_1^x \tfrac{1}{2}(t - 1)\,dt = \tfrac{1}{2}\cdot\tfrac{(t-1)^2}{2}\Big|_1^x = \tfrac{(x - 1)^2}{4} \]
+    <p>Полностью:</p>
+    \[ F(x) = \begin{cases} 0, & x < 1 \\ \tfrac{(x-1)^2}{4}, & 1 \leq x \leq 3 \\ 1, & x > 3 \end{cases} \]
+
+    <p><strong>(d)</strong> Проверим значения функции в точках 2.4 и 2.5:</p>
+    \[ F(2.4) = \tfrac{(1.4)^2}{4} = \tfrac{1.96}{4} = 0.49 < 0.5 \]
+    \[ F(2.5) = \tfrac{(1.5)^2}{4} = \tfrac{2.25}{4} = 0.5625 > 0.5 \]
+    <p>Поскольку \(F\) непрерывна и возрастает, существует единственное \(m \in (2.4, 2.5)\), такое что \(F(m) = 0.5\). ✓</p>
+    <p>Точное значение: \(\tfrac{(m-1)^2}{4} = 0.5 \implies (m-1)^2 = 2 \implies m = 1 + \sqrt{2} \approx 2.4142\).</p>
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{k = \tfrac{1}{2},\; \mathrm{E}(X) = \tfrac{7}{3},\; F(x) = \tfrac{(x-1)^2}{4} \text{ на } [1, 3]} \]
+    \[ \boxed{m = 1 + \sqrt{2} \approx 2.4142 \in (2.4,\, 2.5) \quad \checkmark} \]
+  </div>
+</section>
+
+<!-- ============== PROBLEM 10 (Continuous) ============== -->
+<section class="problem">
+  <h2>Problem 10 (Continuous)</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The continuous random variable \(X\) has probability density function given by</p>
+    \[ f(x) = \begin{cases} x, & 0 \leq x < 1 \\ \tfrac{3x^2}{14}, & 1 \leq x \leq 2 \\ 0, & \text{otherwise.} \end{cases} \]
+    <p><strong>a</strong> Sketch the probability density function of \(X\). &nbsp;<strong>b</strong> Find the mode of \(X\). &nbsp;<strong>c</strong> Find \(\mathrm{E}(2X)\). &nbsp;<strong>d</strong> Find \(\mathrm{Var}(2X + 1)\). &nbsp;<strong>e</strong> Specify fully the cumulative distribution function of \(X\). &nbsp;<strong>f</strong> Using your answer to part e find the median of \(X\).</p>
+    <p class="translation">\(X\) имеет кусочную PDF: \(x\) на \([0,1)\) и \(3x^2/14\) на \([1,2]\). Нарисовать график, найти моду, \(\mathrm{E}(2X)\), \(\mathrm{Var}(2X+1)\), CDF и медиану.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(f(x) = x\) на \([0, 1)\)</li>
+      <li>\(f(x) = \tfrac{3x^2}{14}\) на \([1, 2]\)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>Эскиз PDF, моду, \(\mathrm{E}(2X)\), \(\mathrm{Var}(2X+1)\), \(F(x)\), медиану.</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение <span class="en">(Solution)</span></h3>
+
+    <p>Проверка нормировки:</p>
+    \[ \int_0^1 x\,dx + \int_1^2 \tfrac{3x^2}{14}\,dx = \tfrac{1}{2} + \tfrac{3}{14}\cdot\tfrac{x^3}{3}\Big|_1^2 = \tfrac{1}{2} + \tfrac{1}{14}(8-1) = \tfrac{1}{2} + \tfrac{1}{2} = 1 \quad \checkmark \]
+
+    <p><strong>(a) Эскиз.</strong> На \([0, 1)\) график — прямая \(f(x) = x\) от \((0, 0)\) до \((1, 1)\). При \(x = 1\) происходит скачок вниз до \(f(1) = \tfrac{3}{14} \approx 0.214\), затем плавный рост по параболе \(\tfrac{3x^2}{14}\) до \(f(2) = \tfrac{12}{14} = \tfrac{6}{7} \approx 0.857\):</p>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 600 280" xmlns="http://www.w3.org/2000/svg">
+        <line class="axis" x1="80" y1="220" x2="560" y2="220"/>
+        <polygon class="axis-arrow" points="560,220 552,216 552,224"/>
+        <line class="axis" x1="80" y1="40" x2="80" y2="240"/>
+        <polygon class="axis-arrow" points="80,40 76,48 84,48"/>
+        <!-- f(x)=x for [0,1]: from (0,0) to (1,1) -->
+        <line class="curve" x1="80" y1="220" x2="240" y2="60"/>
+        <!-- jump down at x=1 from y=1 (px 60) to y=3/14 (px 220 - 160*3/14 = 220 - 34.3 ≈ 185.7) -->
+        <line class="guide" x1="240" y1="60" x2="240" y2="186"/>
+        <!-- parabola 3x^2/14 from x=1 (y=3/14≈0.214) to x=2 (y=12/14≈0.857) -->
+        <path class="curve" d="M 240 186 Q 320 160 400 60"/>
+        <circle class="point" cx="240" cy="60" r="3"/>
+        <circle class="point-hl" cx="240" cy="186" r="3"/>
+        <g class="label">
+          <text x="80" y="240" text-anchor="middle">0</text>
+          <text x="240" y="240" text-anchor="middle">1</text>
+          <text x="400" y="240" text-anchor="middle">2</text>
+          <text x="70" y="65" text-anchor="end">1</text>
+        </g>
+        <text class="label-math" x="565" y="225">x</text>
+        <text class="label-math" x="60" y="45" text-anchor="end">f(x)</text>
+      </svg>
+      <figcaption>Рис. 3. Плотность \(X\): прямая \(f=x\) на \([0, 1)\), скачок вниз до \(3/14\), затем парабола \(3x^2/14\) до 2.</figcaption>
+    </figure>
+
+    <p><strong>(b) Мода.</strong> На \([0, 1)\) \(f\) растёт до значения 1 (при \(x \to 1^-\)). На \([1, 2]\) максимум \(f(2) = \tfrac{6}{7} < 1\). Значит максимум плотности достигается при \(x = 1\) (точнее, в пределе слева):</p>
+    \[ \text{Mode} = 1 \]
+
+    <p><strong>(c) \(\mathrm{E}(2X)\).</strong> Сначала \(\mathrm{E}(X)\):</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X) &= \int_0^1 x \cdot x\,dx + \int_1^2 x \cdot \tfrac{3x^2}{14}\,dx \\
+    &= \int_0^1 x^2\,dx + \tfrac{3}{14}\int_1^2 x^3\,dx \\
+    &= \tfrac{1}{3} + \tfrac{3}{14}\cdot\tfrac{x^4}{4}\Big|_1^2 \\
+    &= \tfrac{1}{3} + \tfrac{3}{14}\cdot\tfrac{15}{4} = \tfrac{1}{3} + \tfrac{45}{56} \\
+    &= \tfrac{56}{168} + \tfrac{135}{168} = \tfrac{191}{168} \approx 1.1369
+    \end{aligned}
+    \]
+    \[ \mathrm{E}(2X) = 2 \mathrm{E}(X) = \tfrac{382}{168} = \tfrac{191}{84} \approx 2.2738 \]
+
+    <p><strong>(d) \(\mathrm{Var}(2X + 1)\).</strong> Сначала \(\mathrm{E}(X^2)\):</p>
+    \[
+    \begin{aligned}
+    \mathrm{E}(X^2) &= \int_0^1 x^3\,dx + \int_1^2 x^2 \cdot \tfrac{3x^2}{14}\,dx \\
+    &= \tfrac{1}{4} + \tfrac{3}{14}\int_1^2 x^4\,dx \\
+    &= \tfrac{1}{4} + \tfrac{3}{14}\cdot\tfrac{x^5}{5}\Big|_1^2 \\
+    &= \tfrac{1}{4} + \tfrac{3}{14}\cdot\tfrac{31}{5} = \tfrac{1}{4} + \tfrac{93}{70} \\
+    &= \tfrac{35}{140} + \tfrac{186}{140} = \tfrac{221}{140} \approx 1.5786
+    \end{aligned}
+    \]
+    \[ \mathrm{Var}(X) = \tfrac{221}{140} - \left(\tfrac{191}{168}\right)^2 \approx 1.5786 - 1.2926 \approx 0.2860 \]
+    <p>Точное значение:</p>
+    \[ \mathrm{Var}(X) = \tfrac{221}{140} - \tfrac{36481}{28224} = \tfrac{222768 - 182405}{141120} = \tfrac{40363}{141120} \approx 0.2860 \]
+    \[ \mathrm{Var}(2X + 1) = 4 \mathrm{Var}(X) = \tfrac{161452}{141120} = \tfrac{40363}{35280} \approx 1.1440 \]
+
+    <p><strong>(e) CDF.</strong> Для \(0 \leq x < 1\):</p>
+    \[ F(x) = \int_0^x t\,dt = \tfrac{x^2}{2} \]
+    <p>Для \(1 \leq x \leq 2\):</p>
+    \[ F(x) = \tfrac{1}{2} + \int_1^x \tfrac{3t^2}{14}\,dt = \tfrac{1}{2} + \tfrac{1}{14}(x^3 - 1) = \tfrac{7 + x^3 - 1}{14} = \tfrac{x^3 + 6}{14} \]
+    <p>Полностью:</p>
+    \[ F(x) = \begin{cases} 0, & x < 0 \\ \tfrac{x^2}{2}, & 0 \leq x < 1 \\ \tfrac{x^3 + 6}{14}, & 1 \leq x \leq 2 \\ 1, & x > 2 \end{cases} \]
+    <p>Проверка: \(F(1) = \tfrac{1+6}{14} = \tfrac{1}{2}\) ✓; \(F(2) = \tfrac{14}{14} = 1\) ✓.</p>
+
+    <p><strong>(f) Медиана.</strong> Заметим: \(F(1) = \tfrac{1}{2} = 0.5\) точно. Значит:</p>
+    \[ m = 1 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\text{Mode} = 1,\; \mathrm{E}(2X) = \tfrac{191}{84} \approx 2.2738,\; \mathrm{Var}(2X+1) \approx 1.1440} \]
+    \[ \boxed{F(x) = \begin{cases} x^2/2, & 0 \leq x < 1 \\ (x^3+6)/14, & 1 \leq x \leq 2 \end{cases},\quad m = 1} \]
+  </div>
+</section>
+
+</main>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chi-squared Tests — Solutions</title>
+<script>try{if(localStorage.getItem('ps-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="../assets/style.css">
+<script>
+  window.MathJax = {
+    tex: { inlineMath:[['\\(','\\)'],['$','$']], displayMath:[['\\[','\\]'],['$$','$$']], processEscapes:true, tags:'none' },
+    svg: { fontCache:'global' },
+    options: { skipHtmlTags:['script','noscript','style','textarea','pre','code'] }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+</head>
+<body data-page="solutions" data-topic="PS9">
+
+<main>
+  <h1>Solutions <span class="ru-subtitle">(Решения задач)</span></h1>
+  <p class="topic-label">Тема: Chi-squared Tests (Критерий хи-квадрат)</p>
+
+  <!-- 1 -->
+  <section class="problem">
+    <h2>Problem 1</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The random variable \(Y\) has a \( \chi^{2} \) distribution with 10 degrees of freedom. Find \(y\) such that \(P(Y &lt; y) = 0.99\).</p>
+      <p class="translation">\(Y \sim \chi^{2}(10)\), найти \(y\), что \(P(Y &lt; y) = 0.99\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\(P(Y &lt; y) = 0.99 \Leftrightarrow P(Y &gt; y) = 0.01 \). Из таблицы критических значений \( \chi^{2} \): для \( \nu = 10 \), \( \alpha = 0.01 \), значение \( = 23.209 \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{y = 23.209} \]</div>
+  </section>
+
+  <!-- 2 -->
+  <section class="problem">
+    <h2>Problem 2</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>\(X \sim \chi^{2}(8)\). Find \(x\) such that \(P(X &gt; x) = 0.05\).</p>
+      <p class="translation">\(\nu = 8\), \(P(X &gt; x) = 0.05\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>Из таблицы: \( \chi^{2}_{8,\,0.05} = 15.507 \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{x = 15.507} \]</div>
+  </section>
+
+  <!-- 3 -->
+  <section class="problem">
+    <h2>Problem 3</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A \(5 \times 3\) contingency table; 5% \(\chi^{2}\) test. Write down the degrees of freedom and the critical region.</p>
+      <p class="translation">\(5 \times 3\) contingency, 5%. df и критическая область.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\( \nu = (5-1)(3-1) = 4 \cdot 2 = 8 \). Из таблицы \( \chi^{2}_{8,\,0.05} = 15.507 \).</p>
+      <p>Критическая область: \( X^{2} &gt; 15.507 \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\nu = 8, \quad X^{2} &gt; 15.507} \]</div>
+  </section>
+
+  <!-- 4 -->
+  <section class="problem">
+    <h2>Problem 4</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Data in \(4 \times 4\) contingency table; one row was amalgamated with another. Write down degrees of freedom and the critical value at 5%.</p>
+      <p class="translation">\(4 \times 4\) после объединения одной строки → \(3 \times 4\). df и крит. значение.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>После объединения двух строк получаем эффективную таблицу \(3 \times 4\). \( \nu = (3-1)(4-1) = 6 \). Критическое \( \chi^{2}_{6,\,0.05} = 12.592 \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\nu = 6, \quad \chi^{2}_{\text{crit}} = 12.592} \]</div>
+  </section>
+
+  <!-- 5 -->
+  <section class="problem">
+    <h2>Problem 5</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>100 volunteers given drug, 100 given dummy pill; results:</p>
+      <table><tr><th></th><th>Cold</th><th>No cold</th></tr><tr><th>Drug</th><td>34</td><td>66</td></tr><tr><th>Dummy</th><td>45</td><td>55</td></tr></table>
+      <p>5% test: does chance of catching a cold depend on taking the drug?</p>
+      <p class="translation">5%-тест: зависит ли вероятность простуды от приёма лекарства.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\(H_{0}\): простуда не зависит от лекарства (признаки независимы). \(H_{1}\): зависят.</p>
+      <p>Итоги: строки 100, 100; столбцы 79, 121; общий 200.</p>
+      <p>Ожидаемые: \(E_{\text{Drug,Cold}} = 100\cdot 79/200 = 39.5\), \(E_{\text{Drug,NoCold}} = 60.5\), \(E_{\text{Dummy,Cold}} = 39.5\), \(E_{\text{Dummy,NoCold}} = 60.5\).</p>
+      <p>Все \(O - E = \pm 5.5\), \((O-E)^{2} = 30.25\).</p>
+      \[ X^{2} = 2\cdot\frac{30.25}{39.5} + 2\cdot\frac{30.25}{60.5} = 2\cdot 0.7658 + 2\cdot 0.5 = 2.5316 \]
+      <p>\( \nu = (2-1)(2-1) = 1 \). \( \chi^{2}_{1,\,0.05} = 3.841 \). \(2.53 &lt; 3.84\) → принять \(H_{0}\).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{X^{2} = 2.53 &lt; 3.84,\ \text{нет доказательств зависимости}} \]</div>
+  </section>
+
+  <!-- 6 -->
+  <section class="problem">
+    <h2>Problem 6</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Breakdowns per day over 80 days:</p>
+      <table><tr><th>Breakdowns</th><td>0</td><td>1</td><td>2</td><td>&gt;2</td></tr><tr><th>Frequency</th><td>38</td><td>32</td><td>10</td><td>0</td></tr></table>
+      <p>Test at 5% whether Poisson is suitable.</p>
+      <p class="translation">5%-тест: подходит ли Пуассон для числа поломок.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\(H_{0}\): данные следуют Пуассону. \(H_{1}\): не следуют.</p>
+      <p>Оцениваем \( \lambda \) по данным: \( \hat{\lambda} = (0\cdot 38 + 1\cdot 32 + 2\cdot 10 + 0)/80 = 52/80 = 0.65 \).</p>
+      <p>\(e^{-0.65} \approx 0.5220\). \(P(0) = 0.5220\), \(P(1) = 0.3393\), \(P(2) = 0.1103\), \(P(&gt;2) = 0.0284\).</p>
+      <p>Ожидаемые (\(\times 80\)): \(E_{0} = 41.764\), \(E_{1} = 27.146\), \(E_{2} = 8.823\), \(E_{&gt;2} = 2.267\).</p>
+      <p>\(E_{&gt;2} &lt; 5\) → объединить с «2»: новое «\(\ge 2\)»: \(O = 10\), \(E = 11.090\).</p>
+      <p>Клетки после объединения: 0, 1, \(\ge 2\) (3 клетки).</p>
+      \[
+      X^{2} = \frac{(38-41.764)^{2}}{41.764} + \frac{(32-27.146)^{2}}{27.146} + \frac{(10-11.090)^{2}}{11.090} \approx 0.339 + 0.868 + 0.107 = 1.314
+      \]
+      <p>\( \nu = 3 - 1 - 1 = 1 \) (вычли 1 за оцененный \(\lambda\)). \( \chi^{2}_{1,\,0.05} = 3.841 \). \(1.31 &lt; 3.84\) → принять \(H_{0}\).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{X^{2} \approx 1.31 &lt; 3.84,\ \text{Пуассон подходит}} \]</div>
+  </section>
+
+  <!-- 7 -->
+  <section class="problem">
+    <h2>Problem 7</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>50 males, 50 females tested for driving test pass:</p>
+      <table><tr><th></th><th>Pass</th><th>Fail</th></tr><tr><th>Male</th><td>23</td><td>27</td></tr><tr><th>Female</th><td>32</td><td>18</td></tr></table>
+      <p>Test at 10% level for association between gender and passing.</p>
+      <p class="translation">10%-тест: связь пола и сдачи.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\(H_{0}\): пол и сдача независимы. \(H_{1}\): связаны.</p>
+      <p>Итоги: строки 50, 50; столбцы 55, 45; общий 100. \(E = 27.5,\ 22.5,\ 27.5,\ 22.5\) (одинаково по симметрии).</p>
+      <p>\((O-E)^{2} = 20.25\) для каждой клетки.</p>
+      \[ X^{2} = 2\cdot\frac{20.25}{27.5} + 2\cdot\frac{20.25}{22.5} = 1.473 + 1.800 = 3.273 \]
+      <p>\( \nu = 1 \). \( \chi^{2}_{1,\,0.10} = 2.706 \). \(3.27 &gt; 2.71\) → ОТКЛОНИТЬ \(H_{0}\). Есть свидетельство связи.</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{X^{2} \approx 3.27 &gt; 2.71,\ \text{связь есть}} \]</div>
+  </section>
+
+  <!-- 8 -->
+  <section class="problem">
+    <h2>Problem 8</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Five boxes (4 with prizes, 1 empty); choices over 100 weeks:</p>
+      <table><tr><th>Box</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr><tr><th>Freq</th><td>20</td><td>16</td><td>25</td><td>18</td><td>21</td></tr></table>
+      <p><strong>a</strong> Why could a discrete uniform distribution model these? <strong>b</strong> Test at 5% if it's a good fit.</p>
+      <p class="translation">5 коробок, 100 выборов. <strong>a</strong> Почему подходит дискретное равномерное? <strong>b</strong> 5%-тест.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>a)</strong> Если участники выбирают коробку случайно (нет видимой стратегии), все 5 равновероятны → дискретное равномерное.</p>
+      <p><strong>b)</strong> \(H_{0}\): равномерное; \(H_{1}\): нет. \(E_{i} = 100/5 = 20\) для каждой.</p>
+      \[ X^{2} = \frac{0}{20} + \frac{16}{20} + \frac{25}{20} + \frac{4}{20} + \frac{1}{20} = 0 + 0.8 + 1.25 + 0.2 + 0.05 = 2.30 \]
+      <p>\( \nu = 5 - 1 = 4 \). \( \chi^{2}_{4,\,0.05} = 9.488 \). \(2.30 &lt; 9.49\) → принять \(H_{0}\).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{X^{2} = 2.30 &lt; 9.49,\ \text{равномерное подходит}} \]</div>
+  </section>
+
+  <!-- 9 -->
+  <section class="problem">
+    <h2>Problem 9</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>50 samples of 5 flies, count dead after spray:</p>
+      <table><tr><th>Dead</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr><tr><th>Freq</th><td>1</td><td>1</td><td>5</td><td>11</td><td>24</td><td>8</td></tr></table>
+      <p><strong>a</strong> Calculate \(p\) (probability a fly dies). <strong>b</strong> Test at 5% if binomial fits.</p>
+      <p class="translation">50 × 5 мух. <strong>a</strong> Оценить \(p\). <strong>b</strong> 5%-тест на биномиальное.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>a)</strong> Всего мух = \(50\cdot 5 = 250\). Мёртвых = \(0\cdot 1 + 1\cdot 1 + 2\cdot 5 + 3\cdot 11 + 4\cdot 24 + 5\cdot 8 = 180\). \( p = 180/250 = 0.72 \).</p>
+
+      <p><strong>b)</strong> \(H_{0}\): \(X \sim \mathrm{B}(5,\ 0.72)\); \(H_{1}\): нет.</p>
+      <p>Ожидаемые (×50): \(E_{0} = 0.086\), \(E_{1} = 1.106\), \(E_{2} = 5.691\), \(E_{3} = 14.631\), \(E_{4} = 18.812\), \(E_{5} = 9.675\).</p>
+      <p>Клетки 0 и 1 имеют \(E &lt; 5\); объединяем с клеткой 2:</p>
+      <p>«\( \le 2 \)»: \(O = 1+1+5 = 7\), \(E = 0.086+1.106+5.691 = 6.883\).</p>
+      <p>Итоговые клетки: «\(\le 2\)», 3, 4, 5 (4 клетки).</p>
+      \[ X^{2} = \frac{(7-6.883)^{2}}{6.883} + \frac{(11-14.631)^{2}}{14.631} + \frac{(24-18.812)^{2}}{18.812} + \frac{(8-9.675)^{2}}{9.675} \]
+      \[ \approx 0.002 + 0.901 + 1.431 + 0.290 = 2.624 \]
+      <p>\( \nu = 4 - 1 - 1 = 2 \) (вычли 1 за оценённое \(p\)). \( \chi^{2}_{2,\,0.05} = 5.991 \). \(2.62 &lt; 5.99\) → принять \(H_{0}\).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } p = 0.72 \quad \text{b) } X^{2} \approx 2.62 &lt; 5.99,\ \text{биномиальное подходит}} \]</div>
+  </section>
+
+  <!-- 10 -->
+  <section class="problem">
+    <h2>Problem 10</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Accidents per week over 4 years (208 weeks):</p>
+      <table><tr><th>Accidents</th><td>0</td><td>1</td><td>2</td><td>&gt;2</td></tr><tr><th>Weeks</th><td>112</td><td>56</td><td>40</td><td>0</td></tr></table>
+      <p>5% \(\chi^{2}\) test: Poisson?</p>
+      <p class="translation">5%-тест: Пуассон для аварий/неделю.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\(H_{0}\): Пуассон; \(H_{1}\): нет. \( \hat{\lambda} = (0\cdot 112 + 1\cdot 56 + 2\cdot 40 + 0)/208 = 136/208 \approx 0.6538 \).</p>
+      <p>\(e^{-0.6538} \approx 0.5201\). \(P(0) \approx 0.5201\), \(P(1) \approx 0.3400\), \(P(2) \approx 0.1112\), \(P(&gt;2) \approx 0.0288\).</p>
+      <p>Ожидаемые (×208): \(E_{0} \approx 108.17\), \(E_{1} \approx 70.72\), \(E_{2} \approx 23.12\), \(E_{&gt;2} \approx 5.98\). Все \(\ge 5\), объединять не надо.</p>
+      \[
+      X^{2} \approx \frac{(112-108.17)^{2}}{108.17} + \frac{(56-70.72)^{2}}{70.72} + \frac{(40-23.12)^{2}}{23.12} + \frac{(0-5.98)^{2}}{5.98}
+      \]
+      \[ \approx 0.135 + 3.065 + 12.328 + 5.982 \approx 21.51 \]
+      <p>\( \nu = 4 - 1 - 1 = 2 \). \( \chi^{2}_{2,\,0.05} = 5.991 \). \(21.51 \gg 5.99\) → ОТКЛОНИТЬ \(H_{0}\). Пуассон НЕ подходит.</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{X^{2} \approx 21.5 &gt; 5.99,\ \text{Пуассон не подходит}} \]</div>
+  </section>
+
+  <!-- 11 -->
+  <section class="problem">
+    <h2>Problem 11</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Tensile test on 100 steel bars; fracture distance grouped:</p>
+      <table><tr><th>Distance</th><td>0-10</td><td>10-20</td><td>20-30</td><td>30-40</td><td>40-50</td><td>50-60</td></tr><tr><th>Freq</th><td>15</td><td>17</td><td>18</td><td>20</td><td>12</td><td>18</td></tr></table>
+      <p>Test at 5% if continuous uniform fits.</p>
+      <p class="translation">5%-тест: непрерывное равномерное на [0,60].</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\(H_{0}\): равномерное на \([0,60]\); \(H_{1}\): нет. Каждый интервал равноожидаем: \(E_{i} = 100/6 \approx 16.667\).</p>
+      \[
+      X^{2} = \frac{(15-16.67)^{2} + (17-16.67)^{2} + (18-16.67)^{2} + (20-16.67)^{2} + (12-16.67)^{2} + (18-16.67)^{2}}{16.667}
+      \]
+      \[ \approx \frac{2.78 + 0.11 + 1.78 + 11.11 + 21.78 + 1.78}{16.667} \approx \frac{39.34}{16.667} \approx 2.36 \]
+      <p>\( \nu = 6 - 1 = 5 \). \( \chi^{2}_{5,\,0.05} = 11.070 \). \(2.36 &lt; 11.07\) → принять \(H_{0}\).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{X^{2} \approx 2.36 &lt; 11.07,\ \text{равномерное подходит}} \]</div>
+  </section>
+
+  <!-- 12 -->
+  <section class="problem">
+    <h2>Problem 12</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Stones at two beach sites:</p>
+      <table><tr><th></th><th>Site A</th><th>Site B</th></tr><tr><th>Igneous</th><td>30</td><td>10</td></tr><tr><th>Sedimentary</th><td>55</td><td>35</td></tr><tr><th>Other</th><td>15</td><td>15</td></tr></table>
+      <p>5% test if rocks at both sites are from the same population.</p>
+      <p class="translation">5%-тест на однородность двух выборок камней.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\(H_{0}\): сайт и тип камня независимы; \(H_{1}\): связаны.</p>
+      <p>Строки: 40, 90, 30. Столбцы: 100, 60. Всего 160.</p>
+      <p>Ожидаемые:</p>
+      <table>
+        <tr><th></th><th>A</th><th>B</th></tr>
+        <tr><th>Igneous</th><td>25</td><td>15</td></tr>
+        <tr><th>Sedimentary</th><td>56.25</td><td>33.75</td></tr>
+        <tr><th>Other</th><td>18.75</td><td>11.25</td></tr>
+      </table>
+      \[
+      X^{2} = \frac{25}{25} + \frac{25}{15} + \frac{1.5625}{56.25} + \frac{1.5625}{33.75} + \frac{14.0625}{18.75} + \frac{14.0625}{11.25}
+      \]
+      \[ \approx 1.000 + 1.667 + 0.028 + 0.046 + 0.750 + 1.250 = 4.741 \]
+      <p>\( \nu = (3-1)(2-1) = 2 \). \( \chi^{2}_{2,\,0.05} = 5.991 \). \(4.74 &lt; 5.99\) → принять \(H_{0}\).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{X^{2} \approx 4.74 &lt; 5.99,\ \text{камни из одной популяции}} \]</div>
+  </section>
+
+  <!-- 13 -->
+  <section class="problem">
+    <h2>Problem 13</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Weekly sales over 50 weeks:</p>
+      <table><tr><th>Sales</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>&gt;8</td></tr><tr><th>Freq</th><td>0</td><td>4</td><td>7</td><td>8</td><td>10</td><td>6</td><td>7</td><td>4</td><td>4</td><td>0</td></tr></table>
+      <p><strong>a</strong> Find the mean. <strong>b</strong> 5% test for Poisson model.</p>
+      <p class="translation">50 недель. <strong>a</strong> Среднее. <strong>b</strong> 5%-тест на Пуассон.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>a)</strong> \( \overline{x} = (0+4+14+24+40+30+42+28+32+0)/50 = 214/50 = 4.28 \).</p>
+
+      <p><strong>b)</strong> \(H_{0}\): \(X \sim \mathrm{Po}(4.28)\); \(H_{1}\): нет.</p>
+      <p>Ожидаемые (×50), используя \(e^{-4.28} \approx 0.01384\) и рекуррентность \(P(k+1) = P(k)\cdot 4.28/(k+1)\):</p>
+      <table>
+        <tr><th>\(k\)</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>≥9</td></tr>
+        <tr><th>\(E\)</th><td>0.69</td><td>2.96</td><td>6.34</td><td>9.04</td><td>9.68</td><td>8.28</td><td>5.91</td><td>3.61</td><td>1.93</td><td>1.54</td></tr>
+      </table>
+      <p>Объединяем сверху (0, 1, 2 → «\(\le 2\)»: \(E = 9.99\)) и снизу (7, 8, \(\ge 9\) → «\(\ge 7\)»: \(E = 7.09\)).</p>
+      <p>Клетки после объединения: \(\le 2\) (O=11, E=9.99), 3 (O=8, E=9.04), 4 (O=10, E=9.68), 5 (O=6, E=8.28), 6 (O=7, E=5.91), \(\ge 7\) (O=8, E=7.09). 6 клеток.</p>
+      \[
+      X^{2} \approx \frac{1.02}{9.99} + \frac{1.09}{9.04} + \frac{0.10}{9.68} + \frac{5.22}{8.28} + \frac{1.19}{5.91} + \frac{0.83}{7.09}
+      \]
+      \[ \approx 0.102 + 0.121 + 0.011 + 0.630 + 0.201 + 0.117 = 1.181 \]
+      <p>\( \nu = 6 - 1 - 1 = 4 \). \( \chi^{2}_{4,\,0.05} = 9.488 \). \(1.18 &lt; 9.49\) → принять \(H_{0}\).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } \overline{x} = 4.28 \quad \text{b) } X^{2} \approx 1.18 &lt; 9.49,\ \text{Пуассон подходит}} \]</div>
+  </section>
+
+  <!-- 14 -->
+  <section class="problem">
+    <h2>Problem 14</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Handedness vs gender:</p>
+      <table><tr><th></th><th>Left</th><th>Right</th></tr><tr><th>Male</th><td>100</td><td>600</td></tr><tr><th>Female</th><td>80</td><td>800</td></tr></table>
+      <p>5% test for association.</p>
+      <p class="translation">5%-тест на связь пола и леворукости.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\(H_{0}\): пол и руки независимы; \(H_{1}\): связаны.</p>
+      <p>Строки: 700, 880. Столбцы: 180, 1400. Всего 1580.</p>
+      <p>Ожидаемые: \(E_{ML} \approx 79.75\), \(E_{MR} \approx 620.25\), \(E_{FL} \approx 100.25\), \(E_{FR} \approx 779.75\).</p>
+      <p>\((O-E)^{2}\) для всех клеток равно \( \approx 410.18 \) (симметрия в \(2\times 2\)).</p>
+      \[ X^{2} \approx \frac{410.18}{79.75} + \frac{410.18}{620.25} + \frac{410.18}{100.25} + \frac{410.18}{779.75} \]
+      \[ \approx 5.144 + 0.661 + 4.091 + 0.526 = 10.42 \]
+      <p>\( \nu = 1 \). \( \chi^{2}_{1,\,0.05} = 3.841 \). \(10.42 &gt; 3.84\) → ОТКЛОНИТЬ \(H_{0}\). Есть сильная связь.</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{X^{2} \approx 10.42 &gt; 3.84,\ \text{связь есть}} \]</div>
+  </section>
+
+</main>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

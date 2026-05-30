@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chi-squared Tests — Notes</title>
+<script>try{if(localStorage.getItem('ps-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="../assets/style.css">
+<script>
+  window.MathJax = {
+    tex: { inlineMath:[['\\(','\\)'],['$','$']], displayMath:[['\\[','\\]'],['$$','$$']], processEscapes:true, tags:'none' },
+    svg: { fontCache:'global' },
+    options: { skipHtmlTags:['script','noscript','style','textarea','pre','code'] }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+</head>
+<body data-page="notes" data-topic="PS9">
+
+<main>
+  <h1>Chi-squared Tests <span class="ru-subtitle">(Критерий хи-квадрат)</span></h1>
+
+  <h2>When to use it</h2>
+  <p><strong>Критерий согласия</strong> (<em>chi-squared goodness-of-fit test</em>) проверяет, насколько <strong>наблюдаемые частоты</strong> (<em>observed frequencies, O</em>) соответствуют <strong>ожидаемым частотам</strong> (<em>expected frequencies, E</em>), которые предсказывает некоторая модель (биномиальное, Пуассоновское, равномерное, нормальное распределение). Тот же критерий применяется к <strong>таблицам сопряжённости</strong> (<em>contingency tables</em>) для проверки независимости двух признаков.</p>
+  <p>Ключевые слова в условии:</p>
+  <ul>
+    <li>«<em>test whether the data can be modelled by a binomial / Poisson / uniform distribution</em>» → goodness-of-fit;</li>
+    <li>«<em>test whether there is association between</em>» / «<em>test for independence</em>» → contingency table;</li>
+    <li>«<em>at the 5% / 10% / 1% significance level</em>» → уровень значимости \( \alpha \).</li>
+  </ul>
+
+  <h2>Definitions</h2>
+
+  <div class="definition">
+    <p><strong>Распределение хи-квадрат</strong> (<em>chi-squared distribution</em>) \( \chi^{2}_{\nu} \) — распределение суммы квадратов \( \nu \) независимых стандартных нормальных величин. Зависит от одного параметра — <strong>числа степеней свободы</strong> (<em>degrees of freedom</em>) \( \nu \).</p>
+  </div>
+
+  <div class="definition">
+    <p><strong>Ожидаемая частота</strong> (<em>expected frequency</em>) \(E\) для категории — это сколько наблюдений мы бы получили в этой категории, если бы модель из \(H_{0}\) была верна: \( E_{i} = n \cdot p_{i} \) (для goodness-of-fit) или \( E_{ij} = \dfrac{\text{итог по строке} \times \text{итог по столбцу}}{\text{общий итог}} \) (для таблицы сопряжённости).</p>
+  </div>
+
+  <h2>Key formulas</h2>
+
+  <div class="key-formula">
+    <span class="label">Формула 1 — Статистика</span>
+    \[ X^{2} = \sum_{i} \frac{(O_{i} - E_{i})^{2}}{E_{i}} \qquad \text{или эквивалентно} \qquad X^{2} = \sum_{i}\frac{O_{i}^{2}}{E_{i}} - N \]
+    <div class="caption">Чем сильнее \(O\) отклоняется от \(E\), тем больше \(X^{2}\)</div>
+  </div>
+
+  <div class="key-formula">
+    <span class="label">Формула 2 — Ожидаемая частота для контингентной таблицы</span>
+    \[ E_{ij} = \frac{(\text{строка } i)\cdot(\text{столбец } j)}{\text{общий итог}} \]
+  </div>
+
+  <div class="key-formula">
+    <span class="label">Формула 3 — Степени свободы</span>
+    \[ \nu = (\text{число клеток после объединения}) - (\text{число ограничений}) \]
+    <div class="caption">Для таблицы \(h \times k\): \( \nu = (h-1)(k-1) \)</div>
+  </div>
+
+  <h2>Degrees of freedom по типу модели</h2>
+  <table>
+    <tr><th>Распределение</th><th>Параметры известны</th><th>Параметры оцениваются</th></tr>
+    <tr><td>Discrete uniform</td><td>\(n - 1\)</td><td>—</td></tr>
+    <tr><td>Binomial</td><td>\(n - 1\)</td><td>\(n - 2\) (оценили \(p\))</td></tr>
+    <tr><td>Poisson</td><td>\(n - 1\)</td><td>\(n - 2\) (оценили \( \lambda \))</td></tr>
+    <tr><td>Normal</td><td>\(n - 1\)</td><td>\(n - 2\) или \(n - 3\) (1 или 2 параметра)</td></tr>
+    <tr><td>Continuous uniform</td><td>\(n - 1\)</td><td>—</td></tr>
+  </table>
+  <p style="font-size:0.92em;color:var(--muted);">Здесь \(n\) — число клеток после объединения. Каждое ограничение (известный итог и каждый оценённый параметр) уменьшает \( \nu \) на 1.</p>
+
+  <h2>How to use it (step by step)</h2>
+  <ol>
+    <li><strong>Гипотезы.</strong> \( H_{0} \): данные согласуются с моделью / признаки независимы. \( H_{1} \): данные не согласуются / признаки связаны.</li>
+    <li><strong>Ожидаемые частоты.</strong> Вычисли \(E_{i}\) для каждой клетки.</li>
+    <li><strong>Объедини клетки с \(E_{i} &lt; 5\)</strong> с соседними, пока все \(E_{i} \ge 5\).</li>
+    <li><strong>Считай статистику</strong> \( X^{2} = \sum (O - E)^{2}/E \).</li>
+    <li><strong>Степени свободы:</strong> \( \nu = (\text{клетки}) - 1 - (\text{число оценённых параметров}) \) или \( (h-1)(k-1) \) для контингентной таблицы.</li>
+    <li><strong>Критическое значение</strong> \( \chi^{2}_{\nu,\,\alpha} \) — из таблицы критических значений по \( \nu \) и уровню \( \alpha \).</li>
+    <li><strong>Вывод.</strong> Если \( X^{2} &gt; \chi^{2}_{\nu,\,\alpha} \) — отклонить \(H_{0}\); иначе — принять.</li>
+  </ol>
+
+  <h2>Common critical values</h2>
+  <table>
+    <tr><th>\( \nu \)</th><th>\( \alpha = 10\% \)</th><th>\( \alpha = 5\% \)</th><th>\( \alpha = 1\% \)</th></tr>
+    <tr><td>1</td><td>2.706</td><td>3.841</td><td>6.635</td></tr>
+    <tr><td>2</td><td>4.605</td><td>5.991</td><td>9.210</td></tr>
+    <tr><td>3</td><td>6.251</td><td>7.815</td><td>11.345</td></tr>
+    <tr><td>4</td><td>7.779</td><td>9.488</td><td>13.277</td></tr>
+    <tr><td>5</td><td>9.236</td><td>11.070</td><td>15.086</td></tr>
+    <tr><td>6</td><td>10.645</td><td>12.592</td><td>16.812</td></tr>
+    <tr><td>7</td><td>12.017</td><td>14.067</td><td>18.475</td></tr>
+    <tr><td>8</td><td>13.362</td><td>15.507</td><td>20.090</td></tr>
+    <tr><td>10</td><td>15.987</td><td>18.307</td><td>23.209</td></tr>
+  </table>
+
+  <h2>Common mistakes</h2>
+  <div class="note">
+    <ul>
+      <li><strong>Не объединили клетки с \(E &lt; 5\).</strong> Это даёт завышенную статистику и неверный df.</li>
+      <li><strong>Забыли вычесть степень свободы за оценённый параметр.</strong> Если \(p\) или \(\lambda\) оценили из данных, df = (клетки) − 2, а не −1.</li>
+      <li><strong>Перепутали наблюдаемые и ожидаемые.</strong> В числителе — \((O - E)^{2}\), в знаменателе — \(E\).</li>
+      <li><strong>Критическая область — справа.</strong> Отклоняем \(H_{0}\), когда \(X^{2}\) большое.</li>
+      <li><strong>Правильная формулировка гипотез.</strong> Для contingency — «независимы»/«связаны»; для согласия — «следует распределению X»/«не следует».</li>
+    </ul>
+  </div>
+
+  <h2>Mini example</h2>
+  <p>Бросаем кубик 60 раз и получаем частоты: 8, 9, 12, 11, 10, 10 (грани 1–6). Проверим гипотезу о честности кубика на уровне 5%.</p>
+  <p>\(H_{0}\): кубик честный (равномерное распределение). \(E_{i} = 60/6 = 10\) для каждой грани.</p>
+  \[
+  X^{2} = \frac{(8-10)^{2}}{10} + \frac{(9-10)^{2}}{10} + \frac{(12-10)^{2}}{10} + \frac{(11-10)^{2}}{10} + \frac{(10-10)^{2}}{10} + \frac{(10-10)^{2}}{10}
+  \]
+  \[ = 0.4 + 0.1 + 0.4 + 0.1 + 0 + 0 = 1.0 \]
+  <p>\( \nu = 6 - 1 = 5 \). Критическое \( \chi^{2}_{5,\,0.05} = 11.07 \). Так как \(1.0 &lt; 11.07\), принимаем \(H_{0}\): нет оснований сомневаться в честности кубика.</p>
+</main>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

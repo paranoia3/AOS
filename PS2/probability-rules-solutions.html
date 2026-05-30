@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Probability Rules — Solutions</title>
+
+<!-- MathJax 3 -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)'], ['$', '$']],
+      displayMath: [['\\[', '\\]'], ['$$', '$$']],
+      processEscapes: true,
+      tags: 'none'
+    },
+    svg: { fontCache: 'global' },
+    options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<style>
+  :root {
+    --bg: #fafaf7;
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #666;
+    --accent: #2c5f8d;
+    --accent-soft: #eaf2f8;
+    --border: #d8d4cc;
+    --border-soft: #e8e5dd;
+    --warn-bg: #fdf6e3;
+    --warn-border: #d4a373;
+    --def-bg: #f4f7f5;
+    --def-border: #6a9c89;
+    --thm-bg: #f5f3f9;
+    --thm-border: #7a6fa1;
+    --key-bg: #fffefa;
+    --key-border: #1a1a1a;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; background: var(--bg); }
+
+  body {
+    font-family: 'Charter', 'Georgia', 'Cambria', 'Times New Roman', serif;
+    color: var(--ink);
+    line-height: 1.65;
+    font-size: 17px;
+  }
+
+  main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 50px 100px;
+    background: var(--paper);
+    box-shadow: 0 0 40px rgba(0,0,0,0.04);
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0 0 0.3em;
+    padding-bottom: 0.4em;
+    border-bottom: 2px solid var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  h1 .ru-subtitle {
+    display: block;
+    font-size: 0.55em;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 0.3em;
+    letter-spacing: 0;
+  }
+
+  h2 {
+    font-size: 1.4em;
+    font-weight: 700;
+    margin-top: 2.2em;
+    margin-bottom: 0.6em;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  h3 {
+    font-size: 1.1em;
+    font-weight: 700;
+    margin-top: 1.4em;
+    margin-bottom: 0.4em;
+    color: var(--ink);
+  }
+
+  h3 .en {
+    font-weight: 400;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.9em;
+  }
+
+  p { margin: 0.7em 0; }
+
+  ul, ol { padding-left: 1.5em; }
+  li { margin: 0.3em 0; }
+
+  strong { color: var(--ink); }
+  em { color: var(--muted); }
+
+  .en-term {
+    font-style: italic;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .key-formula {
+    border: 1.5px solid var(--key-border);
+    background: var(--key-bg);
+    padding: 18px 24px;
+    margin: 1.5em 0;
+    border-radius: 2px;
+    position: relative;
+  }
+  .key-formula .label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--paper);
+    padding: 0 8px;
+    font-size: 0.78em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+  }
+  .key-formula .caption {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9em;
+    margin-top: 0.5em;
+    font-style: italic;
+  }
+
+  .definition {
+    border-left: 4px solid var(--def-border);
+    background: var(--def-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .definition::before {
+    content: "Определение (Definition)";
+    display: block;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--def-border);
+    margin-bottom: 0.4em;
+  }
+
+  .theorem {
+    border-left: 4px solid var(--thm-border);
+    background: var(--thm-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .theorem::before {
+    content: "Свойство (Property)";
+    display: block;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--thm-border);
+    margin-bottom: 0.4em;
+  }
+  .theorem.named::before { content: attr(data-label); }
+
+  .note {
+    border-left: 4px solid var(--warn-border);
+    background: var(--warn-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .note::before {
+    content: "Заметка (Note)";
+    display: block;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--warn-border);
+    margin-bottom: 0.4em;
+  }
+
+  .topic-label {
+    color: var(--muted);
+    font-style: italic;
+    margin-top: -0.5em;
+    margin-bottom: 2em;
+  }
+
+  .problem {
+    margin: 3em 0;
+    padding-top: 1em;
+    border-top: 1px solid var(--border-soft);
+  }
+  .problem:first-of-type { border-top: none; }
+
+  .problem h2 {
+    color: var(--accent);
+    border-bottom: none;
+    margin-top: 0.5em;
+  }
+
+  .problem-statement {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 14px 20px;
+    margin: 1em 0 1.5em;
+    border-radius: 0 4px 4px 0;
+  }
+  .problem-statement h3 { margin-top: 0; color: var(--accent); }
+  .problem-statement .translation {
+    margin-top: 0.8em;
+    padding-top: 0.8em;
+    border-top: 1px dashed var(--border);
+    color: var(--muted);
+    font-size: 0.95em;
+  }
+
+  .given, .find, .solution, .answer {
+    margin: 1.2em 0;
+  }
+
+  .answer {
+    border: 1.5px solid var(--ink);
+    padding: 12px 20px;
+    background: var(--key-bg);
+    border-radius: 2px;
+  }
+  .answer h3 { margin-top: 0; }
+
+  table {
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.95em;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    text-align: center;
+  }
+  th { background: var(--def-bg); font-weight: 700; }
+
+  mjx-container { margin: 0.4em 0; }
+  mjx-container[display="true"] { margin: 1em 0 !important; }
+
+  @media print {
+    body { background: white; }
+    main { box-shadow: none; max-width: 100%; padding: 20px; }
+  }
+
+  @media (max-width: 720px) {
+    main { padding: 30px 20px 60px; }
+    body { font-size: 16px; }
+    h1 { font-size: 1.6em; }
+  }
+</style>
+<script>try{if(localStorage.getItem('ps-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="solutions" data-topic="PS2">
+
+<main>
+
+<h1>Solutions <span class="ru-subtitle">(Решения задач)</span></h1>
+<p class="topic-label">Тема: Probability Rules — Practice 2</p>
+
+<!-- ============ PROBLEM 1 ============ -->
+<section class="problem">
+  <h2>Problem 1</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The events \( A \) and \( B \) are such that \( P(A) = \tfrac{1}{3} \), \( P(B) = \tfrac{1}{4} \) and \( P(A \cup B) = \tfrac{1}{2} \).</p>
+    <p><strong>a</strong> Show that \( A \) and \( B \) are independent.<br>
+       <strong>b</strong> Represent these probabilities in a Venn diagram.<br>
+       <strong>c</strong> Find \( P(A \mid B') \).</p>
+    <p class="translation">События \( A \) и \( B \) таковы, что \( P(A) = \tfrac{1}{3} \), \( P(B) = \tfrac{1}{4} \) и \( P(A \cup B) = \tfrac{1}{2} \). (a) Показать, что \( A \) и \( B \) независимы. (b) Представить вероятности на диаграмме Венна. (c) Найти \( P(A \mid B') \).</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\( P(A) = \dfrac{1}{3} \)</li>
+      <li>\( P(B) = \dfrac{1}{4} \)</li>
+      <li>\( P(A \cup B) = \dfrac{1}{2} \)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>(a) показать независимость; (b) диаграмма Венна; (c) \( P(A \mid B') \).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (a) <span class="en">(Solution a)</span></h3>
+    <p><strong>Шаг 1.</strong> Сначала найдём \( P(A \cap B) \) из правила сложения (<em>addition rule</em>):</p>
+    \[ P(A \cup B) = P(A) + P(B) - P(A \cap B) \]
+    \[ P(A \cap B) = P(A) + P(B) - P(A \cup B) = \dfrac{1}{3} + \dfrac{1}{4} - \dfrac{1}{2} \]
+    \[
+    \begin{aligned}
+    P(A \cap B) &= \dfrac{4}{12} + \dfrac{3}{12} - \dfrac{6}{12} \\
+                &= \dfrac{1}{12}
+    \end{aligned}
+    \]
+
+    <p><strong>Шаг 2.</strong> Проверяем критерий независимости \( P(A \cap B) = P(A) \cdot P(B) \):</p>
+    \[ P(A) \cdot P(B) = \dfrac{1}{3} \cdot \dfrac{1}{4} = \dfrac{1}{12} \]
+
+    <p><strong>Шаг 3.</strong> Так как \( P(A \cap B) = P(A) \cdot P(B) = \dfrac{1}{12} \), события \( A \) и \( B \) <strong>независимы</strong>. ∎</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (b) <span class="en">(Solution b)</span></h3>
+    <p><strong>Шаг 1.</strong> Найдём вероятности отдельных областей диаграммы Венна:</p>
+    <ul>
+      <li>Только \( A \): \( P(A \cap B') = P(A) - P(A \cap B) = \dfrac{1}{3} - \dfrac{1}{12} = \dfrac{4-1}{12} = \dfrac{3}{12} = \dfrac{1}{4} \)</li>
+      <li>Только \( B \): \( P(A' \cap B) = P(B) - P(A \cap B) = \dfrac{1}{4} - \dfrac{1}{12} = \dfrac{3-1}{12} = \dfrac{2}{12} = \dfrac{1}{6} \)</li>
+      <li>Пересечение: \( P(A \cap B) = \dfrac{1}{12} \)</li>
+      <li>Вне обоих: \( P(A' \cap B') = 1 - P(A \cup B) = 1 - \dfrac{1}{2} = \dfrac{1}{2} \)</li>
+    </ul>
+
+    <p><strong>Шаг 2.</strong> Диаграмма Венна (описание): два пересекающихся круга \( A \) и \( B \) внутри прямоугольника \( S \).</p>
+    <table>
+      <tr><th>Область</th><th>Что значит</th><th>Вероятность</th></tr>
+      <tr><td>\( A \) только</td><td>в \( A \), не в \( B \)</td><td>\( \tfrac{1}{4} \)</td></tr>
+      <tr><td>\( A \cap B \)</td><td>в обоих</td><td>\( \tfrac{1}{12} \)</td></tr>
+      <tr><td>\( B \) только</td><td>в \( B \), не в \( A \)</td><td>\( \tfrac{1}{6} \)</td></tr>
+      <tr><td>вне \( A \cup B \)</td><td>ни в \( A \), ни в \( B \)</td><td>\( \tfrac{1}{2} \)</td></tr>
+    </table>
+    <p>Сумма проверяется: \( \tfrac{1}{4} + \tfrac{1}{12} + \tfrac{1}{6} + \tfrac{1}{2} = \tfrac{3}{12} + \tfrac{1}{12} + \tfrac{2}{12} + \tfrac{6}{12} = 1 \) ✓</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (c) <span class="en">(Solution c)</span></h3>
+    <p><strong>Шаг 1.</strong> Применяем формулу условной вероятности:</p>
+    \[ P(A \mid B') = \dfrac{P(A \cap B')}{P(B')} \]
+
+    <p><strong>Шаг 2.</strong> Находим \( P(A \cap B') = \dfrac{1}{4} \) (из части b) и \( P(B') = 1 - P(B) = 1 - \dfrac{1}{4} = \dfrac{3}{4} \).</p>
+
+    <p><strong>Шаг 3.</strong> Подставляем:</p>
+    \[ P(A \mid B') = \dfrac{1/4}{3/4} = \dfrac{1}{3} \]
+
+    <p>Заметим, что \( P(A \mid B') = P(A) = \tfrac{1}{3} \), что подтверждает независимость \( A \) и \( B \).</p>
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{P(A \cap B) = \tfrac{1}{12} = P(A) \cdot P(B) \Rightarrow \text{независимы}; \quad P(A \mid B') = \tfrac{1}{3}} \]
+  </div>
+</section>
+
+<!-- ============ PROBLEM 2 ============ -->
+<section class="problem">
+  <h2>Problem 2</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>A computer game has three levels and one of the objectives of every level is to collect a diamond. The probability of a randomly chosen player collecting a diamond on the first level is \( \tfrac{4}{5} \), the second level is \( \tfrac{2}{3} \) and the third level is \( \tfrac{1}{2} \). The events are independent.</p>
+    <p><strong>a</strong> Draw a tree diagram to represent collecting diamonds on the three levels of the game. Find the probability that a randomly chosen player<br>
+       <strong>b</strong> collects all three diamonds,<br>
+       <strong>c</strong> collects only one diamond.</p>
+    <p class="translation">В компьютерной игре три уровня, и на каждом нужно собрать алмаз. Вероятность собрать алмаз: на 1-м уровне 4/5, на 2-м — 2/3, на 3-м — 1/2. События независимы. (a) Дерево вероятностей. (b) Вероятность собрать все три алмаза. (c) Вероятность собрать ровно один алмаз.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\( P(D_1) = \tfrac{4}{5}, \; P(D_1') = \tfrac{1}{5} \)</li>
+      <li>\( P(D_2) = \tfrac{2}{3}, \; P(D_2') = \tfrac{1}{3} \)</li>
+      <li>\( P(D_3) = \tfrac{1}{2}, \; P(D_3') = \tfrac{1}{2} \)</li>
+      <li>События независимы (<em>independent</em>)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>(a) дерево; (b) \( P(D_1 \cap D_2 \cap D_3) \); (c) \( P(\text{ровно один алмаз}) \).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (a) <span class="en">(Solution a — tree diagram)</span></h3>
+    <p>Дерево вероятностей имеет 3 уровня. На каждом — две ветви: «собрал \(D\)» или «не собрал \(D'\)». Всего \( 2^3 = 8 \) листьев.</p>
+    <table>
+      <tr><th>Исход</th><th>Вероятность</th></tr>
+      <tr><td>\(D_1 D_2 D_3\)</td><td>\( \tfrac{4}{5} \cdot \tfrac{2}{3} \cdot \tfrac{1}{2} = \tfrac{8}{30} \)</td></tr>
+      <tr><td>\(D_1 D_2 D_3'\)</td><td>\( \tfrac{4}{5} \cdot \tfrac{2}{3} \cdot \tfrac{1}{2} = \tfrac{8}{30} \)</td></tr>
+      <tr><td>\(D_1 D_2' D_3\)</td><td>\( \tfrac{4}{5} \cdot \tfrac{1}{3} \cdot \tfrac{1}{2} = \tfrac{4}{30} \)</td></tr>
+      <tr><td>\(D_1 D_2' D_3'\)</td><td>\( \tfrac{4}{5} \cdot \tfrac{1}{3} \cdot \tfrac{1}{2} = \tfrac{4}{30} \)</td></tr>
+      <tr><td>\(D_1' D_2 D_3\)</td><td>\( \tfrac{1}{5} \cdot \tfrac{2}{3} \cdot \tfrac{1}{2} = \tfrac{2}{30} \)</td></tr>
+      <tr><td>\(D_1' D_2 D_3'\)</td><td>\( \tfrac{1}{5} \cdot \tfrac{2}{3} \cdot \tfrac{1}{2} = \tfrac{2}{30} \)</td></tr>
+      <tr><td>\(D_1' D_2' D_3\)</td><td>\( \tfrac{1}{5} \cdot \tfrac{1}{3} \cdot \tfrac{1}{2} = \tfrac{1}{30} \)</td></tr>
+      <tr><td>\(D_1' D_2' D_3'\)</td><td>\( \tfrac{1}{5} \cdot \tfrac{1}{3} \cdot \tfrac{1}{2} = \tfrac{1}{30} \)</td></tr>
+    </table>
+    <p>Проверка: сумма всех вероятностей \( = \tfrac{30}{30} = 1 \) ✓</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (b) <span class="en">(Solution b)</span></h3>
+    <p><strong>Шаг 1.</strong> Поскольку события независимы, применяем правило умножения:</p>
+    \[ P(D_1 \cap D_2 \cap D_3) = P(D_1) \cdot P(D_2) \cdot P(D_3) \]
+
+    <p><strong>Шаг 2.</strong> Подставляем:</p>
+    \[
+    \begin{aligned}
+    P(D_1 \cap D_2 \cap D_3) &= \dfrac{4}{5} \cdot \dfrac{2}{3} \cdot \dfrac{1}{2} \\
+                              &= \dfrac{8}{30} = \dfrac{4}{15}
+    \end{aligned}
+    \]
+    \[ \dfrac{4}{15} \approx 0.2667 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (c) <span class="en">(Solution c)</span></h3>
+    <p><strong>Шаг 1.</strong> «Ровно один алмаз» — это объединение трёх несовместимых событий: собрал только на 1-м, только на 2-м или только на 3-м уровне.</p>
+
+    <p><strong>Шаг 2.</strong> Вычисляем каждую вероятность:</p>
+    \[ P(D_1 D_2' D_3') = \dfrac{4}{5} \cdot \dfrac{1}{3} \cdot \dfrac{1}{2} = \dfrac{4}{30} \]
+    \[ P(D_1' D_2 D_3') = \dfrac{1}{5} \cdot \dfrac{2}{3} \cdot \dfrac{1}{2} = \dfrac{2}{30} \]
+    \[ P(D_1' D_2' D_3) = \dfrac{1}{5} \cdot \dfrac{1}{3} \cdot \dfrac{1}{2} = \dfrac{1}{30} \]
+
+    <p><strong>Шаг 3.</strong> Складываем:</p>
+    \[ P(\text{ровно один}) = \dfrac{4}{30} + \dfrac{2}{30} + \dfrac{1}{30} = \dfrac{7}{30} \]
+    \[ \dfrac{7}{30} \approx 0.2333 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\text{(b) } P(\text{все три}) = \dfrac{4}{15} \approx 0.2667; \quad \text{(c) } P(\text{ровно один}) = \dfrac{7}{30} \approx 0.2333} \]
+  </div>
+</section>
+
+<!-- ============ PROBLEM 3 ============ -->
+<section class="problem">
+  <h2>Problem 3</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>An online readers' club has 50 members. Glasses are worn by 15 members, 18 are left handed and 21 are female. There are four females who are left handed, three females who wear glasses and five members who wear glasses and are left handed. Only one member wears glasses, is left handed and female.</p>
+    <p><strong>a</strong> Draw a Venn diagram to represent these data. A member is selected at random. Find the probability that the member<br>
+       <strong>b</strong> is female, does not wear glasses and is not left handed,<br>
+       <strong>c</strong> is male, does not wear glasses and is not left handed,<br>
+       <strong>d</strong> wears glasses given that she is left handed and female.</p>
+    <p class="translation">В читательском клубе 50 человек. Очки носят 15, левшей 18, женщин 21. 4 женщины-левши, 3 женщины в очках, 5 человек в очках и левши. Только 1 — женщина в очках и левша. Найти вероятности (b)–(d).</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>Всего \( n = 50 \). \( G \) — носят очки, \( L \) — левши, \( F \) — женщины.</li>
+      <li>\( n(G) = 15, \; n(L) = 18, \; n(F) = 21 \)</li>
+      <li>\( n(L \cap F) = 4, \; n(G \cap F) = 3, \; n(G \cap L) = 5 \)</li>
+      <li>\( n(G \cap L \cap F) = 1 \)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>(a) диаграмма Венна; (b) \( P(F \cap G' \cap L') \); (c) \( P(F' \cap G' \cap L') \); (d) \( P(G \mid L \cap F) \).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (a) <span class="en">(Solution a — Venn diagram)</span></h3>
+    <p><strong>Шаг 1.</strong> Заполняем диаграмму Венна с центра к краям (3 круга: \(G\), \(L\), \(F\)).</p>
+    <ul>
+      <li>Центр \( G \cap L \cap F = 1 \)</li>
+      <li>\( G \cap L \), не в \( F \): \( 5 - 1 = 4 \)</li>
+      <li>\( G \cap F \), не в \( L \): \( 3 - 1 = 2 \)</li>
+      <li>\( L \cap F \), не в \( G \): \( 4 - 1 = 3 \)</li>
+      <li>Только \( G \): \( 15 - 4 - 2 - 1 = 8 \)</li>
+      <li>Только \( L \): \( 18 - 4 - 3 - 1 = 10 \)</li>
+      <li>Только \( F \): \( 21 - 2 - 3 - 1 = 15 \)</li>
+    </ul>
+    <p><strong>Шаг 2.</strong> Сумма внутри объединения: \( 1+4+2+3+8+10+15 = 43 \). Вне всех трёх: \( 50 - 43 = 7 \).</p>
+    <table>
+      <tr><th>Область</th><th>Описание</th><th>Кол-во</th></tr>
+      <tr><td>\(G \cap L \cap F\)</td><td>женщина-левша в очках</td><td>1</td></tr>
+      <tr><td>\(G \cap L \cap F'\)</td><td>мужчина-левша в очках</td><td>4</td></tr>
+      <tr><td>\(G \cap L' \cap F\)</td><td>женщина в очках, правша</td><td>2</td></tr>
+      <tr><td>\(G' \cap L \cap F\)</td><td>женщина-левша без очков</td><td>3</td></tr>
+      <tr><td>\(G \cap L' \cap F'\)</td><td>только в очках (мужчина-правша)</td><td>8</td></tr>
+      <tr><td>\(G' \cap L \cap F'\)</td><td>только левша (мужчина без очков)</td><td>10</td></tr>
+      <tr><td>\(G' \cap L' \cap F\)</td><td>только женщина (без очков, правша)</td><td>15</td></tr>
+      <tr><td>\(G' \cap L' \cap F'\)</td><td>ни одно из трёх (мужчина-правша без очков)</td><td>7</td></tr>
+    </table>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (b) <span class="en">(Solution b)</span></h3>
+    <p>Это область «только \( F \)»: женщина без очков и не левша. Её мощность \( = 15 \).</p>
+    \[ P(F \cap G' \cap L') = \dfrac{15}{50} = \dfrac{3}{10} = 0.3 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (c) <span class="en">(Solution c)</span></h3>
+    <p>Мужчина, без очков, правша = ни в \(F\), ни в \(G\), ни в \(L\) = область вне всех кругов \( = 7 \).</p>
+    \[ P(F' \cap G' \cap L') = \dfrac{7}{50} = 0.14 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (d) <span class="en">(Solution d)</span></h3>
+    <p><strong>Шаг 1.</strong> Условная вероятность:</p>
+    \[ P(G \mid L \cap F) = \dfrac{P(G \cap L \cap F)}{P(L \cap F)} = \dfrac{n(G \cap L \cap F)}{n(L \cap F)} \]
+
+    <p><strong>Шаг 2.</strong> Подставляем: \( n(G \cap L \cap F) = 1 \), \( n(L \cap F) = 4 \).</p>
+    \[ P(G \mid L \cap F) = \dfrac{1}{4} = 0.25 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\text{(b) } \tfrac{3}{10}, \quad \text{(c) } \tfrac{7}{50}, \quad \text{(d) } \tfrac{1}{4}} \]
+  </div>
+</section>
+
+<!-- ============ PROBLEM 4 ============ -->
+<section class="problem">
+  <h2>Problem 4</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>For the events \( J \) and \( K \), \( P(J \cup K) = 0.5 \), \( P(J' \cap K) = 0.2 \), \( P(J \cap K') = 0.25 \).</p>
+    <p><strong>a</strong> Draw a Venn diagram to represent the events \( J \) and \( K \) and the sample space \( S \). Find<br>
+       <strong>b</strong> \( P(J) \), <strong>c</strong> \( P(K) \), <strong>d</strong> \( P(J \mid K) \).<br>
+       <strong>e</strong> Determine whether or not \( J \) and \( K \) are independent.</p>
+    <p class="translation">Для событий \(J\) и \(K\): \(P(J\cup K)=0.5\), \(P(J'\cap K)=0.2\), \(P(J\cap K')=0.25\). Найти \(P(J), P(K), P(J|K)\) и проверить независимость.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\( P(J \cup K) = 0.5 \)</li>
+      <li>\( P(J' \cap K) = 0.2 \) — только \(K\)</li>
+      <li>\( P(J \cap K') = 0.25 \) — только \(J\)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>(a) Венн; (b) \(P(J)\); (c) \(P(K)\); (d) \(P(J\mid K)\); (e) независимость.</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (a) <span class="en">(Solution a — Venn diagram)</span></h3>
+    <p><strong>Шаг 1.</strong> Находим \( P(J \cap K) \). Объединение \(J\cup K\) разбивается на три несовместимые области:</p>
+    \[ P(J \cup K) = P(J \cap K') + P(J \cap K) + P(J' \cap K) \]
+    \[ 0.5 = 0.25 + P(J \cap K) + 0.2 \]
+    \[ P(J \cap K) = 0.5 - 0.45 = 0.05 \]
+
+    <p><strong>Шаг 2.</strong> Вне \( J \cup K \): \( P(J' \cap K') = 1 - 0.5 = 0.5 \).</p>
+    <table>
+      <tr><th>Область</th><th>Вероятность</th></tr>
+      <tr><td>только \(J\)</td><td>0.25</td></tr>
+      <tr><td>\(J \cap K\)</td><td>0.05</td></tr>
+      <tr><td>только \(K\)</td><td>0.20</td></tr>
+      <tr><td>вне \(J \cup K\)</td><td>0.50</td></tr>
+    </table>
+    <p>Сумма \( = 1 \) ✓</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (b) <span class="en">(Solution b)</span></h3>
+    \[ P(J) = P(J \cap K') + P(J \cap K) = 0.25 + 0.05 = 0.3 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (c) <span class="en">(Solution c)</span></h3>
+    \[ P(K) = P(J' \cap K) + P(J \cap K) = 0.2 + 0.05 = 0.25 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (d) <span class="en">(Solution d)</span></h3>
+    \[ P(J \mid K) = \dfrac{P(J \cap K)}{P(K)} = \dfrac{0.05}{0.25} = 0.2 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (e) <span class="en">(Solution e — independence)</span></h3>
+    <p><strong>Шаг 1.</strong> Проверяем критерий независимости: \( P(J) \cdot P(K) \stackrel{?}{=} P(J \cap K) \).</p>
+    \[ P(J) \cdot P(K) = 0.3 \cdot 0.25 = 0.075 \]
+    \[ P(J \cap K) = 0.05 \]
+
+    <p><strong>Шаг 2.</strong> Так как \( 0.075 \neq 0.05 \), события \( J \) и \( K \) <strong>не являются независимыми</strong>.</p>
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{P(J) = 0.3, \; P(K) = 0.25, \; P(J \mid K) = 0.2; \; J \text{ и } K \text{ не независимы}} \]
+  </div>
+</section>
+
+<!-- ============ PROBLEM 5 ============ -->
+<section class="problem">
+  <h2>Problem 5</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>There are 15 coloured beads in a bag; seven beads are red, three are blue and five are green. Three beads are selected at random from the bag and not replaced. Find the probability that<br>
+       <strong>a</strong> the first and second beads chosen are red and the third bead is blue or green,<br>
+       <strong>b</strong> one red, one blue and one green bead are chosen.</p>
+    <p class="translation">В мешке 15 бусин: 7 красных, 3 синих, 5 зелёных. Достают 3 бусины без возвращения. Найти вероятности: (a) первая и вторая — красные, третья — синяя или зелёная; (b) по одной каждого цвета.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>Всего 15 бусин: 7 красных (\(R\)), 3 синие (\(B\)), 5 зелёных (\(G\))</li>
+      <li>Выбор без возвращения (<em>without replacement</em>)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>(a) \( P(R_1 \cap R_2 \cap (B_3 \cup G_3)) \); (b) \( P(\text{по одной каждого цвета}) \).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (a) <span class="en">(Solution a)</span></h3>
+    <p><strong>Шаг 1.</strong> Вероятности на каждом шаге зависят от предыдущих. После того, как достали 2 красные, остаётся \(15 - 2 = 13\) бусин, из них \(3 + 5 = 8\) синих или зелёных.</p>
+
+    <p><strong>Шаг 2.</strong> По правилу умножения:</p>
+    \[
+    \begin{aligned}
+    P &= P(R_1) \cdot P(R_2 \mid R_1) \cdot P(B_3 \cup G_3 \mid R_1 \cap R_2) \\
+      &= \dfrac{7}{15} \cdot \dfrac{6}{14} \cdot \dfrac{8}{13}
+    \end{aligned}
+    \]
+
+    <p><strong>Шаг 3.</strong> Вычисляем:</p>
+    \[
+    \begin{aligned}
+    P &= \dfrac{7 \cdot 6 \cdot 8}{15 \cdot 14 \cdot 13} = \dfrac{336}{2730} = \dfrac{8}{65}
+    \end{aligned}
+    \]
+    \[ \dfrac{8}{65} \approx 0.1231 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (b) <span class="en">(Solution b)</span></h3>
+    <p><strong>Шаг 1.</strong> Порядок может быть любым из \( 3! = 6 \) перестановок: RBG, RGB, BRG, BGR, GRB, GBR. Каждая последовательность имеет одинаковую итоговую вероятность.</p>
+
+    <p><strong>Шаг 2.</strong> Вероятность одной конкретной последовательности, например, R→B→G:</p>
+    \[ \dfrac{7}{15} \cdot \dfrac{3}{14} \cdot \dfrac{5}{13} = \dfrac{105}{2730} \]
+
+    <p><strong>Шаг 3.</strong> Умножаем на 6 (число перестановок):</p>
+    \[ P = 6 \cdot \dfrac{105}{2730} = \dfrac{630}{2730} = \dfrac{3}{13} \]
+    \[ \dfrac{3}{13} \approx 0.2308 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\text{(a) } \dfrac{8}{65} \approx 0.1231; \quad \text{(b) } \dfrac{3}{13} \approx 0.2308} \]
+  </div>
+</section>
+
+<!-- ============ PROBLEM 6 ============ -->
+<section class="problem">
+  <h2>Problem 6</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>A survey of a group of students revealed that 85% have a mobile phone, 60% have an MP3 player and 5% have neither phone nor MP3 player.</p>
+    <p><strong>a</strong> Find the proportion of students who have both gadgets.<br>
+       <strong>b</strong> Draw a Venn diagram to represent this information.<br>
+       Given that a randomly selected student has a phone or an MP3 player,<br>
+       <strong>c</strong> find the probability that the student has a mobile phone.</p>
+    <p class="translation">Опрос студентов: 85% имеют телефон, 60% — MP3-плеер, 5% — ни того, ни другого. (a) Доля имеющих оба гаджета. (b) Венн. (c) При условии, что студент имеет телефон или плеер, найти вероятность того, что у него есть телефон.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(M\) — имеет телефон, \(P\) — имеет MP3-плеер</li>
+      <li>\( P(M) = 0.85, \; P(P) = 0.60, \; P(M' \cap P') = 0.05 \)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>(a) \(P(M \cap P)\); (b) Венн; (c) \(P(M \mid M \cup P)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (a) <span class="en">(Solution a)</span></h3>
+    <p><strong>Шаг 1.</strong> Находим \( P(M \cup P) \) через дополнение:</p>
+    \[ P(M \cup P) = 1 - P(M' \cap P') = 1 - 0.05 = 0.95 \]
+
+    <p><strong>Шаг 2.</strong> Применяем правило сложения:</p>
+    \[ P(M \cap P) = P(M) + P(P) - P(M \cup P) = 0.85 + 0.60 - 0.95 = 0.50 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (b) <span class="en">(Solution b — Venn diagram)</span></h3>
+    <table>
+      <tr><th>Область</th><th>Вероятность</th></tr>
+      <tr><td>только \(M\) (телефон)</td><td>\(0.85 - 0.50 = 0.35\)</td></tr>
+      <tr><td>\(M \cap P\) (оба)</td><td>\(0.50\)</td></tr>
+      <tr><td>только \(P\) (MP3)</td><td>\(0.60 - 0.50 = 0.10\)</td></tr>
+      <tr><td>ни того, ни другого</td><td>\(0.05\)</td></tr>
+    </table>
+    <p>Сумма \( = 0.35 + 0.50 + 0.10 + 0.05 = 1 \) ✓</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (c) <span class="en">(Solution c)</span></h3>
+    <p><strong>Шаг 1.</strong> По формуле условной вероятности:</p>
+    \[ P(M \mid M \cup P) = \dfrac{P(M \cap (M \cup P))}{P(M \cup P)} = \dfrac{P(M)}{P(M \cup P)} \]
+    <p>(потому что \( M \subseteq M \cup P \), значит \( M \cap (M \cup P) = M \))</p>
+
+    <p><strong>Шаг 2.</strong> Подставляем:</p>
+    \[ P(M \mid M \cup P) = \dfrac{0.85}{0.95} = \dfrac{17}{19} \approx 0.8947 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\text{(a) } 0.50; \quad \text{(c) } \dfrac{17}{19} \approx 0.8947} \]
+  </div>
+</section>
+
+<!-- ============ PROBLEM 7 ============ -->
+<section class="problem">
+  <h2>Problem 7</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>In a factory, machines \( A \), \( B \) and \( C \) produce electronic components. Machine \( A \) produces 16% of the components, machine \( B \) produces 50% of the components and machine \( C \) produces the rest. Some of the components are defective. Machine \( A \) produces 4%, machine \( B \) 3% and machine \( C \) 7% defective components.</p>
+    <p><strong>a</strong> Draw a tree diagram to represent this information. Find the probability that a randomly selected component is<br>
+       <strong>b</strong> produced by machine \( B \) and is defective,<br>
+       <strong>c</strong> defective.<br>
+       Given that a randomly selected component is defective,<br>
+       <strong>d</strong> find the probability that it was produced by machine \( B \).</p>
+    <p class="translation">Машины A, B, C производят: 16%, 50%, 34%. Брак: A — 4%, B — 3%, C — 7%. (a) Дерево. (b) P(B и брак). (c) P(брак). (d) P(B | брак).</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\( P(A) = 0.16, \; P(B) = 0.50, \; P(C) = 1 - 0.16 - 0.50 = 0.34 \)</li>
+      <li>\( P(D \mid A) = 0.04 \) (\(D\) — дефект)</li>
+      <li>\( P(D \mid B) = 0.03 \)</li>
+      <li>\( P(D \mid C) = 0.07 \)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>(a) дерево; (b) \(P(B \cap D)\); (c) \(P(D)\); (d) \(P(B \mid D)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (a) <span class="en">(Solution a — tree diagram)</span></h3>
+    <p>Дерево: первый уровень — машина (\(A, B, C\)), второй — дефект (\(D, D'\)).</p>
+    <table>
+      <tr><th>Машина</th><th>Состояние</th><th>Вероятность</th></tr>
+      <tr><td>\(A\) (0.16)</td><td>\(D\) (0.04)</td><td>\(0.16 \cdot 0.04 = 0.0064\)</td></tr>
+      <tr><td>\(A\) (0.16)</td><td>\(D'\) (0.96)</td><td>\(0.16 \cdot 0.96 = 0.1536\)</td></tr>
+      <tr><td>\(B\) (0.50)</td><td>\(D\) (0.03)</td><td>\(0.50 \cdot 0.03 = 0.0150\)</td></tr>
+      <tr><td>\(B\) (0.50)</td><td>\(D'\) (0.97)</td><td>\(0.50 \cdot 0.97 = 0.4850\)</td></tr>
+      <tr><td>\(C\) (0.34)</td><td>\(D\) (0.07)</td><td>\(0.34 \cdot 0.07 = 0.0238\)</td></tr>
+      <tr><td>\(C\) (0.34)</td><td>\(D'\) (0.93)</td><td>\(0.34 \cdot 0.93 = 0.3162\)</td></tr>
+    </table>
+    <p>Сумма \( = 1 \) ✓</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (b) <span class="en">(Solution b)</span></h3>
+    \[ P(B \cap D) = P(B) \cdot P(D \mid B) = 0.50 \cdot 0.03 = 0.015 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (c) <span class="en">(Solution c — total probability)</span></h3>
+    <p><strong>Шаг 1.</strong> Применяем закон полной вероятности:</p>
+    \[ P(D) = P(A) P(D \mid A) + P(B) P(D \mid B) + P(C) P(D \mid C) \]
+
+    <p><strong>Шаг 2.</strong> Подставляем:</p>
+    \[
+    \begin{aligned}
+    P(D) &= 0.16 \cdot 0.04 + 0.50 \cdot 0.03 + 0.34 \cdot 0.07 \\
+         &= 0.0064 + 0.0150 + 0.0238 \\
+         &= 0.0452
+    \end{aligned}
+    \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (d) <span class="en">(Solution d — Bayes)</span></h3>
+    <p><strong>Шаг 1.</strong> По формуле Байеса (<em>Bayes' theorem</em>):</p>
+    \[ P(B \mid D) = \dfrac{P(B \cap D)}{P(D)} \]
+
+    <p><strong>Шаг 2.</strong> Подставляем результаты из (b) и (c):</p>
+    \[ P(B \mid D) = \dfrac{0.015}{0.0452} = \dfrac{150}{452} = \dfrac{75}{226} \approx 0.3319 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\text{(b) } 0.015; \quad \text{(c) } 0.0452; \quad \text{(d) } \dfrac{75}{226} \approx 0.3319} \]
+  </div>
+</section>
+
+<!-- ============ PROBLEM 8 ============ -->
+<section class="problem">
+  <h2>Problem 8</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>A garage sells three types of fuel; U95, U98 and diesel. In a survey of 200 motorists buying fuel at the garage, 80 are female and the rest are male. Of the 90 motorists buying 'U95' fuel, 50 were female and of the 70 motorists buying diesel, 60 were male. A motorist does not buy more than one type of fuel.</p>
+    <p>Find the probability that a randomly chosen motorist<br>
+       <strong>a</strong> buys U98 fuel,<br>
+       <strong>b</strong> is male, given that the motorist buys U98 fuel.</p>
+    <p>Garage records indicate that 10% of the motorists buying U95 fuel, 30% of the motorists buying U98 fuel and 40% of the motorists buying diesel have their car serviced by the garage. A motorist is chosen at random.</p>
+    <p><strong>c</strong> Find the probability that this motorist has his or her car serviced by the garage.<br>
+       <strong>d</strong> Given the motorist has his or her car serviced by the garage, find the probability that the motorist buys diesel fuel.</p>
+    <p class="translation">АЗС продаёт U95, U98, дизель. 200 водителей: 80 женщин, 120 мужчин. U95: 90 (из них 50 женщин). Дизель: 70 (из них 60 мужчин). (a) P(U98). (b) P(мужчина | U98). Сервис: 10% U95, 30% U98, 40% дизель. (c) P(сервис). (d) P(дизель | сервис).</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>Всего: 200, женщин 80, мужчин 120</li>
+      <li>U95: 90 (Ж=50, М=40)</li>
+      <li>Дизель: 70 (М=60, Ж=10)</li>
+      <li>U98: \(200 - 90 - 70 = 40\). Ж=\(80 - 50 - 10 = 20\), М=\(40 - 20 = 20\)</li>
+      <li>\(P(S \mid U95) = 0.10, \; P(S \mid U98) = 0.30, \; P(S \mid D) = 0.40\) (\(S\) — обслуживается)</li>
+    </ul>
+    <table>
+      <tr><th></th><th>U95</th><th>U98</th><th>Diesel</th><th>Total</th></tr>
+      <tr><td>Female</td><td>50</td><td>20</td><td>10</td><td>80</td></tr>
+      <tr><td>Male</td><td>40</td><td>20</td><td>60</td><td>120</td></tr>
+      <tr><td>Total</td><td>90</td><td>40</td><td>70</td><td>200</td></tr>
+    </table>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>(a) \(P(U98)\); (b) \(P(M \mid U98)\); (c) \(P(S)\); (d) \(P(D \mid S)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (a) <span class="en">(Solution a)</span></h3>
+    \[ P(U98) = \dfrac{40}{200} = \dfrac{1}{5} = 0.2 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (b) <span class="en">(Solution b)</span></h3>
+    <p>Среди 40 покупателей U98 — 20 мужчин:</p>
+    \[ P(M \mid U98) = \dfrac{20}{40} = \dfrac{1}{2} = 0.5 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (c) <span class="en">(Solution c)</span></h3>
+    <p><strong>Шаг 1.</strong> Доли типов топлива среди всех: \(P(U95) = 0.45, \; P(U98) = 0.20, \; P(D) = 0.35\).</p>
+
+    <p><strong>Шаг 2.</strong> По закону полной вероятности:</p>
+    \[
+    \begin{aligned}
+    P(S) &= P(S \mid U95) P(U95) + P(S \mid U98) P(U98) + P(S \mid D) P(D) \\
+         &= 0.10 \cdot 0.45 + 0.30 \cdot 0.20 + 0.40 \cdot 0.35 \\
+         &= 0.045 + 0.060 + 0.140 \\
+         &= 0.245
+    \end{aligned}
+    \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (d) <span class="en">(Solution d — Bayes)</span></h3>
+    <p><strong>Шаг 1.</strong> По формуле Байеса:</p>
+    \[ P(D \mid S) = \dfrac{P(S \mid D) \cdot P(D)}{P(S)} = \dfrac{P(D \cap S)}{P(S)} \]
+
+    <p><strong>Шаг 2.</strong> Подставляем:</p>
+    \[ P(D \mid S) = \dfrac{0.140}{0.245} = \dfrac{140}{245} = \dfrac{4}{7} \approx 0.5714 \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\text{(a) } 0.2; \quad \text{(b) } 0.5; \quad \text{(c) } 0.245; \quad \text{(d) } \dfrac{4}{7} \approx 0.5714} \]
+  </div>
+</section>
+
+<!-- ============ PROBLEM 9 ============ -->
+<section class="problem">
+  <h2>Problem 9</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>A study was made of a group of 150 children to determine which of three cartoons they watch on television. The following results were obtained:</p>
+    <ul>
+      <li>35 watch Toontime</li>
+      <li>54 watch Porky</li>
+      <li>62 watch Skellingtons</li>
+      <li>9 watch Toontime and Porky</li>
+      <li>14 watch Porky and Skellingtons</li>
+      <li>12 watch Toontime and Skellingtons</li>
+      <li>4 watch Toontime, Porky and Skellingtons</li>
+    </ul>
+    <p><strong>a</strong> Draw a Venn diagram to represent these data. Find the probability that a randomly selected child from the study watches<br>
+       <strong>b</strong> none of the three cartoons,<br>
+       <strong>c</strong> no more than one of the cartoons.<br>
+       A child selected at random from the study only watches one of the cartoons.<br>
+       <strong>d</strong> Find the probability that it was Skellingtons.<br>
+       Two different children are selected at random from the study.<br>
+       <strong>e</strong> Find the probability that they both watch Skellingtons.</p>
+    <p class="translation">150 детей смотрят 3 мультфильма. T=35, P=54, S=62; T∩P=9, P∩S=14, T∩S=12; T∩P∩S=4. (b) Никого. (c) Не более одного. (d) Только S, если смотрит ровно один. (e) Оба из двух выбранных смотрят S.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(n = 150\)</li>
+      <li>\(n(T) = 35, \; n(P) = 54, \; n(S) = 62\)</li>
+      <li>\(n(T \cap P) = 9, \; n(P \cap S) = 14, \; n(T \cap S) = 12\)</li>
+      <li>\(n(T \cap P \cap S) = 4\)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>(a) Венн; (b) \(P(\text{none})\); (c) \(P(\le 1)\); (d) \(P(\text{только } S \mid \text{ровно один})\); (e) \(P(\text{оба смотрят } S)\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (a) <span class="en">(Solution a — Venn diagram)</span></h3>
+    <p><strong>Шаг 1.</strong> Заполняем диаграмму с центра:</p>
+    <ul>
+      <li>\(T \cap P \cap S = 4\)</li>
+      <li>Только \(T \cap P\): \(9 - 4 = 5\)</li>
+      <li>Только \(P \cap S\): \(14 - 4 = 10\)</li>
+      <li>Только \(T \cap S\): \(12 - 4 = 8\)</li>
+      <li>Только \(T\): \(35 - 5 - 8 - 4 = 18\)</li>
+      <li>Только \(P\): \(54 - 5 - 10 - 4 = 35\)</li>
+      <li>Только \(S\): \(62 - 8 - 10 - 4 = 40\)</li>
+    </ul>
+
+    <p><strong>Шаг 2.</strong> В объединении: \(18 + 35 + 40 + 5 + 10 + 8 + 4 = 120\). Вне всех: \(150 - 120 = 30\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (b) <span class="en">(Solution b)</span></h3>
+    \[ P(\text{none}) = \dfrac{30}{150} = \dfrac{1}{5} = 0.2 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (c) <span class="en">(Solution c)</span></h3>
+    <p><strong>Шаг 1.</strong> «Не более одного» = «ни одного» или «ровно один».</p>
+    <p><strong>Шаг 2.</strong> Ровно один = только \(T\) + только \(P\) + только \(S\) = \(18 + 35 + 40 = 93\).</p>
+    <p><strong>Шаг 3.</strong> Итого: \(30 + 93 = 123\) ребёнок.</p>
+    \[ P(\le 1) = \dfrac{123}{150} = \dfrac{41}{50} = 0.82 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (d) <span class="en">(Solution d)</span></h3>
+    <p>Условная вероятность: дано, что ребёнок смотрит ровно один мультфильм (93 человека), из них только \(S\) — 40.</p>
+    \[ P(\text{только } S \mid \text{ровно один}) = \dfrac{40}{93} \approx 0.4301 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (e) <span class="en">(Solution e)</span></h3>
+    <p><strong>Шаг 1.</strong> Двое разных детей выбираются без возвращения. \(n(S) = 62\).</p>
+    <p><strong>Шаг 2.</strong> По правилу умножения:</p>
+    \[
+    \begin{aligned}
+    P(\text{оба смотрят } S) &= \dfrac{62}{150} \cdot \dfrac{61}{149} \\
+                              &= \dfrac{62 \cdot 61}{150 \cdot 149} \\
+                              &= \dfrac{3782}{22350} \\
+                              &\approx 0.1692
+    \end{aligned}
+    \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\text{(b) } \tfrac{1}{5}; \quad \text{(c) } \tfrac{41}{50}; \quad \text{(d) } \tfrac{40}{93} \approx 0.4301; \quad \text{(e) } \tfrac{3782}{22350} \approx 0.1692} \]
+  </div>
+</section>
+
+<!-- ============ PROBLEM 10 ============ -->
+<section class="problem">
+  <h2>Problem 10</h2>
+
+  <div class="problem-statement">
+    <h3>Условие <span class="en">(Problem statement)</span></h3>
+    <p>The members of a wine tasting club are married couples. For any married couple in the club, the probability that the husband is retired is 0.7 and the probability that the wife is retired 0.4. Given that the wife is retired, the probability that the husband is retired is 0.8.</p>
+    <p>For a randomly chosen married couple who are members of the club, find the probability that<br>
+       <strong>a</strong> both of them are retired,<br>
+       <strong>b</strong> only one of them is retired,<br>
+       <strong>c</strong> neither of them is retired.<br>
+       Two married couples are chosen at random.<br>
+       <strong>d</strong> Find the probability that only one of the two husbands and only one of the two wives is retired.</p>
+    <p class="translation">Винный клуб — супружеские пары. P(муж на пенсии)=0.7, P(жена на пенсии)=0.4, P(муж на пенсии | жена на пенсии)=0.8. Найти: (a) оба на пенсии; (b) только один; (c) никто. (d) Из двух пар: ровно один муж и ровно одна жена на пенсии.</p>
+  </div>
+
+  <div class="given">
+    <h3>Дано <span class="en">(Given)</span></h3>
+    <ul>
+      <li>\(H\) — муж на пенсии, \(W\) — жена на пенсии</li>
+      <li>\(P(H) = 0.7, \; P(W) = 0.4\)</li>
+      <li>\(P(H \mid W) = 0.8\)</li>
+    </ul>
+  </div>
+
+  <div class="find">
+    <h3>Найти <span class="en">(Find)</span></h3>
+    <p>(a) \(P(H \cap W)\); (b) \(P(\text{ровно один})\); (c) \(P(H' \cap W')\); (d) для 2 пар: \(P(\text{ровно один муж и ровно одна жена на пенсии})\).</p>
+  </div>
+
+  <div class="solution">
+    <h3>Решение (a) <span class="en">(Solution a)</span></h3>
+    <p>По правилу умножения:</p>
+    \[ P(H \cap W) = P(H \mid W) \cdot P(W) = 0.8 \cdot 0.4 = 0.32 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (b) <span class="en">(Solution b)</span></h3>
+    <p><strong>Шаг 1.</strong> «Только один» = «только муж» + «только жена»:</p>
+    \[ P(H \cap W') = P(H) - P(H \cap W) = 0.7 - 0.32 = 0.38 \]
+    \[ P(H' \cap W) = P(W) - P(H \cap W) = 0.4 - 0.32 = 0.08 \]
+
+    <p><strong>Шаг 2.</strong> Складываем (события несовместимы):</p>
+    \[ P(\text{ровно один}) = 0.38 + 0.08 = 0.46 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (c) <span class="en">(Solution c)</span></h3>
+    <p><strong>Шаг 1.</strong> Сначала \( P(H \cup W) \):</p>
+    \[ P(H \cup W) = P(H) + P(W) - P(H \cap W) = 0.7 + 0.4 - 0.32 = 0.78 \]
+
+    <p><strong>Шаг 2.</strong> Дополнение:</p>
+    \[ P(H' \cap W') = 1 - P(H \cup W) = 1 - 0.78 = 0.22 \]
+  </div>
+
+  <div class="solution">
+    <h3>Решение (d) <span class="en">(Solution d)</span></h3>
+    <p><strong>Шаг 1.</strong> Внутри одной пары муж и жена <em>зависимы</em>, но разные пары — независимы. Для каждой пары есть 4 несовместимых сценария:</p>
+    <table>
+      <tr><th>Сценарий</th><th>Вероятность</th></tr>
+      <tr><td>оба на пенсии (\(H \cap W\))</td><td>0.32</td></tr>
+      <tr><td>только муж (\(H \cap W'\))</td><td>0.38</td></tr>
+      <tr><td>только жена (\(H' \cap W\))</td><td>0.08</td></tr>
+      <tr><td>никто (\(H' \cap W'\))</td><td>0.22</td></tr>
+    </table>
+
+    <p><strong>Шаг 2.</strong> Нужно: ровно один муж на пенсии и ровно одна жена на пенсии из 2 пар. Перебираем комбинации сценариев пары 1 (С1) и пары 2 (С2):</p>
+    <ul>
+      <li><strong>С1 = только муж, С2 = только жена:</strong> мужей \(=1\), жён \(=1\) ✓ → \(0.38 \cdot 0.08 = 0.0304\)</li>
+      <li><strong>С1 = только жена, С2 = только муж:</strong> ✓ → \(0.08 \cdot 0.38 = 0.0304\)</li>
+      <li><strong>С1 = оба, С2 = никто:</strong> мужей \(=1\), жён \(=1\) ✓ → \(0.32 \cdot 0.22 = 0.0704\)</li>
+      <li><strong>С1 = никто, С2 = оба:</strong> ✓ → \(0.22 \cdot 0.32 = 0.0704\)</li>
+    </ul>
+
+    <p><strong>Шаг 3.</strong> Суммируем (все варианты несовместимы):</p>
+    \[
+    \begin{aligned}
+    P &= 0.0304 + 0.0304 + 0.0704 + 0.0704 \\
+      &= 0.2016
+    \end{aligned}
+    \]
+  </div>
+
+  <div class="answer">
+    <h3>Ответ <span class="en">(Answer)</span></h3>
+    \[ \boxed{\text{(a) } 0.32; \quad \text{(b) } 0.46; \quad \text{(c) } 0.22; \quad \text{(d) } 0.2016} \]
+  </div>
+</section>
+
+</main>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

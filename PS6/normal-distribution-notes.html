@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Normal Distribution — Notes</title>
+<script>try{if(localStorage.getItem('ps-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="../assets/style.css">
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)'], ['$', '$']],
+      displayMath: [['\\[', '\\]'], ['$$', '$$']],
+      processEscapes: true,
+      tags: 'none'
+    },
+    svg: { fontCache: 'global' },
+    options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+</head>
+<body data-page="notes" data-topic="PS6">
+
+<main>
+  <h1>Normal Distribution <span class="ru-subtitle">(Нормальное распределение)</span></h1>
+
+  <h2>When to use it</h2>
+  <p><strong>Нормальное распределение</strong> (<em>normal distribution</em>) описывает непрерывную случайную величину, значения которой сосредоточены вокруг <strong>среднего</strong> \( \mu \) и распределены симметрично с <strong>стандартным отклонением</strong> \( \sigma \). Это самое частое распределение в статистике: рост, вес, ошибки измерений, результаты тестов — всё это типично нормально распределено.</p>
+  <p>Ключевые слова в условии задачи на английском:</p>
+  <ul>
+    <li>«<em>X is normally distributed with mean … and standard deviation …</em>», «<em>X \(\sim\) N(μ, σ²)</em>» — модель уже задана;</li>
+    <li>«<em>weights / heights / times / volumes / lengths are normally distributed</em>» — типичные сюжеты;</li>
+    <li>«<em>find the probability that X is more than / less than / between … and …</em>» — нужно вычислить вероятность через стандартизацию;</li>
+    <li>«<em>find the value of x such that P(X &lt; x) = …</em>», «<em>find the percentage / percentile</em>» — обратная задача: вероятность дана, найти значение \(x\).</li>
+  </ul>
+
+  <h2>Definitions</h2>
+
+  <div class="definition">
+    <p><strong>Нормальная случайная величина</strong> (<em>normal random variable</em>) \(X\) — непрерывная случайная величина с математическим ожиданием \( \mu \) и стандартным отклонением \( \sigma \). Записывается \( X \sim \mathrm{N}(\mu,\ \sigma^{2}) \), где \( \sigma^{2} \) — <strong>дисперсия</strong> (<em>variance</em>).</p>
+  </div>
+
+  <div class="definition">
+    <p><strong>Стандартное нормальное распределение</strong> (<em>standard normal distribution</em>) — нормальное распределение с \( \mu = 0 \) и \( \sigma = 1 \): \( Z \sim \mathrm{N}(0,\ 1) \). Его функция распределения обозначается \( \Phi(z) = P(Z \le z) \) и табулирована в формульнике.</p>
+  </div>
+
+  <div class="definition">
+    <p><strong>Стандартизация</strong> (<em>standardization</em>) — переход от \( X \) к \( Z \) формулой \( Z = \dfrac{X - \mu}{\sigma} \). Любая нормальная задача сводится к стандартной \( Z \), для которой есть таблица.</p>
+  </div>
+
+  <h2>Key formulas</h2>
+
+  <div class="key-formula">
+    <span class="label">Формула 1</span>
+    \[ Z = \frac{X - \mu}{\sigma} \sim \mathrm{N}(0,\ 1) \]
+    <div class="caption">Стандартизация — главная формула темы</div>
+  </div>
+
+  <div class="key-formula">
+    <span class="label">Формула 2</span>
+    \[ P(X \le x) = \Phi\!\left(\frac{x - \mu}{\sigma}\right) \]
+    <div class="caption">Вероятность через табличное значение \( \Phi \)</div>
+  </div>
+
+  <div class="key-formula">
+    <span class="label">Формула 3</span>
+    \[ \Phi(-z) = 1 - \Phi(z) \]
+    <div class="caption">Симметрия — для отрицательных \(z\) пользуемся таблицей для \(+z\)</div>
+  </div>
+
+  <h2>Properties of the normal distribution</h2>
+
+  <div class="theorem named" data-label="Свойства (Properties)">
+    <ul>
+      <li><strong>Симметрия</strong> (<em>symmetry</em>) относительно \( \mu \): кривая зеркальна слева и справа от \( \mu \). Поэтому <strong>среднее = медиана = мода</strong>.</li>
+      <li><strong>Площадь под кривой = 1</strong> (\( \int_{-\infty}^{\infty} f(x)\,dx = 1 \)).</li>
+      <li><strong>Правило \(68\text{–}95\text{–}99.7\)</strong> (<em>empirical rule</em>): около 68% значений лежат в \( [\mu - \sigma,\ \mu + \sigma] \); 95% — в \( [\mu - 2\sigma,\ \mu + 2\sigma] \); 99.7% — в \( [\mu - 3\sigma,\ \mu + 3\sigma] \).</li>
+      <li><strong>Квартили</strong>: \( Q_{1} = \mu - 0.6745\sigma \), \( Q_{3} = \mu + 0.6745\sigma \). Межквартильный размах \( \mathrm{IQR} \approx 1.349\sigma \).</li>
+    </ul>
+  </div>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 600 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Стандартная нормальная кривая">
+      <path class="area" d="M 60 220 C 130 220, 180 215, 220 200 C 250 188, 270 168, 285 140 C 295 110, 300 80, 305 55 L 540 55 L 540 220 Z" opacity="0"/>
+      <path class="curve" d="M 60 220 C 130 220, 180 215, 220 200 C 250 188, 270 168, 285 140 C 295 110, 300 80, 305 55 C 310 80, 315 110, 325 140 C 340 168, 360 188, 390 200 C 430 215, 480 220, 540 220"/>
+      <line class="axis" x1="40" y1="220" x2="570" y2="220"/>
+      <polygon class="axis-arrow" points="570,220 562,216 562,224"/>
+      <line class="guide" x1="305" y1="220" x2="305" y2="55"/>
+      <line class="guide" x1="225" y1="220" x2="225" y2="195"/>
+      <line class="guide" x1="385" y1="220" x2="385" y2="195"/>
+      <g class="label">
+        <text x="305" y="240" text-anchor="middle">μ</text>
+        <text x="225" y="240" text-anchor="middle">μ − σ</text>
+        <text x="385" y="240" text-anchor="middle">μ + σ</text>
+        <text x="145" y="240" text-anchor="middle">μ − 2σ</text>
+        <text x="465" y="240" text-anchor="middle">μ + 2σ</text>
+      </g>
+      <text class="label-math" x="575" y="225">x</text>
+      <text class="label-muted" x="305" y="45" text-anchor="middle">пик у x = μ</text>
+    </svg>
+    <figcaption>Рис. 1. Плотность нормального распределения \( X \sim \mathrm{N}(\mu,\ \sigma^{2}) \): симметричная «колоколообразная» кривая с центром \( \mu \) и шириной, заданной \( \sigma \).</figcaption>
+  </figure>
+
+  <h2>How to use it (step by step)</h2>
+  <ol>
+    <li><strong>Запиши модель</strong>: \( X \sim \mathrm{N}(\mu, \sigma^{2}) \).</li>
+    <li><strong>Стандартизуй</strong> границу: \( z = \dfrac{x - \mu}{\sigma} \).</li>
+    <li><strong>Переведи в \( \Phi \):</strong>
+      <ul>
+        <li>«\( P(X &lt; x) \)» → \( \Phi(z) \);</li>
+        <li>«\( P(X &gt; x) \)» → \( 1 - \Phi(z) \);</li>
+        <li>«\( P(a &lt; X &lt; b) \)» → \( \Phi(z_b) - \Phi(z_a) \);</li>
+        <li>при отрицательном \(z\) применяй \( \Phi(-z) = 1 - \Phi(z) \).</li>
+      </ul>
+    </li>
+    <li>Найди \( \Phi(z) \) в таблице нормального распределения (приведена в формульнике).</li>
+    <li><strong>Обратная задача</strong> (известна вероятность, найти \(x\)): по таблице/критическим значениям ищи \(z\), затем \( x = \mu + z\sigma \).</li>
+    <li>Если неизвестны \( \mu \) или \( \sigma \) (или оба), составь <strong>уравнения</strong> из двух заданных вероятностей и реши систему.</li>
+  </ol>
+
+  <h2>Common z-values (критические значения)</h2>
+  <table>
+    <tr><th>\( P(Z \le z) \)</th><th>0.90</th><th>0.95</th><th>0.975</th><th>0.99</th><th>0.995</th><th>0.75</th></tr>
+    <tr><th>\(z\)</th><td>1.2816</td><td>1.6449</td><td>1.9600</td><td>2.3263</td><td>2.5758</td><td>0.6745</td></tr>
+  </table>
+
+  <h2>Common mistakes</h2>
+  <div class="note">
+    <ul>
+      <li><strong>Путают \( \sigma \) и \( \sigma^{2} \).</strong> В записи \( \mathrm{N}(\mu, \sigma^{2}) \) второе число — <em>дисперсия</em>. Например, \( \mathrm{N}(14, 9) \) означает \( \sigma = 3 \), а не \(9\).</li>
+      <li><strong>Знак \(z\).</strong> Если \( x &lt; \mu \), то \(z\) отрицательное; в таблице ищем \( \Phi(|z|) \) и берём \( 1 - \Phi(|z|) \).</li>
+      <li><strong>Стороны хвоста.</strong> «<em>more than</em>» = правый хвост = \( 1 - \Phi(z) \); «<em>less than</em>» = левый хвост = \( \Phi(z) \).</li>
+      <li><strong>Обратная задача.</strong> Сначала находим \(z\) по таблице (например, \( z = 1.6449 \) для \(0.95\)), потом возвращаемся к \(x = \mu + z\sigma\).</li>
+      <li><strong>Округление.</strong> Промежуточные \(z\) и \( \Phi \) держи с 4 знаками, округляй только в конце.</li>
+    </ul>
+  </div>
+
+  <h2>Mini example</h2>
+  <p>Пусть \( X \sim \mathrm{N}(50,\ 4^{2}) \). Найдём \( P(X &lt; 56) \).</p>
+  <p>Стандартизуем: \( z = \dfrac{56 - 50}{4} = 1.5 \). По таблице \( \Phi(1.5) = 0.9332 \).</p>
+  \[ P(X &lt; 56) = \Phi(1.5) = 0.9332 \]
+  <p>То есть около 93% наблюдений будут меньше 56.</p>
+</main>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLT &amp; Confidence Intervals — Solutions</title>
+<script>try{if(localStorage.getItem('ps-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="../assets/style.css">
+<script>
+  window.MathJax = {
+    tex: { inlineMath:[['\\(','\\)'],['$','$']], displayMath:[['\\[','\\]'],['$$','$$']], processEscapes:true, tags:'none' },
+    svg: { fontCache:'global' },
+    options: { skipHtmlTags:['script','noscript','style','textarea','pre','code'] }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+</head>
+<body data-page="solutions" data-topic="PS7-8">
+
+<main>
+  <h1>Solutions <span class="ru-subtitle">(Решения задач)</span></h1>
+  <p class="topic-label">Тема: CLT &amp; Confidence Intervals (ЦПТ и доверительные интервалы)</p>
+
+  <h2 style="margin-top:1.4em;">Часть 1. Central Limit Theorem <span class="en" style="font-weight:400;color:var(--muted);font-style:italic;font-size:0.7em;">(Центральная предельная теорема)</span></h2>
+
+  <!-- CLT 1 -->
+  <section class="problem">
+    <h2>CLT — Problem 1</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A sample of size 6 is taken from a normal distribution \( \mathrm{N}(10,\ 2^{2}) \). What is the probability that the sample mean exceeds 12?</p>
+      <p class="translation">Выборка \(n = 6\) из \(\mathrm{N}(10, 2^{2})\). Найти \(P(\overline{X} &gt; 12)\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\( \overline{X} \sim \mathrm{N}\!\left(10,\ \dfrac{4}{6}\right) \), \( \mathrm{SE} = \dfrac{2}{\sqrt{6}} \approx 0.8165 \).</p>
+      \[ z = \frac{12 - 10}{2/\sqrt{6}} = \sqrt{6} \approx 2.449 \]
+      \[ P(\overline{X} &gt; 12) = 1 - \Phi(2.45) \approx 1 - 0.9929 = 0.0071 \]
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{P(\overline{X} &gt; 12) \approx 0.0071} \]</div>
+  </section>
+
+  <!-- CLT 2 -->
+  <section class="problem">
+    <h2>CLT — Problem 2</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A machine fills cartons in such a way that the amount of drink in each carton is distributed normally with a mean of 40 cm³ and a standard deviation of 1.5 cm³.</p>
+      <p><strong>a</strong> A sample of four cartons is examined. Find \(P(\overline{X} &gt; 40.5)\).</p>
+      <p><strong>b</strong> A sample of 49 cartons is examined. Find \(P(\overline{X} &gt; 40.5)\).</p>
+      <p class="translation">Объём ~ N(40, 1.5²) см³. <strong>a</strong> \(n=4\), \(P(\overline{X}&gt;40.5)\). <strong>b</strong> \(n=49\), то же.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>a)</strong> \( \overline{X} \sim \mathrm{N}(40,\ 1.5^{2}/4) \), SE = 0.75. \( z = 0.5/0.75 = 0.667 \).</p>
+      \[ P(\overline{X} &gt; 40.5) = 1 - \Phi(0.67) = 1 - 0.7486 = 0.2514 \]
+
+      <p><strong>b)</strong> SE = 1.5/7 ≈ 0.2143. \( z = 0.5/0.2143 \approx 2.333 \).</p>
+      \[ P(\overline{X} &gt; 40.5) = 1 - \Phi(2.33) = 1 - 0.9901 = 0.0099 \]
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } 0.2514 \qquad \text{b) } 0.0099} \]</div>
+  </section>
+
+  <!-- CLT 3 -->
+  <section class="problem">
+    <h2>CLT — Problem 3</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The lengths of bolts produced by a machine have an unknown distribution with mean 3.03 cm and standard deviation 0.20 cm. A sample of 100 bolts is taken.</p>
+      <p><strong>a</strong> Estimate the probability that the mean length of this sample is less than 3 cm.</p>
+      <p><strong>b</strong> What size sample is required if the probability that the mean is less than 3 cm is to be less than 1%?</p>
+      <p class="translation">Болты: μ=3.03, σ=0.20. <strong>a</strong> n=100, \(P(\overline{X}&lt;3)\). <strong>b</strong> Найти \(n\), чтобы \(P(\overline{X}&lt;3) &lt; 1\%\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>a)</strong> По ЦПТ: \( \overline{X} \approx \mathrm{N}(3.03,\ 0.04/100) \), SE = 0.02.</p>
+      \[ z = \frac{3 - 3.03}{0.02} = -1.5, \quad P(\overline{X} &lt; 3) = 1 - \Phi(1.5) = 0.0668 \]
+
+      <p><strong>b)</strong> Нужно \( P(\overline{X} &lt; 3) &lt; 0.01 \Rightarrow z &lt; -2.3263 \).</p>
+      \[ \frac{-0.03}{0.20/\sqrt{n}} &lt; -2.3263 \;\Rightarrow\; \frac{0.03\sqrt{n}}{0.20} &gt; 2.3263 \]
+      \[ \sqrt{n} &gt; \frac{2.3263 \cdot 0.20}{0.03} = 15.509 \;\Rightarrow\; n &gt; 240.5 \;\Rightarrow\; n \ge 241 \]
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } 0.0668 \qquad \text{b) } n \ge 241} \]</div>
+  </section>
+
+  <!-- CLT 4 -->
+  <section class="problem">
+    <h2>CLT — Problem 4</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Forty observations are taken from a population with density \( f(x) = \dfrac{2}{9}x \) for \( 0 \le x \le 3 \), zero otherwise.</p>
+      <p><strong>a</strong> Find the mean and variance of this population.</p>
+      <p><strong>b</strong> Find an estimate of the probability that the mean of the 40 observations is more than 2.10.</p>
+      <p class="translation">Плотность \(f(x) = \tfrac{2}{9}x\) на \([0,3]\). 40 наблюдений. <strong>a</strong> мат.ожидание и дисперсия. <strong>b</strong> \(P(\overline{X} &gt; 2.10)\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>a)</strong> Считаем моменты:</p>
+      \[ \mathrm{E}(X) = \int_{0}^{3} x \cdot \frac{2}{9}x\,dx = \frac{2}{9}\cdot\frac{x^{3}}{3}\bigg|_{0}^{3} = \frac{2}{9}\cdot 9 = 2 \]
+      \[ \mathrm{E}(X^{2}) = \int_{0}^{3} x^{2}\cdot\frac{2}{9}x\,dx = \frac{2}{9}\cdot\frac{x^{4}}{4}\bigg|_{0}^{3} = \frac{2}{9}\cdot\frac{81}{4} = \frac{9}{2} = 4.5 \]
+      \[ \mathrm{Var}(X) = 4.5 - 2^{2} = 0.5 \]
+
+      <p><strong>b)</strong> По ЦПТ \( \overline{X} \approx \mathrm{N}(2,\ 0.5/40) \), SE \( = \sqrt{0.0125} \approx 0.1118 \).</p>
+      \[ z = \frac{2.10 - 2}{0.1118} \approx 0.894 \]
+      \[ P(\overline{X} &gt; 2.10) \approx 1 - \Phi(0.89) = 1 - 0.8133 = 0.1867 \]
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } \mu = 2,\ \sigma^{2} = 0.5 \qquad \text{b) } \approx 0.1867} \]</div>
+  </section>
+
+  <!-- CLT 5 -->
+  <section class="problem">
+    <h2>CLT — Problem 5</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A fair die is rolled 35 times. <strong>a</strong> Find the approximate probability that the mean of the 35 scores is more than 4. <strong>b</strong> Find the approximate probability that the total of the 35 scores is less than 100.</p>
+      <p class="translation">Кубик 35 бросков. <strong>a</strong> \(P(\overline{X} &gt; 4)\). <strong>b</strong> \(P(T &lt; 100)\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>Для кубика: \( \mu = 3.5 \), \( \sigma^{2} = \dfrac{6^{2}-1}{12} = \dfrac{35}{12} \approx 2.9167 \).</p>
+      <p><strong>a)</strong> \( \overline{X} \approx \mathrm{N}(3.5,\ 35/(12\cdot35)) = \mathrm{N}(3.5,\ 1/12) \), SE \( \approx 0.2887 \).</p>
+      \[ z = \frac{4 - 3.5}{0.2887} \approx 1.732, \quad P(\overline{X} &gt; 4) \approx 1 - \Phi(1.73) = 1 - 0.9582 = 0.0418 \]
+
+      <p><strong>b)</strong> \( T \approx \mathrm{N}(35\cdot 3.5,\ 35\cdot 35/12) = \mathrm{N}(122.5,\ 102.083) \), SD ≈ 10.10.</p>
+      \[ z = \frac{100 - 122.5}{10.10} \approx -2.227, \quad P(T &lt; 100) \approx 1 - \Phi(2.23) = 0.0129 \]
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } \approx 0.0418 \qquad \text{b) } \approx 0.0129} \]</div>
+  </section>
+
+  <!-- CLT 6 -->
+  <section class="problem">
+    <h2>CLT — Problem 6</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The 25 children in a class each roll a fair die 30 times and record the number of sixes they obtain. Find an estimate of the probability that the mean number of sixes recorded for the class is less than 4.5.</p>
+      <p class="translation">25 детей × 30 бросков, считают шестёрки. \(P(\overline{X} &lt; 4.5)\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>Для одного ребёнка: число шестёрок \( Y \sim \mathrm{B}(30,\ 1/6) \), \( \mathrm{E}(Y) = 5 \), \( \mathrm{Var}(Y) = 30\cdot\tfrac{1}{6}\cdot\tfrac{5}{6} = \tfrac{25}{6} \).</p>
+      <p>По ЦПТ \( \overline{Y} \approx \mathrm{N}(5,\ (25/6)/25) = \mathrm{N}(5,\ 1/6) \), SE \( \approx 0.4082 \).</p>
+      \[ z = \frac{4.5 - 5}{0.4082} \approx -1.225, \quad P(\overline{Y} &lt; 4.5) \approx 1 - \Phi(1.22) = 0.1112 \]
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\approx 0.1112} \]</div>
+  </section>
+
+  <!-- CLT 7 -->
+  <section class="problem">
+    <h2>CLT — Problem 7</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The error in mm made in measuring the length of a table has a uniform distribution over the range \([-5,\ 5]\). The table is measured 20 times. Find an estimate of the probability that the mean error is less than \(-1\) mm.</p>
+      <p class="translation">Ошибка ~ Uniform([-5,5]), 20 измерений, \(P(\overline{X} &lt; -1)\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>Для равномерного на \([a,b]\): \( \mu = 0 \), \( \sigma^{2} = (b-a)^{2}/12 = 100/12 = 25/3 \).</p>
+      <p>\( \overline{X} \approx \mathrm{N}(0,\ (25/3)/20) = \mathrm{N}(0,\ 5/12) \), SE \( \approx 0.6455 \).</p>
+      \[ z = \frac{-1 - 0}{0.6455} \approx -1.549, \quad P(\overline{X} &lt; -1) \approx 1 - \Phi(1.55) = 0.0606 \]
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\approx 0.0606} \]</div>
+  </section>
+
+  <!-- CLT 8 -->
+  <section class="problem">
+    <h2>CLT — Problem 8</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Telephone calls arrive at an exchange at an average rate of two per minute. Over a period of 30 days a telephonist records the number of calls that arrive in the five-minute period before her break.</p>
+      <p><strong>a</strong> Find an approximation for the probability that the total number of calls recorded is more than 350.</p>
+      <p><strong>b</strong> Estimate the probability that the mean number of calls in the five-minute interval is less than 9.0.</p>
+      <p class="translation">Звонки 2/мин, за 5 мин в среднем 10. 30 дней. <strong>a</strong> \(P(T &gt; 350)\). <strong>b</strong> \(P(\overline{X} &lt; 9)\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>Каждый день \( X_{i} \sim \mathrm{Po}(10) \): \( \mu = 10 \), \( \sigma^{2} = 10 \).</p>
+      <p><strong>a)</strong> Сумма \( T \approx \mathrm{N}(300,\ 300) \), SD \( \approx 17.32 \).</p>
+      \[ z = \frac{350 - 300}{17.32} \approx 2.887, \quad P(T &gt; 350) \approx 1 - \Phi(2.89) = 0.0019 \]
+
+      <p><strong>b)</strong> \( \overline{X} \approx \mathrm{N}(10,\ 10/30) = \mathrm{N}(10,\ 1/3) \), SE \( \approx 0.5774 \).</p>
+      \[ z = \frac{9 - 10}{0.5774} \approx -1.732, \quad P(\overline{X} &lt; 9) \approx 1 - \Phi(1.73) = 0.0418 \]
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } \approx 0.0019 \qquad \text{b) } \approx 0.0418} \]</div>
+  </section>
+
+  <!-- CLT 9 -->
+  <section class="problem">
+    <h2>CLT — Problem 9</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>How many times must a fair die be rolled in order for there to be a less than 1% chance that the mean of all the scores differs from 3.5 by more than 0.1?</p>
+      <p class="translation">Сколько бросков нужно, чтобы \(P(|\overline{X} - 3.5| &gt; 0.1) &lt; 1\%\)?</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\( \mu = 3.5 \), \( \sigma^{2} = 35/12 \). По ЦПТ \( \overline{X} \approx \mathrm{N}(3.5,\ \tfrac{35}{12n}) \), SE \( = \sqrt{\tfrac{35}{12n}} \).</p>
+      \[ P(|\overline{X} - 3.5| &gt; 0.1) = 2\bigl(1 - \Phi(0.1/\mathrm{SE})\bigr) &lt; 0.01 \]
+      \[ \Phi(0.1/\mathrm{SE}) &gt; 0.995 \;\Rightarrow\; \frac{0.1}{\mathrm{SE}} &gt; 2.5758 \;\Rightarrow\; \mathrm{SE} &lt; 0.03882 \]
+      \[ \frac{35}{12n} &lt; 0.001507 \;\Rightarrow\; n &gt; \frac{35}{12\cdot 0.001507} \approx 1935.5 \]
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{n \ge 1936} \]</div>
+  </section>
+
+  <!-- CLT 10 -->
+  <section class="problem">
+    <h2>CLT — Problem 10</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Heights of women: mean 175 cm, sd 2.5 cm. Heights of men: mean 177 cm, sd 2.0 cm. Samples of 40 women and 50 men are taken. Find the probability that the mean height of the men is more than 3 cm greater than the mean height of the women.</p>
+      <p class="translation">Женщины: 175/2.5, n=40. Мужчины: 177/2.0, n=50. \(P(\overline{X}_{м} - \overline{X}_{ж} &gt; 3)\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>Разность \( D = \overline{X}_{м} - \overline{X}_{ж} \):</p>
+      \[ \mathrm{E}(D) = 177 - 175 = 2, \quad \mathrm{Var}(D) = \frac{2.0^{2}}{50} + \frac{2.5^{2}}{40} = 0.08 + 0.15625 = 0.23625 \]
+      \[ \mathrm{SD}(D) \approx 0.486, \quad z = \frac{3 - 2}{0.486} \approx 2.058 \]
+      \[ P(D &gt; 3) \approx 1 - \Phi(2.06) = 1 - 0.9803 = 0.0197 \]
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\approx 0.0197} \]</div>
+  </section>
+
+  <!-- CLT 11 -->
+  <section class="problem">
+    <h2>CLT — Problem 11</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A computer rounds numbers to the nearest integer; rounding errors are independent and uniform on \([-0.5,\ 0.5]\).</p>
+      <p><strong>a</strong> Given that 1000 numbers are added, find the probability that the total error is greater than \(+10\).</p>
+      <p><strong>b</strong> Find how many numbers can be added together so that the probability that the magnitude of the total error is less than 10 is at least 0.95.</p>
+      <p class="translation">Ошибки ~ Uniform([-0.5,0.5]). <strong>a</strong> 1000 чисел, \(P(T &gt; 10)\). <strong>b</strong> Сколько чисел можно сложить, чтобы \(P(|T|&lt;10) \ge 0.95\)?</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\( \mu = 0 \), \( \sigma^{2} = 1/12 \).</p>
+      <p><strong>a)</strong> \( T \approx \mathrm{N}(0,\ 1000/12) \), SD \( = \sqrt{1000/12} \approx 9.129 \).</p>
+      \[ z = \frac{10 - 0}{9.129} \approx 1.0955, \quad P(T &gt; 10) \approx 1 - \Phi(1.10) = 0.1357 \]
+
+      <p><strong>b)</strong> \( T \approx \mathrm{N}(0,\ n/12) \). Нужно \( P(|T| &lt; 10) \ge 0.95 \):</p>
+      \[ 2\Phi\!\left(\frac{10}{\sqrt{n/12}}\right) - 1 \ge 0.95 \;\Rightarrow\; \Phi\!\left(\frac{10}{\sqrt{n/12}}\right) \ge 0.975 \]
+      \[ \frac{10}{\sqrt{n/12}} \ge 1.96 \;\Rightarrow\; \sqrt{n/12} \le \frac{10}{1.96} = 5.102 \]
+      \[ n \le 12 \cdot 5.102^{2} \approx 312.4 \;\Rightarrow\; n \le 312 \]
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } \approx 0.1357 \qquad \text{b) } n \le 312} \]</div>
+  </section>
+
+  <!-- CLT 12 -->
+  <section class="problem">
+    <h2>CLT — Problem 12</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>An electrical company repairs very large numbers of television sets and wishes to estimate the mean time taken to repair a particular fault. The standard deviation of the repair time is 2.5 minutes. The manager wishes to ensure that the probability that the estimate differs from the true mean by less than 30 seconds is 0.95. Find how large a sample is required.</p>
+      <p class="translation">σ = 2.5 мин. Нужно \(P(|\overline{X}-\mu| &lt; 0.5) = 0.95\). Найти \(n\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>30 секунд = 0.5 мин. По ЦПТ \( \overline{X} \approx \mathrm{N}(\mu,\ 2.5^{2}/n) \).</p>
+      \[ P(|\overline{X} - \mu| &lt; 0.5) = 2\Phi\!\left(\frac{0.5\sqrt{n}}{2.5}\right) - 1 = 0.95 \]
+      \[ \Phi(0.2\sqrt{n}) = 0.975 \;\Rightarrow\; 0.2\sqrt{n} = 1.96 \;\Rightarrow\; \sqrt{n} = 9.8 \;\Rightarrow\; n = 96.04 \]
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{n \ge 97} \]</div>
+  </section>
+
+  <h2 style="margin-top:3em;">Часть 2. Confidence Intervals <span class="en" style="font-weight:400;color:var(--muted);font-style:italic;font-size:0.7em;">(Доверительные интервалы)</span></h2>
+
+  <!-- CI 1 -->
+  <section class="problem">
+    <h2>CI — Problem 1</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A random sample of size 9 is taken from a normal distribution with variance 36. The sample mean is 128. <strong>a</strong> Find a 95% confidence interval for \( \mu \). <strong>b</strong> Find a 99% confidence interval for \( \mu \).</p>
+      <p class="translation">\(n=9\), \(\sigma^{2}=36\), \(\overline{x}=128\). <strong>a</strong> 95% CI; <strong>b</strong> 99% CI.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\( \sigma = 6 \), SE \( = 6/3 = 2 \).</p>
+      <p><strong>a)</strong> \( z = 1.96 \): \( 128 \pm 1.96\cdot 2 = 128 \pm 3.92 = (124.08,\ 131.92) \).</p>
+      <p><strong>b)</strong> \( z = 2.5758 \): \( 128 \pm 2.5758\cdot 2 = 128 \pm 5.15 = (122.85,\ 133.15) \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } (124.08,\ 131.92) \qquad \text{b) } (122.85,\ 133.15)} \]</div>
+  </section>
+
+  <!-- CI 2 -->
+  <section class="problem">
+    <h2>CI — Problem 2</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A random sample of size 25 is taken from a normal distribution with standard deviation 4. The sample mean is 85. <strong>a</strong> 90% CI for \( \mu \). <strong>b</strong> 95% CI.</p>
+      <p class="translation">\(n=25\), \(\sigma=4\), \(\overline{x}=85\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>SE \( = 4/5 = 0.8 \).</p>
+      <p><strong>a)</strong> \( z = 1.6449 \): \( 85 \pm 1.316 = (83.68,\ 86.32) \).</p>
+      <p><strong>b)</strong> \( z = 1.96 \): \( 85 \pm 1.568 = (83.43,\ 86.57) \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } (83.68,\ 86.32) \qquad \text{b) } (83.43,\ 86.57)} \]</div>
+  </section>
+
+  <!-- CI 3 -->
+  <section class="problem">
+    <h2>CI — Problem 3</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A normal distribution has mean \( \mu \) and variance 4.41. A random sample: 23.1, 21.8, 24.6, 22.5. Find 98% confidence limits for \( \mu \).</p>
+      <p class="translation">\(\sigma^{2}=4.41\), выборка из 4 значений. 98% CI.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\( \overline{x} = (23.1+21.8+24.6+22.5)/4 = 92.0/4 = 23.0 \). \( \sigma = 2.1 \), SE \( = 2.1/2 = 1.05 \).</p>
+      <p>\( z = 2.3263 \): \( 23.0 \pm 2.3263\cdot 1.05 = 23.0 \pm 2.443 = (20.56,\ 25.44) \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{(20.56,\ 25.44)} \]</div>
+  </section>
+
+  <!-- CI 4 -->
+  <section class="problem">
+    <h2>CI — Problem 4</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A normal distribution has standard deviation 15. Estimate the sample size required so that confidence intervals for \( \mu \) have width less than 2. <strong>a</strong> 90%, <strong>b</strong> 95%, <strong>c</strong> 99%.</p>
+      <p class="translation">\(\sigma=15\). Найти \(n\) для CI с шириной &lt; 2.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>Полная ширина \( w = 2z\sigma/\sqrt{n} &lt; 2 \Rightarrow z\sigma/\sqrt{n} &lt; 1 \Rightarrow n &gt; (15z)^{2} = 225z^{2} \).</p>
+      <p><strong>a)</strong> \( z = 1.6449 \): \( n &gt; 225 \cdot 2.7057 = 608.78 \Rightarrow n \ge 609 \).</p>
+      <p><strong>b)</strong> \( z = 1.96 \): \( n &gt; 225 \cdot 3.8416 = 864.36 \Rightarrow n \ge 865 \).</p>
+      <p><strong>c)</strong> \( z = 2.5758 \): \( n &gt; 225 \cdot 6.6347 = 1492.8 \Rightarrow n \ge 1493 \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } 609 \quad \text{b) } 865 \quad \text{c) } 1493} \]</div>
+  </section>
+
+  <!-- CI 5 -->
+  <section class="problem">
+    <h2>CI — Problem 5</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Repeat Question 4 for a normal distribution with standard deviation 2.4 and a desired width of less than 0.8.</p>
+      <p class="translation">\(\sigma=2.4\), ширина &lt; 0.8.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\( w = 2z\sigma/\sqrt{n} &lt; 0.8 \Rightarrow z\sigma/\sqrt{n} &lt; 0.4 \Rightarrow n &gt; (2.4z/0.4)^{2} = 36z^{2} \).</p>
+      <p><strong>a)</strong> 90%: \( n &gt; 36\cdot 2.7057 = 97.4 \Rightarrow n \ge 98 \).</p>
+      <p><strong>b)</strong> 95%: \( n &gt; 36\cdot 3.8416 = 138.3 \Rightarrow n \ge 139 \).</p>
+      <p><strong>c)</strong> 99%: \( n &gt; 36\cdot 6.6347 = 238.85 \Rightarrow n \ge 239 \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } 98 \quad \text{b) } 139 \quad \text{c) } 239} \]</div>
+  </section>
+
+  <!-- CI 6 -->
+  <section class="problem">
+    <h2>CI — Problem 6</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Standard deviation 0.70 kg. Sample of 100 chickens, \( \sum x = 190.2 \). 95% CI for \( \mu \).</p>
+      <p class="translation">\(\sigma=0.70\), \(n=100\), \(\sum x = 190.2\). 95% CI.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\( \overline{x} = 190.2/100 = 1.902 \), SE \( = 0.70/10 = 0.07 \).</p>
+      <p>\( z = 1.96 \): \( 1.902 \pm 1.96\cdot 0.07 = 1.902 \pm 0.137 = (1.765,\ 2.039) \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{(1.765,\ 2.039) \text{ кг}} \]</div>
+  </section>
+
+  <!-- CI 7 -->
+  <section class="problem">
+    <h2>CI — Problem 7</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Standard deviation 50 seconds. Sample of 200 trains, mean 310. 90% CI.</p>
+      <p class="translation">\(\sigma=50\) сек, \(n=200\), \(\overline{x}=310\). 90% CI.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>SE \( = 50/\sqrt{200} \approx 3.536 \). \( z = 1.6449 \).</p>
+      <p>\( 310 \pm 1.6449\cdot 3.536 = 310 \pm 5.816 = (304.18,\ 315.82) \) секунд.</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{(304.18,\ 315.82) \text{ сек}} \]</div>
+  </section>
+
+  <!-- CI 8 -->
+  <section class="problem">
+    <h2>CI — Problem 8</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Standard deviation 15 000 km. Sample of 80 lorries, mean 75 872 km. 90% CI.</p>
+      <p class="translation">\(\sigma=15000\), \(n=80\), \(\overline{x}=75\,872\). 90% CI.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>SE \( = 15000/\sqrt{80} \approx 1677.05 \). \( z = 1.6449 \).</p>
+      <p>\( 75872 \pm 1.6449\cdot 1677 \approx 75872 \pm 2759 = (73113,\ 78631) \) км.</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{(73\,113,\ 78\,631) \text{ км}} \]</div>
+  </section>
+
+  <!-- CI 9 -->
+  <section class="problem">
+    <h2>CI — Problem 9</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Each year the standard deviation of marks in a certain examination is 13.5 but the mean \( \mu \) fluctuates. An examiner has marks of a sample of 250 candidates with sample mean 68.4.</p>
+      <p><strong>a</strong> What assumption must be made? <strong>b</strong> Compute the 95% CI for \( \mu \). <strong>c</strong> The actual \( \mu \) was 65.3. What conclusion?</p>
+      <p class="translation">\(\sigma=13.5\), \(n=250\), \(\overline{x}=68.4\). <strong>a</strong> Какое допущение? <strong>b</strong> 95% CI. <strong>c</strong> Реальное \(\mu=65.3\), вывод.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>a)</strong> Допущение: выборка является <strong>случайной</strong> (<em>random sample</em>) — то есть представительна для всей популяции экзаменующихся.</p>
+      <p><strong>b)</strong> SE \( = 13.5/\sqrt{250} \approx 0.854 \). \( z = 1.96 \):</p>
+      \[ 68.4 \pm 1.96 \cdot 0.854 = 68.4 \pm 1.674 = (66.73,\ 70.07) \]
+      <p><strong>c)</strong> Истинное \( \mu = 65.3 \) <strong>не попадает</strong> в 95% CI (66.73, 70.07). Вывод: выборка, скорее всего, <strong>не была случайной</strong> — есть систематическая ошибка (например, выбраны более сильные кандидаты).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) случайная выборка} \quad \text{b) } (66.73,\ 70.07) \quad \text{c) выборка не случайна}} \]</div>
+  </section>
+
+  <!-- CI 11 -->
+  <section class="problem">
+    <h2>CI — Problem 11</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Two intervals were calculated (one 95% and one 99%), unlabelled: \( (22.7,\ 27.3) \) and \( (23.2,\ 26.8) \).</p>
+      <p><strong>a</strong> Which is the 95% interval, and why? <strong>b</strong> Estimate the standard error. <strong>c</strong> Estimate \( \overline{x} \).</p>
+      <p class="translation">Два интервала, какой 95%, найти SE и \(\overline{x}\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>a)</strong> Чем выше уровень доверия, тем <strong>шире</strong> интервал. Ширины: \(27.3 - 22.7 = 4.6\) и \(26.8 - 23.2 = 3.6\). 95% — более узкий, значит <strong>\((23.2,\ 26.8)\)</strong> — это 95% CI.</p>
+      <p><strong>b)</strong> Из 95%: полуширина \( 1.96\cdot\mathrm{SE} = 1.8 \Rightarrow \mathrm{SE} = 1.8/1.96 \approx 0.918 \).</p>
+      <p><strong>c)</strong> \( \overline{x} \) — середина любого интервала: \( (22.7 + 27.3)/2 = 25 \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } (23.2,\ 26.8) \quad \text{b) SE} \approx 0.92 \quad \text{c) } \overline{x} = 25} \]</div>
+  </section>
+
+  <!-- CI 12 -->
+  <section class="problem">
+    <h2>CI — Problem 12</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A 95% CI for \( \mu \) is \( 85.3 \pm 2.35 \). Find <strong>a</strong> 90% CI, <strong>b</strong> 98% CI, <strong>c</strong> 99% CI.</p>
+      <p class="translation">95% CI: \(85.3 \pm 2.35\). Пересчитать на 90, 98, 99%.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>Из 95%: \( 1.96\cdot\mathrm{SE} = 2.35 \Rightarrow \mathrm{SE} = 1.199 \).</p>
+      <p><strong>a)</strong> 90%: \( 85.3 \pm 1.6449\cdot 1.199 = 85.3 \pm 1.972 \approx (83.33,\ 87.27) \).</p>
+      <p><strong>b)</strong> 98%: \( 85.3 \pm 2.3263\cdot 1.199 \approx 85.3 \pm 2.79 = (82.51,\ 88.09) \).</p>
+      <p><strong>c)</strong> 99%: \( 85.3 \pm 2.5758\cdot 1.199 \approx 85.3 \pm 3.09 = (82.21,\ 88.39) \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } 85.3 \pm 1.97 \quad \text{b) } 85.3 \pm 2.79 \quad \text{c) } 85.3 \pm 3.09} \]</div>
+  </section>
+
+  <!-- CI 13 -->
+  <section class="problem">
+    <h2>CI — Problem 13</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>\( n=100 \), 95% CI is \( (£128.14,\ £141.86) \). The director wants total width £10.</p>
+      <p><strong>a</strong> Using same \( \overline{x} \), find limits for width £10. <strong>b</strong> Find the confidence level for these limits. <strong>c</strong> Find smallest \( n \) for 95% CI with width \( \le £10 \).</p>
+      <p class="translation">95% CI \( = (128.14,\ 141.86) \). Хотим ширину £10.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>\( \overline{x} = (128.14+141.86)/2 = 135 \). Из 95%: \(1.96\cdot\mathrm{SE} = 6.86 \Rightarrow \mathrm{SE} = 3.5 \). Значит \( \sigma = 3.5\cdot\sqrt{100} = 35 \).</p>
+      <p><strong>a)</strong> Полуширина = £5, лимиты: \( (130,\ 140) \).</p>
+      <p><strong>b)</strong> \( z\cdot 3.5 = 5 \Rightarrow z = 1.4286 \). \( \Phi(1.43) = 0.9236 \). Уровень доверия:</p>
+      \[ 2\cdot 0.9236 - 1 = 0.8472 \approx 84.7\% \]
+      <p><strong>c)</strong> \( 1.96\cdot 35/\sqrt{n} \le 5 \Rightarrow \sqrt{n} \ge 13.72 \Rightarrow n \ge 188.24 \Rightarrow n \ge 189 \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } (130,\ 140) \quad \text{b) } \approx 84.7\% \quad \text{c) } n \ge 189} \]</div>
+  </section>
+
+  <!-- CI 14 -->
+  <section class="problem">
+    <h2>CI — Problem 14</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>\( \sigma=2.4 \) kg, \( n=36 \), \( \overline{x}=31.4 \). 99% CI.</p>
+      <p class="translation">99% CI.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>SE \( = 2.4/6 = 0.4 \). \( z = 2.5758 \): \( 31.4 \pm 2.5758\cdot 0.4 = 31.4 \pm 1.030 = (30.37,\ 32.43) \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{(30.37,\ 32.43) \text{ кг}} \]</div>
+  </section>
+
+  <!-- CI 15 -->
+  <section class="problem">
+    <h2>CI — Problem 15</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>\( \sigma=20 \) ml, \( n=40 \), \( \overline{x}=266 \). 99% CI.</p>
+      <p class="translation">99% CI.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>SE \( = 20/\sqrt{40} \approx 3.1623 \). \( z = 2.5758 \): \( 266 \pm 2.5758\cdot 3.1623 \approx 266 \pm 8.145 = (257.85,\ 274.15) \).</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{(257.85,\ 274.15) \text{ мл}} \]</div>
+  </section>
+
+  <!-- CI 16 -->
+  <section class="problem">
+    <h2>CI — Problem 16</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The error in measuring body length is \( \mathrm{N}(0,\ 1^{2}) \) mm.</p>
+      <p><strong>a</strong> Find \( P(|\text{error}| &lt; 0.4) \). <strong>b</strong> With 9 measurements, \( P(|\overline{X} - \text{true}| &lt; 0.5) \). <strong>c</strong> Given mean of 9 readings is 22.53 mm, find 98% CI for true length.</p>
+      <p class="translation">Ошибка ~ N(0, 1²). <strong>a</strong> \(P(|err|&lt;0.4)\). <strong>b</strong> n=9, \(P(|\overline{X} - \text{true}| &lt; 0.5)\). <strong>c</strong> 98% CI.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>a)</strong> \( P(|Z| &lt; 0.4) = 2\Phi(0.4) - 1 = 2\cdot 0.6554 - 1 = 0.3108 \approx 0.311 \).</p>
+      <p><strong>b)</strong> Среднее 9 ошибок ~ \( \mathrm{N}(0,\ 1/9) \), SD \(=1/3\).</p>
+      \[ P(|\overline{X}| &lt; 0.5) = 2\Phi(0.5\cdot 3) - 1 = 2\Phi(1.5) - 1 = 2\cdot 0.9332 - 1 = 0.8664 \approx 0.866 \]
+      <p><strong>c)</strong> SE \( = 1/3 \approx 0.3333 \). \( z = 2.3263 \): \( 22.53 \pm 2.3263/3 \approx 22.53 \pm 0.775 = (21.75,\ 23.31) \) мм.</p>
+    </div>
+    <div class="answer"><h3>Ответ</h3>\[ \boxed{\text{a) } 0.311 \quad \text{b) } 0.866 \quad \text{c) } (21.75,\ 23.31)} \]</div>
+  </section>
+
+</main>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

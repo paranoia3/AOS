@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Correlation &amp; Regression — Notes</title>
+<script>try{if(localStorage.getItem('ps-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="../assets/style.css">
+<script>
+  window.MathJax = {
+    tex: { inlineMath:[['\\(','\\)'],['$','$']], displayMath:[['\\[','\\]'],['$$','$$']], processEscapes:true, tags:'none' },
+    svg: { fontCache:'global' },
+    options: { skipHtmlTags:['script','noscript','style','textarea','pre','code'] }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+</head>
+<body data-page="notes" data-topic="PS10">
+
+<main>
+  <h1>Correlation &amp; Regression <span class="ru-subtitle">(Корреляция и регрессия)</span></h1>
+
+  <h2>When to use it</h2>
+  <p>Эта тема — про связь между двумя переменными по выборке пар \( (x_{i},\ y_{i}) \).</p>
+  <ul>
+    <li><strong>Корреляция</strong> (<em>correlation</em>) измеряет, насколько <strong>линейно</strong> связаны \(x\) и \(y\), через коэффициент <strong>PMCC</strong> (<em>product moment correlation coefficient</em>) \(r\).</li>
+    <li><strong>Регрессия</strong> (<em>regression</em>) — построение прямой \( y = a + bx \), которая лучше всего описывает данные, чтобы прогнозировать \(y\) по \(x\).</li>
+  </ul>
+  <p>Ключевые слова в условии:</p>
+  <ul>
+    <li>«<em>calculate / interpret the product moment correlation coefficient</em>» → корреляция;</li>
+    <li>«<em>find the equation of the regression line of y on x</em>», «<em>estimate / predict y when x = …</em>» → регрессия;</li>
+    <li>«<em>using the coding p = (x − a)/b</em>» — упрощение вычислений; \(r\) при кодировании не меняется;</li>
+    <li>«<em>describe the correlation</em>» — словесная интерпретация (positive / negative / no / strong / weak).</li>
+  </ul>
+
+  <h2>Definitions</h2>
+
+  <div class="definition">
+    <p><strong>Диаграмма рассеяния</strong> (<em>scatter diagram</em>) — точки \((x_{i},\ y_{i})\) на плоскости. По форме облака судят о наличии и характере связи.</p>
+  </div>
+
+  <div class="definition">
+    <p><strong>Положительная корреляция</strong> (<em>positive correlation</em>) — \(y\) растёт с ростом \(x\) (точки в I и III квадрантах). <strong>Отрицательная</strong> (<em>negative</em>) — \(y\) убывает с ростом \(x\) (II и IV квадранты). <strong>Нет корреляции</strong> (<em>no correlation</em>) — точки во всех четырёх квадрантах без чёткого тренда.</p>
+  </div>
+
+  <div class="definition">
+    <p><strong>Коэффициент корреляции PMCC</strong> (<em>product moment correlation coefficient</em>) \(r\) — число от \(-1\) до \(+1\), измеряющее силу и направление линейной связи: \(r = +1\) — точная положительная прямая; \(r = -1\) — точная отрицательная прямая; \(r = 0\) — линейная связь отсутствует.</p>
+  </div>
+
+  <div class="definition">
+    <p><strong>Независимая переменная</strong> (<em>independent / explanatory variable</em>) — \(x\), задаётся / контролируется. <strong>Зависимая</strong> (<em>dependent / response variable</em>) — \(y\), её значения определяются \(x\). <strong>Регрессия \(y\) на \(x\)</strong> — прямая \( y = a + bx \), минимизирующая сумму квадратов отклонений.</p>
+  </div>
+
+  <div class="definition">
+    <p><strong>Интерполяция</strong> (<em>interpolation</em>) — предсказание внутри диапазона данных (обычно надёжно). <strong>Экстраполяция</strong> (<em>extrapolation</em>) — за пределами диапазона (ненадёжно).</p>
+  </div>
+
+  <h2>Key formulas</h2>
+
+  <div class="key-formula">
+    <span class="label">Формула 1 — Суммы</span>
+    \[ S_{xx} = \sum (x - \bar{x})^{2} = \sum x^{2} - \frac{(\sum x)^{2}}{n} \]
+    \[ S_{yy} = \sum y^{2} - \frac{(\sum y)^{2}}{n}, \qquad S_{xy} = \sum xy - \frac{\sum x \sum y}{n} \]
+    <div class="caption">Базовые величины, через которые считаются \(r\) и регрессия</div>
+  </div>
+
+  <div class="key-formula">
+    <span class="label">Формула 2 — PMCC</span>
+    \[ r = \frac{S_{xy}}{\sqrt{S_{xx}\cdot S_{yy}}} \]
+    <div class="caption">Коэффициент корреляции, \(-1 \le r \le 1\)</div>
+  </div>
+
+  <div class="key-formula">
+    <span class="label">Формула 3 — Линия регрессии</span>
+    \[ y = a + bx, \qquad b = \frac{S_{xy}}{S_{xx}}, \qquad a = \bar{y} - b\bar{x} \]
+    <div class="caption">Прямая «\(y\) на \(x\)», \(b\) — угловой коэффициент, \(a\) — отрезок на оси \(y\)</div>
+  </div>
+
+  <div class="key-formula">
+    <span class="label">Формула 4 — Кодирование</span>
+    \[ \text{Если } p = \frac{x - a_{0}}{b_{0}},\ q = \frac{y - c_{0}}{d_{0}}, \quad \text{то } r_{xy} = r_{pq} \]
+    <div class="caption">Линейное кодирование не меняет \(r\). Для регрессии — подставляем коды обратно</div>
+  </div>
+
+  <h2>Interpretation of r</h2>
+  <table>
+    <tr><th>\(|r|\)</th><th>Сила связи</th></tr>
+    <tr><td>\(0.0\text{–}0.3\)</td><td>слабая (weak)</td></tr>
+    <tr><td>\(0.3\text{–}0.7\)</td><td>умеренная (moderate)</td></tr>
+    <tr><td>\(0.7\text{–}1.0\)</td><td>сильная (strong)</td></tr>
+  </table>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Три типа корреляции">
+      <!-- Positive -->
+      <g transform="translate(0,0)">
+        <line class="axis" x1="20" y1="200" x2="190" y2="200"/>
+        <line class="axis" x1="20" y1="200" x2="20" y2="30"/>
+        <g class="point" fill="var(--accent)">
+          <circle cx="40" cy="190" r="3"/><circle cx="55" cy="178" r="3"/><circle cx="75" cy="170" r="3"/><circle cx="95" cy="150" r="3"/><circle cx="110" cy="135" r="3"/><circle cx="130" cy="115" r="3"/><circle cx="150" cy="95" r="3"/><circle cx="170" cy="70" r="3"/>
+        </g>
+        <text class="label" x="105" y="225" text-anchor="middle">Positive (r &gt; 0)</text>
+      </g>
+      <!-- No correlation -->
+      <g transform="translate(200,0)">
+        <line class="axis" x1="20" y1="200" x2="190" y2="200"/>
+        <line class="axis" x1="20" y1="200" x2="20" y2="30"/>
+        <g class="point" fill="var(--accent)">
+          <circle cx="40" cy="80" r="3"/><circle cx="55" cy="160" r="3"/><circle cx="80" cy="100" r="3"/><circle cx="100" cy="170" r="3"/><circle cx="115" cy="60" r="3"/><circle cx="135" cy="130" r="3"/><circle cx="155" cy="90" r="3"/><circle cx="175" cy="150" r="3"/>
+        </g>
+        <text class="label" x="105" y="225" text-anchor="middle">No (r ≈ 0)</text>
+      </g>
+      <!-- Negative -->
+      <g transform="translate(400,0)">
+        <line class="axis" x1="20" y1="200" x2="190" y2="200"/>
+        <line class="axis" x1="20" y1="200" x2="20" y2="30"/>
+        <g class="point" fill="var(--accent)">
+          <circle cx="40" cy="60" r="3"/><circle cx="60" cy="80" r="3"/><circle cx="80" cy="100" r="3"/><circle cx="100" cy="120" r="3"/><circle cx="120" cy="140" r="3"/><circle cx="140" cy="155" r="3"/><circle cx="160" cy="175" r="3"/><circle cx="175" cy="190" r="3"/>
+        </g>
+        <text class="label" x="105" y="225" text-anchor="middle">Negative (r &lt; 0)</text>
+      </g>
+    </svg>
+    <figcaption>Рис. 1. Положительная, отсутствующая и отрицательная корреляция на диаграммах рассеяния.</figcaption>
+  </figure>
+
+  <h2>How to use it (step by step)</h2>
+  <ol>
+    <li><strong>Считаем суммы:</strong> \(\sum x,\ \sum y,\ \sum x^{2},\ \sum y^{2},\ \sum xy\) (либо берём их из условия / упрощаем кодированием).</li>
+    <li><strong>Считаем</strong> \(S_{xx},\ S_{yy},\ S_{xy}\) по Формуле 1.</li>
+    <li><strong>Корреляция:</strong> \(r = \dfrac{S_{xy}}{\sqrt{S_{xx}S_{yy}}}\); интерпретируй знак и величину.</li>
+    <li><strong>Регрессия \(y\) на \(x\):</strong> \(b = S_{xy}/S_{xx}\), \(a = \bar{y} - b\bar{x}\); запиши \(y = a + bx\).</li>
+    <li><strong>Кодирование:</strong> для \(r\) — переноси прямо; для регрессии — подставь \(x\) и \(y\) обратно в кодовое уравнение и упрости.</li>
+    <li><strong>Прогноз:</strong> подставь нужный \(x\) в \(y = a + bx\). Внутри диапазона данных — надёжно; вне — экстраполяция, ненадёжно.</li>
+  </ol>
+
+  <h2>Common mistakes</h2>
+  <div class="note">
+    <ul>
+      <li><strong>Корреляция ≠ причинность.</strong> \(r\) близкое к \(\pm 1\) означает только линейную связь, а не что \(x\) вызывает \(y\).</li>
+      <li><strong>Регрессия \(y\) на \(x\) ≠ \(x\) на \(y\).</strong> Это разные прямые, нельзя одну использовать вместо другой.</li>
+      <li><strong>Экстраполяция.</strong> Прогноз вне диапазона \(x\)-данных всегда оговаривай как ненадёжный.</li>
+      <li><strong>Кодирование и регрессия.</strong> \(r\) не меняется при линейном кодировании, но коэффициенты регрессии — меняются. Не забыть перевести назад.</li>
+      <li><strong>Нелинейные тренды.</strong> Малое \(|r|\) не значит, что связи нет — могла быть нелинейная (например, парабола).</li>
+    </ul>
+  </div>
+
+  <h2>Mini example</h2>
+  <p>Пять точек: \( (1,2),\ (2,4),\ (3,5),\ (4,4),\ (5,5) \). Тогда \(n=5\), \(\bar{x}=3\), \(\bar{y}=4\),</p>
+  \[ \sum x = 15,\ \sum y = 20,\ \sum x^{2} = 55,\ \sum y^{2} = 86,\ \sum xy = 66 \]
+  \[ S_{xx} = 55 - \frac{15^{2}}{5} = 10,\quad S_{yy} = 86 - \frac{20^{2}}{5} = 6,\quad S_{xy} = 66 - \frac{15\cdot 20}{5} = 6 \]
+  \[ r = \frac{6}{\sqrt{10\cdot 6}} = \frac{6}{\sqrt{60}} \approx 0.775 \quad (\text{умеренная–сильная положительная}) \]
+  \[ b = \frac{6}{10} = 0.6, \quad a = 4 - 0.6\cdot 3 = 2.2 \;\Rightarrow\; y = 2.2 + 0.6x \]
+</main>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

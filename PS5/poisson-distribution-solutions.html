@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poisson Distribution — Solutions</title>
+
+<!-- MathJax 3 -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(', '\\)'], ['$', '$']],
+      displayMath: [['\\[', '\\]'], ['$$', '$$']],
+      processEscapes: true,
+      tags: 'none'
+    },
+    svg: { fontCache: 'global' },
+    options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<style>
+  :root {
+    --bg: #fafaf7;
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #666;
+    --accent: #2c5f8d;
+    --accent-soft: #eaf2f8;
+    --border: #d8d4cc;
+    --border-soft: #e8e5dd;
+    --warn-bg: #fdf6e3;
+    --warn-border: #d4a373;
+    --def-bg: #f4f7f5;
+    --def-border: #6a9c89;
+    --thm-bg: #f5f3f9;
+    --thm-border: #7a6fa1;
+    --key-bg: #fffefa;
+    --key-border: #1a1a1a;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; background: var(--bg); }
+
+  body {
+    font-family: 'Charter', 'Georgia', 'Cambria', 'Times New Roman', serif;
+    color: var(--ink);
+    line-height: 1.65;
+    font-size: 17px;
+  }
+
+  main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 50px 100px;
+    background: var(--paper);
+    box-shadow: 0 0 40px rgba(0,0,0,0.04);
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0 0 0.3em;
+    padding-bottom: 0.4em;
+    border-bottom: 2px solid var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  h1 .ru-subtitle {
+    display: block;
+    font-size: 0.55em;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 0.3em;
+    letter-spacing: 0;
+  }
+
+  h2 {
+    font-size: 1.4em;
+    font-weight: 700;
+    margin-top: 2.2em;
+    margin-bottom: 0.6em;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  h3 {
+    font-size: 1.1em;
+    font-weight: 700;
+    margin-top: 1.4em;
+    margin-bottom: 0.4em;
+    color: var(--ink);
+  }
+
+  h3 .en {
+    font-weight: 400;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.9em;
+  }
+
+  p { margin: 0.7em 0; }
+
+  ul, ol { padding-left: 1.5em; }
+  li { margin: 0.3em 0; }
+
+  strong { color: var(--ink); }
+  em { color: var(--muted); }
+
+  /* Английские эквиваленты терминов */
+  .en-term {
+    font-style: italic;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* Ключевая формула — главные формулы темы */
+  .key-formula {
+    border: 1.5px solid var(--key-border);
+    background: var(--key-bg);
+    padding: 18px 24px;
+    margin: 1.5em 0;
+    border-radius: 2px;
+    position: relative;
+  }
+  .key-formula .label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--paper);
+    padding: 0 8px;
+    font-size: 0.78em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+  }
+  .key-formula .caption {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9em;
+    margin-top: 0.5em;
+    font-style: italic;
+  }
+
+  /* Определение */
+  .definition {
+    border-left: 4px solid var(--def-border);
+    background: var(--def-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .definition::before {
+    content: "Определение (Definition)";
+    display: block;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--def-border);
+    margin-bottom: 0.4em;
+  }
+
+  /* Теорема / свойство */
+  .theorem {
+    border-left: 4px solid var(--thm-border);
+    background: var(--thm-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .theorem::before {
+    content: "Свойство (Property)";
+    display: block;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--thm-border);
+    margin-bottom: 0.4em;
+  }
+  .theorem.named::before { content: attr(data-label); }
+
+  /* Примечание / важное */
+  .note {
+    border-left: 4px solid var(--warn-border);
+    background: var(--warn-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+  }
+  .note::before {
+    content: "Заметка (Note)";
+    display: block;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--warn-border);
+    margin-bottom: 0.4em;
+  }
+
+  /* --- Стили для файла решений --- */
+
+  .topic-label {
+    color: var(--muted);
+    font-style: italic;
+    margin-top: -0.5em;
+    margin-bottom: 2em;
+  }
+
+  .problem {
+    margin: 3em 0;
+    padding-top: 1em;
+    border-top: 1px solid var(--border-soft);
+  }
+  .problem:first-of-type { border-top: none; }
+
+  .problem h2 {
+    color: var(--accent);
+    border-bottom: none;
+    margin-top: 0.5em;
+  }
+
+  .problem-statement {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 14px 20px;
+    margin: 1em 0 1.5em;
+    border-radius: 0 4px 4px 0;
+  }
+  .problem-statement h3 { margin-top: 0; color: var(--accent); }
+  .problem-statement .translation {
+    margin-top: 0.8em;
+    padding-top: 0.8em;
+    border-top: 1px dashed var(--border);
+    color: var(--muted);
+    font-size: 0.95em;
+  }
+
+  .given, .find, .solution, .answer {
+    margin: 1.2em 0;
+  }
+
+  .answer {
+    border: 1.5px solid var(--ink);
+    padding: 12px 20px;
+    background: var(--key-bg);
+    border-radius: 2px;
+  }
+  .answer h3 { margin-top: 0; }
+
+  /* Таблицы */
+  table {
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.95em;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    text-align: center;
+  }
+  th { background: var(--def-bg); font-weight: 700; }
+
+  /* --- Диаграммы и графики (SVG) --- */
+  figure.diagram {
+    margin: 1.8em auto;
+    text-align: center;
+    max-width: 100%;
+  }
+  figure.diagram svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    overflow: visible;
+  }
+  figure.diagram figcaption {
+    margin-top: 0.8em;
+    font-size: 0.9em;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  /* SVG-классы для согласованного оформления графиков */
+  .diagram .axis        { stroke: var(--ink); stroke-width: 1.4; fill: none; stroke-linecap: round; }
+  .diagram .axis-arrow  { fill: var(--ink); stroke: none; }
+  .diagram .grid        { stroke: var(--border-soft); stroke-width: 0.6; stroke-dasharray: 3 3; }
+  .diagram .curve       { stroke: var(--accent); stroke-width: 2; fill: none; stroke-linejoin: round; }
+  .diagram .curve-alt   { stroke: var(--thm-border); stroke-width: 2; fill: none; stroke-linejoin: round; }
+  .diagram .area        { fill: var(--accent); opacity: 0.22; }
+  .diagram .area-alt    { fill: var(--thm-border); opacity: 0.22; }
+  .diagram .bar         { fill: var(--accent); opacity: 0.55; stroke: var(--accent); stroke-width: 1; }
+  .diagram .bar-hl      { fill: var(--thm-border); opacity: 0.75; stroke: var(--thm-border); stroke-width: 1; }
+  .diagram .point       { fill: var(--ink); stroke: none; }
+  .diagram .point-hl    { fill: var(--accent); stroke: var(--paper); stroke-width: 2; }
+  .diagram .guide       { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 3; fill: none; }
+  .diagram .label       { font-family: 'Charter', 'Georgia', serif; font-size: 13px; fill: var(--ink); }
+  .diagram .label-muted { font-family: 'Charter', 'Georgia', serif; font-size: 12px; fill: var(--muted); }
+  .diagram .label-math  { font-family: 'Charter', 'Georgia', serif; font-style: italic; font-size: 14px; fill: var(--ink); }
+  .diagram .node-box    { fill: var(--paper); stroke: var(--ink); stroke-width: 1.4; }
+  .diagram .node-circle { fill: var(--def-bg); stroke: var(--def-border); stroke-width: 1.5; }
+  .diagram .edge        { stroke: var(--ink); stroke-width: 1.2; fill: none; }
+
+  /* MathJax контейнер */
+  mjx-container { margin: 0.4em 0; }
+  mjx-container[display="true"] { margin: 1em 0 !important; }
+
+  /* Печать */
+  @media print {
+    body { background: white; }
+    main { box-shadow: none; max-width: 100%; padding: 20px; }
+  }
+
+  /* Мобильные */
+  @media (max-width: 720px) {
+    main { padding: 30px 20px 60px; }
+    body { font-size: 16px; }
+    h1 { font-size: 1.6em; }
+  }
+</style>
+<script>try{if(localStorage.getItem('ps-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="solutions" data-topic="PS5">
+
+<main>
+  <h1>Solutions <span class="ru-subtitle">(Решения задач)</span></h1>
+  <p class="topic-label">Тема: Poisson Distribution (Распределение Пуассона)</p>
+
+  <!-- ============================ PROBLEM 1 ============================ -->
+  <section class="problem">
+    <h2>Problem 1</h2>
+
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>During working hours an office switchboard receives telephone calls at random and at a rate of one call every 40 seconds.</p>
+      <p><strong>a</strong> Find, to 3 decimal places, the probability that during a given one-minute period</p>
+      <p style="margin-left:1.5em;"><strong>i</strong> no call is received, &nbsp;&nbsp; <strong>ii</strong> at least 2 calls are received.</p>
+      <p><strong>b</strong> Find, to 3 decimal places, the probability that no call is received between 10:30 a.m. and 10:31 a.m. and that at least two calls are received between 10:31 a.m. and 10:32 a.m.</p>
+      <p class="translation">Коммутатор офиса получает звонки случайно со скоростью один звонок каждые 40 секунд. <strong>a</strong> Найдите (до 3 знаков) вероятность того, что за данную одну минуту: <strong>i</strong> не поступит ни одного звонка; <strong>ii</strong> поступит не менее 2 звонков. <strong>b</strong> Найдите вероятность того, что между 10:30 и 10:31 не поступит звонков, а между 10:31 и 10:32 поступит не менее двух звонков.</p>
+    </div>
+
+    <div class="given">
+      <h3>Дано <span class="en">(Given)</span></h3>
+      <ul>
+        <li>Один звонок каждые 40 секунд → за 60 секунд в среднем \( \lambda = \dfrac{60}{40} = 1.5 \) звонка в минуту</li>
+        <li>\( X \) — число звонков за одну минуту, \( X \sim \mathrm{Po}(1.5) \)</li>
+      </ul>
+    </div>
+
+    <div class="find">
+      <h3>Найти <span class="en">(Find)</span></h3>
+      <p><strong>a i</strong> \( P(X = 0) \); &nbsp; <strong>a ii</strong> \( P(X \ge 2) \); &nbsp; <strong>b</strong> \( P(X=0)\cdot P(X \ge 2) \)</p>
+    </div>
+
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+
+      <p><strong>Часть a i.</strong> «No call» означает \( X = 0 \). По формуле Пуассона при \( x = 0 \):</p>
+      \[ P(X = 0) = e^{-1.5}\,\frac{1.5^{0}}{0!} = e^{-1.5} \approx 0.223130 \approx 0.223 \]
+
+      <p style="margin-top:1.4em;"><strong>Часть a ii.</strong> «At least 2» означает \( X \ge 2 \). Через дополнение:</p>
+      \[ P(X \ge 2) = 1 - P(X=0) - P(X=1) \]
+      <p><strong>Шаг 1.</strong> Считаем \( P(X=1) \):</p>
+      \[ P(X=1) = e^{-1.5}\,\frac{1.5^{1}}{1!} = 1.5\,e^{-1.5} \approx 0.334695 \]
+      <p><strong>Шаг 2.</strong> Подставляем:</p>
+      \[ P(X \ge 2) = 1 - 0.223130 - 0.334695 = 0.442175 \approx 0.442 \]
+
+      <p style="margin-top:1.4em;"><strong>Часть b.</strong> Два соседних, но <strong>непересекающихся</strong> минутных интервала независимы. Нужно, чтобы в первом было \(0\) звонков, а во втором — \( \ge 2 \). Перемножаем вероятности:</p>
+      \[
+      \begin{aligned}
+      P &= P(X=0)\cdot P(X \ge 2) \\
+        &\approx 0.223130 \cdot 0.442175 \\
+        &\approx 0.098670 \approx 0.099
+      \end{aligned}
+      \]
+    </div>
+
+    <div class="answer">
+      <h3>Ответ <span class="en">(Answer)</span></h3>
+      \[ \boxed{\text{a i) } 0.223 \qquad \text{a ii) } 0.442 \qquad \text{b) } 0.099} \]
+    </div>
+  </section>
+
+  <!-- ============================ PROBLEM 2 ============================ -->
+  <section class="problem">
+    <h2>Problem 2</h2>
+
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>State conditions under which the Poisson distribution is a suitable model to use in statistical work.</p>
+      <p>The number of typing errors per 1000 words made by a typist has a Poisson distribution with mean 2.5.</p>
+      <p><strong>a</strong> Find, to 3 decimal places, the probability that in an essay of 4000 words there will be at least 12 typing errors.</p>
+      <p>The typist types 3 essays, each of length 4000 words.</p>
+      <p><strong>b</strong> Find the probability that each contains at least 12 typing errors.</p>
+      <p class="translation">Сформулируйте условия применимости распределения Пуассона. Число опечаток на 1000 слов у машинистки имеет распределение Пуассона со средним 2.5. <strong>a</strong> Найдите (до 3 знаков) вероятность того, что в эссе из 4000 слов будет не менее 12 опечаток. <strong>b</strong> Машинистка печатает 3 эссе по 4000 слов — вероятность того, что в каждом будет не менее 12 опечаток.</p>
+    </div>
+
+    <div class="given">
+      <h3>Дано <span class="en">(Given)</span></h3>
+      <ul>
+        <li>Среднее 2.5 опечатки на 1000 слов</li>
+        <li>Эссе 4000 слов → \( \lambda = 2.5 \times 4 = 10 \); \( X \sim \mathrm{Po}(10) \), \(X\) — число опечаток в эссе</li>
+      </ul>
+    </div>
+
+    <div class="find">
+      <h3>Найти <span class="en">(Find)</span></h3>
+      <p>условия; &nbsp; <strong>a</strong> \( P(X \ge 12) \); &nbsp; <strong>b</strong> \( \big[P(X \ge 12)\big]^3 \)</p>
+    </div>
+
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+
+      <p><strong>Условия применимости Пуассона:</strong> события происходят независимо (<em>independently</em>), по одному и случайно (<em>singly and at random</em>), с постоянной средней интенсивностью (<em>at a constant average rate</em>).</p>
+
+      <p style="margin-top:1.4em;"><strong>Часть a.</strong> «At least 12» означает \( X \ge 12 \), то есть \( 1 - P(X \le 11) \).</p>
+      <p><strong>Шаг 1.</strong> Из <strong>таблиц кумулятивного распределения Пуассона</strong> (<em>cumulative Poisson tables</em>) для \( \lambda = 10 \):</p>
+      \[ P(X \le 11) = 0.6968 \]
+      <p><strong>Шаг 2.</strong> Тогда:</p>
+      \[ P(X \ge 12) = 1 - 0.6968 = 0.3032 \]
+
+      <p style="margin-top:1.4em;"><strong>Часть b.</strong> Три эссе независимы, в каждом нужно событие «\( \ge 12 \) опечаток» с вероятностью \( 0.3032 \). По правилу умножения:</p>
+      \[
+      \begin{aligned}
+      P(\text{в каждом из 3}) &= (0.3032)^3 \\
+                              &\approx 0.027873 \approx 0.0279
+      \end{aligned}
+      \]
+    </div>
+
+    <div class="answer">
+      <h3>Ответ <span class="en">(Answer)</span></h3>
+      \[ \boxed{\text{a) } P(X \ge 12) = 0.3032 \qquad \text{b) } \approx 0.0279} \]
+    </div>
+  </section>
+
+  <!-- ============================ PROBLEM 3 ============================ -->
+  <section class="problem">
+    <h2>Problem 3</h2>
+
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p><strong>a</strong> State conditions under which the binomial distribution \( \mathrm{B}(n, p) \) may be approximated by a Poisson distribution and write down the mean of this Poisson distribution.</p>
+      <p>Samples of blood were taken from 250 children in a region of India. Of these children, 4 had blood type \(A2B\).</p>
+      <p><strong>b</strong> Write down an estimate of \(p\), the proportion of children in this region having blood type \(A2B\).</p>
+      <p>Consider a group of \(n\) children from this region and let \(X\) be the number having blood type \(A2B\). Assuming that \(X\) is distributed \( \mathrm{B}(n, p) \) and that \(p\) has the value estimated above, calculate, to 3 decimal places, the probability that the number of children with blood type \(A2B\) in a group of 6 children from this region will be</p>
+      <p style="margin-left:1.5em;"><strong>i</strong> zero, &nbsp;&nbsp; <strong>ii</strong> more than 1.</p>
+      <p><strong>c</strong> Use a Poisson approximation to calculate, to 4 decimal places, the probability that, in a group of 800 children from this region, there will be fewer than 3 children of blood type \(A2B\).</p>
+      <p class="translation">Образцы крови взяты у 250 детей; у 4 — группа \(A2B\). <strong>a</strong> Условия, при которых биномиальное \( \mathrm{B}(n,p) \) приближается Пуассоном, и среднее этого Пуассона. <strong>b</strong> Оцените \(p\). Для группы из 6 детей (\(X \sim \mathrm{B}(6,p)\)) найдите (до 3 знаков): <strong>i</strong> \(P(X=0)\); <strong>ii</strong> \(P(X>1)\). <strong>c</strong> С помощью приближения Пуассона найдите (до 4 знаков) вероятность того, что в группе из 800 детей будет менее 3 детей с группой \(A2B\).</p>
+    </div>
+
+    <div class="given">
+      <h3>Дано <span class="en">(Given)</span></h3>
+      <ul>
+        <li>4 из 250 детей имеют тип \(A2B\)</li>
+        <li>Для b–ii: \( X \sim \mathrm{B}(6,\ p) \); для c: приближение Пуассоном</li>
+      </ul>
+    </div>
+
+    <div class="find">
+      <h3>Найти <span class="en">(Find)</span></h3>
+      <p><strong>a</strong> условия + среднее; &nbsp; <strong>b</strong> \(p\); &nbsp; <strong>i</strong> \(P(X=0)\), <strong>ii</strong> \(P(X>1)\); &nbsp; <strong>c</strong> \(P(X < 3)\) при \( \mathrm{Po}(\lambda) \)</p>
+    </div>
+
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+
+      <p><strong>Часть a.</strong> Биномиальное \( \mathrm{B}(n,p) \) приближается распределением Пуассона, если <strong>\(n\) велико</strong> (<em>\(n\) is large</em>) и <strong>\(p\) мало</strong> (<em>\(p\) is small</em>). Среднее этого Пуассона: \( \lambda = np \).</p>
+
+      <p style="margin-top:1.4em;"><strong>Часть b.</strong> Оценка доли:</p>
+      \[ p = \frac{4}{250} = 0.016 \]
+
+      <p style="margin-top:1.4em;"><strong>Часть b–i.</strong> \( X \sim \mathrm{B}(6,\ 0.016) \), «zero» означает \( X = 0 \):</p>
+      \[ P(X = 0) = (1 - 0.016)^6 = (0.984)^6 \approx 0.907759 \approx 0.908 \]
+
+      <p style="margin-top:1.4em;"><strong>Часть b–ii.</strong> «More than 1» означает \( X > 1 \), то есть \( 1 - P(X=0) - P(X=1) \):</p>
+      <p><strong>Шаг 1.</strong> Считаем \( P(X=1) \):</p>
+      \[ P(X=1) = \binom{6}{1}(0.016)(0.984)^5 = 6 \cdot 0.016 \cdot (0.984)^5 \approx 0.088562 \]
+      <p><strong>Шаг 2.</strong> Подставляем:</p>
+      \[ P(X > 1) = 1 - 0.907759 - 0.088562 = 0.003679 \approx 0.004 \]
+
+      <p style="margin-top:1.4em;"><strong>Часть c.</strong> Группа 800 детей: \(n = 800\) велико, \(p = 0.016\) мало → используем приближение Пуассона с</p>
+      \[ \lambda = np = 800 \times 0.016 = 12.8 \]
+      <p>«Fewer than 3» означает \( X < 3 \), то есть \( X \le 2 \):</p>
+      \[
+      \begin{aligned}
+      P(X < 3) &= P(X=0) + P(X=1) + P(X=2) \\
+               &= e^{-12.8}\left( 1 + 12.8 + \frac{12.8^2}{2} \right) \\
+               &= e^{-12.8}\,(1 + 12.8 + 81.92) \\
+               &= e^{-12.8}\cdot 95.72 \\
+               &\approx 0.0003
+      \end{aligned}
+      \]
+    </div>
+
+    <div class="answer">
+      <h3>Ответ <span class="en">(Answer)</span></h3>
+      \[ \boxed{\text{b) } p = 0.016 \quad \text{i) } 0.908 \quad \text{ii) } 0.004 \qquad \text{c) } 0.0003} \]
+    </div>
+  </section>
+
+  <!-- ============================ PROBLEM 4 ============================ -->
+  <section class="problem">
+    <h2>Problem 4</h2>
+
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Which of the following variables is best modelled by a Poisson distribution and which is best modelled by a binomial distribution?</p>
+      <p><strong>a</strong> The number of hits by an arrow on a target, when 20 arrows are fired.</p>
+      <p><strong>b</strong> The number of earth tremors that take place in a village over a given period of time.</p>
+      <p><strong>c</strong> The number of particles emitted per minute by a radioactive isotope.</p>
+      <p><strong>d</strong> The number of heads you get when tossing 2 coins 100 times.</p>
+      <p><strong>e</strong> The number of accidents in a city in a year.</p>
+      <p><strong>f</strong> The number of flying bomb hits in specified areas of London during World War 2.</p>
+      <p class="translation">Какие из величин лучше моделировать распределением Пуассона, а какие — биномиальным? <strong>a</strong> Число попаданий стрелой при 20 выстрелах. <strong>b</strong> Число подземных толчков в деревне за период. <strong>c</strong> Число частиц, излучаемых изотопом за минуту. <strong>d</strong> Число орлов при 100 бросках 2 монет. <strong>e</strong> Число аварий в городе за год. <strong>f</strong> Число попаданий «летающих бомб» в районах Лондона во Вторую мировую.</p>
+    </div>
+
+    <div class="find">
+      <h3>Найти <span class="en">(Find)</span></h3>
+      <p>Для каждого пункта указать: Пуассон или биномиальное, и почему.</p>
+    </div>
+
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>Принцип выбора.</strong> Если есть <strong>фиксированное число опытов</strong> \(n\) с исходом «успех/неудача» — это <strong>биномиальное</strong>. Если считаем число <strong>случайных событий за интервал времени или пространства</strong> без фиксированного \(n\) — это <strong>Пуассон</strong>.</p>
+      <table>
+        <tr><th>Пункт</th><th>Модель</th><th>Почему</th></tr>
+        <tr><td><strong>a</strong></td><td>Binomial</td><td>фиксированное число опытов \(n=20\), каждый — «попал/не попал»</td></tr>
+        <tr><td><strong>b</strong></td><td>Poisson</td><td>число событий за период времени, нет фиксированного \(n\)</td></tr>
+        <tr><td><strong>c</strong></td><td>Poisson</td><td>число частиц за минуту — события во времени</td></tr>
+        <tr><td><strong>d</strong></td><td>Binomial</td><td>фиксированное число опытов (100 бросков), исход — «орёл/не орёл»</td></tr>
+        <tr><td><strong>e</strong></td><td>Poisson</td><td>число аварий за год — события во времени</td></tr>
+        <tr><td><strong>f</strong></td><td>Poisson</td><td>число попаданий на площади — события в пространстве</td></tr>
+      </table>
+    </div>
+
+    <div class="answer">
+      <h3>Ответ <span class="en">(Answer)</span></h3>
+      \[ \boxed{\text{Binomial: a, d} \qquad \text{Poisson: b, c, e, f}} \]
+    </div>
+  </section>
+
+  <!-- ============================ PROBLEM 5 ============================ -->
+  <section class="problem">
+    <h2>Problem 5</h2>
+
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Loaves of bread on a production line pass a monitoring point at a constant rate of 300 loaves per hour.</p>
+      <p><strong>a</strong> Find how many loaves you would expect to pass the monitoring point in 2 minutes.</p>
+      <p><strong>b</strong> Find the probability that no loaves pass the monitoring point in a given 1-minute period.</p>
+      <p class="translation">Буханки хлеба проходят контрольную точку с постоянной скоростью 300 штук в час. <strong>a</strong> Сколько буханок ожидается за 2 минуты? <strong>b</strong> Вероятность того, что за данную 1 минуту не пройдёт ни одной буханки.</p>
+    </div>
+
+    <div class="given">
+      <h3>Дано <span class="en">(Given)</span></h3>
+      <ul>
+        <li>300 буханок в час → \( \dfrac{300}{60} = 5 \) буханок в минуту</li>
+      </ul>
+    </div>
+
+    <div class="find">
+      <h3>Найти <span class="en">(Find)</span></h3>
+      <p><strong>a</strong> ожидаемое число за 2 минуты; &nbsp; <strong>b</strong> \( P(X=0) \) за 1 минуту</p>
+    </div>
+
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+
+      <p><strong>Часть a.</strong> Интенсивность 5 буханок в минуту, значит за 2 минуты ожидаемое число (<em>expected value</em>):</p>
+      \[ \mathrm{E} = 5 \times 2 = 10 \text{ буханок} \]
+
+      <p style="margin-top:1.4em;"><strong>Часть b.</strong> За 1 минуту \( \lambda = 5 \), \( X \sim \mathrm{Po}(5) \). «No loaves» означает \( X = 0 \):</p>
+      \[ P(X = 0) = e^{-5}\,\frac{5^0}{0!} = e^{-5} \approx 0.006738 \approx 0.0067 \]
+    </div>
+
+    <div class="answer">
+      <h3>Ответ <span class="en">(Answer)</span></h3>
+      \[ \boxed{\text{a) } 10 \text{ буханок} \qquad \text{b) } P(X=0) \approx 0.0067} \]
+    </div>
+  </section>
+
+  <!-- ============================ PROBLEM 6 ============================ -->
+  <section class="problem">
+    <h2>Problem 6</h2>
+
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Accidents occur at a certain road junction at a rate of 3 per year.</p>
+      <p><strong>a</strong> Suggest a suitable model for the number of accidents at this road junction in the next month.</p>
+      <p><strong>b</strong> Show that, under this model, the probability of 2 or more accidents at this road junction in the next month is 0.0265 to 4 decimal places.</p>
+      <p>The local residents have applied for a crossing to be installed. The planning committee agree to monitor the situation for the next 12 months. If there is at least one month with 2 or more accidents in it they will install a crossing.</p>
+      <p><strong>c</strong> Find the probability that the crossing is installed.</p>
+      <p class="translation">Аварии на перекрёстке происходят со скоростью 3 в год. <strong>a</strong> Подходящая модель для числа аварий в следующем месяце. <strong>b</strong> Показать, что вероятность 2 и более аварий за месяц равна 0.0265 (до 4 знаков). <strong>c</strong> Комитет наблюдает 12 месяцев; если хотя бы в одном месяце будет 2+ аварии, устанавливают переход. Найти вероятность установки перехода.</p>
+    </div>
+
+    <div class="given">
+      <h3>Дано <span class="en">(Given)</span></h3>
+      <ul>
+        <li>3 аварии в год → за месяц \( \lambda = \dfrac{3}{12} = 0.25 \)</li>
+        <li>\( X \) — число аварий за месяц</li>
+      </ul>
+    </div>
+
+    <div class="find">
+      <h3>Найти <span class="en">(Find)</span></h3>
+      <p><strong>a</strong> модель; &nbsp; <strong>b</strong> \( P(X \ge 2) \); &nbsp; <strong>c</strong> \( P(\text{хотя бы 1 месяц из 12 с } X \ge 2) \)</p>
+    </div>
+
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+
+      <p><strong>Часть a.</strong> Аварии случайны и независимы, постоянная интенсивность. Модель:</p>
+      \[ X \sim \mathrm{Po}(0.25) \]
+
+      <p style="margin-top:1.4em;"><strong>Часть b.</strong> «2 or more» означает \( X \ge 2 = 1 - P(X=0) - P(X=1) \):</p>
+      \[
+      \begin{aligned}
+      P(X=0) &= e^{-0.25} \approx 0.778801 \\
+      P(X=1) &= 0.25\,e^{-0.25} \approx 0.194700 \\
+      P(X \ge 2) &= 1 - 0.778801 - 0.194700 \\
+                 &= 0.026499 \approx 0.0265 \quad\checkmark
+      \end{aligned}
+      \]
+
+      <p style="margin-top:1.4em;"><strong>Часть c.</strong> Каждый из 12 месяцев независимо имеет «2+ аварии» с вероятностью \( 0.0265 \). Пусть \( Y \) — число таких месяцев из 12: \( Y \sim \mathrm{B}(12,\ 0.0265) \). Переход установят, если \( Y \ge 1 \):</p>
+      \[
+      \begin{aligned}
+      P(Y \ge 1) &= 1 - P(Y = 0) \\
+                 &= 1 - (1 - 0.0265)^{12} \\
+                 &= 1 - (0.9735)^{12} \\
+                 &\approx 1 - 0.724480 \\
+                 &\approx 0.2755
+      \end{aligned}
+      \]
+      <div class="note">
+        <p>Обрати внимание: часть c — это уже <strong>биномиальное</strong> распределение, где «успех» = «месяц с 2+ авариями», а вероятность этого успеха взята из части b.</p>
+      </div>
+    </div>
+
+    <div class="answer">
+      <h3>Ответ <span class="en">(Answer)</span></h3>
+      \[ \boxed{\text{a) } X \sim \mathrm{Po}(0.25) \qquad \text{b) } 0.0265 \qquad \text{c) } \approx 0.2755} \]
+    </div>
+  </section>
+
+  <!-- ============================ PROBLEM 7 ============================ -->
+  <section class="problem">
+    <h2>Problem 7</h2>
+
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Breakdowns occur on a particular machine at a rate of 2.5 per month. Assuming that the number of breakdowns can be modelled by a Poisson distribution, find the probability that</p>
+      <p><strong>a</strong> exactly 3 occur in a particular month,</p>
+      <p><strong>b</strong> more than 10 occur in a three-month period,</p>
+      <p><strong>c</strong> exactly 3 occur in each of 2 successive months.</p>
+      <p class="translation">Поломки машины происходят со скоростью 2.5 в месяц (модель Пуассона). Найдите вероятность того, что: <strong>a</strong> ровно 3 поломки за месяц; <strong>b</strong> более 10 поломок за три месяца; <strong>c</strong> ровно 3 поломки в каждом из 2 последовательных месяцев.</p>
+    </div>
+
+    <div class="given">
+      <h3>Дано <span class="en">(Given)</span></h3>
+      <ul>
+        <li>За месяц \( \lambda = 2.5 \); за 3 месяца \( \lambda = 2.5 \times 3 = 7.5 \)</li>
+      </ul>
+    </div>
+
+    <div class="find">
+      <h3>Найти <span class="en">(Find)</span></h3>
+      <p><strong>a</strong> \( P(X=3) \) при \( \mathrm{Po}(2.5) \); &nbsp; <strong>b</strong> \( P(Y > 10) \) при \( \mathrm{Po}(7.5) \); &nbsp; <strong>c</strong> \( \big[P(X=3)\big]^2 \)</p>
+    </div>
+
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+
+      <p><strong>Часть a.</strong> \( X \sim \mathrm{Po}(2.5) \), «exactly 3» означает \( X = 3 \):</p>
+      \[
+      \begin{aligned}
+      P(X = 3) &= e^{-2.5}\,\frac{2.5^{3}}{3!} \\
+               &= e^{-2.5}\cdot \frac{15.625}{6} \\
+               &\approx 0.082085 \cdot 2.604167 \\
+               &\approx 0.2138
+      \end{aligned}
+      \]
+
+      <p style="margin-top:1.4em;"><strong>Часть b.</strong> За 3 месяца \( Y \sim \mathrm{Po}(7.5) \). «More than 10» означает \( Y > 10 = 1 - P(Y \le 10) \).</p>
+      <p><strong>Шаг 1.</strong> Из таблиц кумулятивного Пуассона для \( \lambda = 7.5 \): \( P(Y \le 10) = 0.8622 \).</p>
+      <p><strong>Шаг 2.</strong> Тогда:</p>
+      \[ P(Y > 10) = 1 - 0.8622 = 0.1378 \]
+
+      <p style="margin-top:1.4em;"><strong>Часть c.</strong> Два последовательных месяца независимы, в каждом нужно \( X = 3 \) с вероятностью \( 0.2138 \). Перемножаем:</p>
+      \[ P(\text{в каждом из 2}) = (0.2138)^2 \approx 0.0457 \]
+
+      <figure class="diagram">
+        <svg viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Гистограмма Po(2.5)">
+          <!-- Ось Y -->
+          <line class="axis" x1="80" y1="40" x2="80" y2="270"/>
+          <polygon class="axis-arrow" points="80,40 76,48 84,48"/>
+          <!-- Ось X -->
+          <line class="axis" x1="80" y1="270" x2="560" y2="270"/>
+          <polygon class="axis-arrow" points="560,270 552,266 552,274"/>
+          <!-- Столбцы Po(2.5): высота = P*830, base y=270 -->
+          <!-- P: .0821 .2052 .2565 .2138 .1336 .0668 .0278 .0099 .0031 -->
+          <rect class="bar"    x="92"  y="202" width="40" height="68"/>
+          <rect class="bar"    x="140" y="100" width="40" height="170"/>
+          <rect class="bar"    x="188" y="57"  width="40" height="213"/>
+          <rect class="bar-hl" x="236" y="93"  width="40" height="177"/>
+          <rect class="bar"    x="284" y="159" width="40" height="111"/>
+          <rect class="bar"    x="332" y="215" width="40" height="55"/>
+          <rect class="bar"    x="380" y="247" width="40" height="23"/>
+          <rect class="bar"    x="428" y="262" width="40" height="8"/>
+          <rect class="bar"    x="476" y="267" width="40" height="3"/>
+          <!-- Подписи под столбцами -->
+          <g class="label">
+            <text x="112" y="288" text-anchor="middle">0</text>
+            <text x="160" y="288" text-anchor="middle">1</text>
+            <text x="208" y="288" text-anchor="middle">2</text>
+            <text x="256" y="288" text-anchor="middle">3</text>
+            <text x="304" y="288" text-anchor="middle">4</text>
+            <text x="352" y="288" text-anchor="middle">5</text>
+            <text x="400" y="288" text-anchor="middle">6</text>
+            <text x="448" y="288" text-anchor="middle">7</text>
+            <text x="496" y="288" text-anchor="middle">8</text>
+          </g>
+          <text class="label-math" x="565" y="275">x</text>
+          <text class="label" x="74" y="45" text-anchor="end">P(X = x)</text>
+          <text class="label-muted" x="256" y="85" text-anchor="middle">P(X=3)</text>
+        </svg>
+        <figcaption>Рис. 1. Число поломок за месяц \( X \sim \mathrm{Po}(2.5) \). Выделен столбец \( P(X=3) \approx 0.2138 \).</figcaption>
+      </figure>
+    </div>
+
+    <div class="answer">
+      <h3>Ответ <span class="en">(Answer)</span></h3>
+      \[ \boxed{\text{a) } 0.2138 \qquad \text{b) } 0.1378 \qquad \text{c) } \approx 0.0457} \]
+    </div>
+  </section>
+
+  <!-- ============================ PROBLEM 8 ============================ -->
+  <section class="problem">
+    <h2>Problem 8</h2>
+
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A geography student is studying the distribution of telephone boxes in a large rural area where there is an average of 300 boxes per 500 km². A map of part of the area is divided into 50 squares, each of area 1 km² and the student wishes to model the number of telephone boxes per square.</p>
+      <p><strong>a</strong> Suggest a suitable model the student could use and specify any parameters required.</p>
+      <p>One of the squares is picked at random.</p>
+      <p><strong>b</strong> Find the probability that this square does not contain any telephone boxes.</p>
+      <p><strong>c</strong> Find the probability that this square contains at least 3 telephone boxes.</p>
+      <p>The student suggests using this model on another map of a large city and surrounding villages.</p>
+      <p><strong>d</strong> Comment, giving your reason briefly, on the suitability of the model in this situation.</p>
+      <p class="translation">Студент-географ изучает распределение телефонных будок в сельской местности: в среднем 300 будок на 500 км². Карта поделена на 50 квадратов по 1 км². <strong>a</strong> Подходящая модель и её параметры. <strong>b</strong> Вероятность, что в случайном квадрате нет будок. <strong>c</strong> Вероятность не менее 3 будок. <strong>d</strong> Прокомментируйте пригодность модели для карты большого города с окрестными деревнями.</p>
+    </div>
+
+    <div class="given">
+      <h3>Дано <span class="en">(Given)</span></h3>
+      <ul>
+        <li>300 будок на 500 км² → в среднем \( \dfrac{300}{500} = 0.6 \) будки на 1 км²</li>
+        <li>\( X \) — число будок в квадрате 1 км², \( X \sim \mathrm{Po}(0.6) \)</li>
+      </ul>
+    </div>
+
+    <div class="find">
+      <h3>Найти <span class="en">(Find)</span></h3>
+      <p><strong>a</strong> модель; &nbsp; <strong>b</strong> \( P(X=0) \); &nbsp; <strong>c</strong> \( P(X \ge 3) \); &nbsp; <strong>d</strong> комментарий</p>
+    </div>
+
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+
+      <p><strong>Часть a.</strong> Число будок на единицу площади при постоянной средней плотности — это распределение Пуассона:</p>
+      \[ X \sim \mathrm{Po}(0.6), \qquad \lambda = 0.6 \text{ будки на } 1\,\text{км}^2 \]
+
+      <p style="margin-top:1.4em;"><strong>Часть b.</strong> «Does not contain any» означает \( X = 0 \):</p>
+      \[ P(X = 0) = e^{-0.6} \approx 0.548812 \approx 0.5488 \]
+
+      <p style="margin-top:1.4em;"><strong>Часть c.</strong> «At least 3» означает \( X \ge 3 = 1 - P(X=0) - P(X=1) - P(X=2) \):</p>
+      \[
+      \begin{aligned}
+      P(X=0) &= e^{-0.6} \approx 0.548812 \\
+      P(X=1) &= 0.6\,e^{-0.6} \approx 0.329287 \\
+      P(X=2) &= \frac{0.6^2}{2}\,e^{-0.6} \approx 0.098786 \\
+      P(X \ge 3) &= 1 - 0.548812 - 0.329287 - 0.098786 \\
+                 &= 0.023115 \approx 0.0231
+      \end{aligned}
+      \]
+
+      <p style="margin-top:1.4em;"><strong>Часть d.</strong> Модель <strong>не подходит</strong> для большого города с деревнями: будки не распределены равномерно/случайно — в городе их густо, в деревнях редко. Значит средняя плотность \( \lambda \) <strong>не постоянна</strong> по площади, и одно из условий применимости Пуассона нарушается.</p>
+    </div>
+
+    <div class="answer">
+      <h3>Ответ <span class="en">(Answer)</span></h3>
+      \[ \boxed{\text{a) } X \sim \mathrm{Po}(0.6) \quad \text{b) } 0.5488 \quad \text{c) } 0.0231} \]
+      <p style="margin-top:0.6em;"><strong>d)</strong> Модель непригодна: плотность будок неоднородна (город ≫ деревни), поэтому средняя интенсивность непостоянна.</p>
+    </div>
+  </section>
+
+  <!-- ============================ PROBLEM 9 ============================ -->
+  <section class="problem">
+    <h2>Problem 9</h2>
+
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>All the letters in a particular office are typed either by Pat, a trainee typist, or by Lyn, who is a fully-trained typist. The probability that a letter typed by Pat will contain one or more errors is 0.3.</p>
+      <p><strong>a</strong> Find the probability that a random sample of 4 letters typed by Pat will include exactly one letter free from error.</p>
+      <p>The probability that a letter typed by Lyn will contain one or more errors is 0.05.</p>
+      <p><strong>b</strong> Use tables, or otherwise, to find, to 3 decimal places, the probability that in a random sample of 20 letters typed by Lyn, not more than 2 letters will contain one or more errors.</p>
+      <p>On any one day, 6% of the letters typed in the office are typed by Pat. One letter is chosen at random from those typed on that day.</p>
+      <p><strong>c</strong> Show that the probability that it will contain one or more errors is 0.065.</p>
+      <p>Given that each of 2 letters chosen at random from the day's typing contains one or more errors,</p>
+      <p><strong>d</strong> find, to 4 decimal places, the probability that one was typed by Pat and the other by Lyn.</p>
+      <p class="translation">Письма печатают Пэт (стажёр) или Лин (опытная). \(P(\text{ошибка у Пэт}) = 0.3\). <strong>a</strong> В выборке из 4 писем Пэт ровно одно без ошибок. \(P(\text{ошибка у Лин}) = 0.05\). <strong>b</strong> В выборке из 20 писем Лин не более 2 содержат ошибки (до 3 знаков). <strong>c</strong> В день 6% писем печатает Пэт; показать, что \(P(\text{ошибка}) = 0.065\). <strong>d</strong> Если оба выбранных письма содержат ошибки — вероятность, что одно печатала Пэт, а другое Лин (до 4 знаков).</p>
+    </div>
+
+    <div class="given">
+      <h3>Дано <span class="en">(Given)</span></h3>
+      <ul>
+        <li>\( P(\text{ошибка} \mid \text{Pat}) = 0.3 \), значит \( P(\text{без ошибок} \mid \text{Pat}) = 0.7 \)</li>
+        <li>\( P(\text{ошибка} \mid \text{Lyn}) = 0.05 \); &nbsp; \( P(\text{Pat}) = 0.06 \), \( P(\text{Lyn}) = 0.94 \)</li>
+      </ul>
+    </div>
+
+    <div class="find">
+      <h3>Найти <span class="en">(Find)</span></h3>
+      <p><strong>a</strong> \( P(X=1) \), \( X \sim \mathrm{B}(4,\ 0.7) \); &nbsp; <strong>b</strong> \( P(Y \le 2) \), \( Y \sim \mathrm{B}(20,\ 0.05) \); &nbsp; <strong>c</strong> \( P(\text{ошибка}) \); &nbsp; <strong>d</strong> условная вероятность</p>
+    </div>
+
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+
+      <p><strong>Часть a.</strong> «Free from error» (без ошибок) для письма Пэт имеет вероятность \( 0.7 \). Пусть \( X \) — число писем без ошибок из 4: \( X \sim \mathrm{B}(4,\ 0.7) \). «Exactly one» означает \( X = 1 \):</p>
+      \[
+      \begin{aligned}
+      P(X = 1) &= \binom{4}{1}(0.7)^1(0.3)^3 \\
+               &= 4 \cdot 0.7 \cdot 0.027 \\
+               &= 0.0756
+      \end{aligned}
+      \]
+
+      <p style="margin-top:1.4em;"><strong>Часть b.</strong> \( Y \) — число писем Лин с ошибками из 20: \( Y \sim \mathrm{B}(20,\ 0.05) \). «Not more than 2» означает \( Y \le 2 \).</p>
+      <p><strong>Шаг 1.</strong> Из таблиц кумулятивного биномиального распределения для \( n=20,\ p=0.05 \):</p>
+      \[ P(Y \le 2) = 0.9245 \approx 0.925 \]
+      <p><strong>Шаг 2 (проверка).</strong> Прямой подсчёт даёт то же:</p>
+      \[
+      \begin{aligned}
+      P(Y \le 2) &= (0.95)^{20} + 20(0.05)(0.95)^{19} + \binom{20}{2}(0.05)^2(0.95)^{18} \\
+                 &\approx 0.358486 + 0.377354 + 0.188677 \approx 0.925
+      \end{aligned}
+      \]
+
+      <p style="margin-top:1.4em;"><strong>Часть c.</strong> Письмо случайно: его печатала Пэт (\(0.06\)) или Лин (\(0.94\)). По <strong>формуле полной вероятности</strong> (<em>law of total probability</em>):</p>
+      \[
+      \begin{aligned}
+      P(\text{ошибка}) &= P(\text{Pat})P(\text{ошибка}\mid\text{Pat}) + P(\text{Lyn})P(\text{ошибка}\mid\text{Lyn}) \\
+                       &= 0.06 \times 0.3 + 0.94 \times 0.05 \\
+                       &= 0.018 + 0.047 = 0.065 \quad\checkmark
+      \end{aligned}
+      \]
+
+      <figure class="diagram">
+        <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Дерево вероятностей: автор письма и наличие ошибки">
+          <!-- Рёбра первого уровня -->
+          <line class="edge" x1="70" y1="150" x2="250" y2="80"/>
+          <line class="edge" x1="70" y1="150" x2="250" y2="220"/>
+          <!-- Рёбра второго уровня -->
+          <line class="edge" x1="280" y1="80"  x2="460" y2="50"/>
+          <line class="edge" x1="280" y1="80"  x2="460" y2="120"/>
+          <line class="edge" x1="280" y1="220" x2="460" y2="190"/>
+          <line class="edge" x1="280" y1="220" x2="460" y2="260"/>
+          <!-- Узлы -->
+          <circle class="node-circle" cx="70"  cy="150" r="6"/>
+          <circle class="node-circle" cx="265" cy="80"  r="18"/>
+          <circle class="node-circle" cx="265" cy="220" r="18"/>
+          <circle class="node-circle" cx="475" cy="50"  r="16"/>
+          <circle class="node-circle" cx="475" cy="120" r="16"/>
+          <circle class="node-circle" cx="475" cy="190" r="16"/>
+          <circle class="node-circle" cx="475" cy="260" r="16"/>
+          <!-- Подписи узлов -->
+          <g class="label">
+            <text x="265" y="85"  text-anchor="middle">Pat</text>
+            <text x="265" y="225" text-anchor="middle">Lyn</text>
+            <text x="475" y="55"  text-anchor="middle">E</text>
+            <text x="475" y="125" text-anchor="middle">E'</text>
+            <text x="475" y="195" text-anchor="middle">E</text>
+            <text x="475" y="265" text-anchor="middle">E'</text>
+          </g>
+          <!-- Подписи вероятностей на рёбрах -->
+          <g class="label-muted">
+            <text x="150" y="105">0.06</text>
+            <text x="150" y="200">0.94</text>
+            <text x="365" y="55">0.3</text>
+            <text x="365" y="110">0.7</text>
+            <text x="365" y="185">0.05</text>
+            <text x="365" y="255">0.95</text>
+          </g>
+          <!-- Итоговые вероятности ветвей с ошибкой -->
+          <g class="label">
+            <text x="510" y="55">0.018</text>
+            <text x="510" y="195">0.047</text>
+          </g>
+        </svg>
+        <figcaption>Рис. 2. Дерево вероятностей: автор письма (Pat / Lyn) и наличие ошибки \(E\). \( P(E) = 0.018 + 0.047 = 0.065 \).</figcaption>
+      </figure>
+
+      <p style="margin-top:1.4em;"><strong>Часть d.</strong> Для письма с ошибкой условные вероятности авторства:</p>
+      \[ P(\text{Pat}\mid E) = \frac{0.018}{0.065}, \qquad P(\text{Lyn}\mid E) = \frac{0.047}{0.065} \]
+      <p><strong>Шаг 1.</strong> Выбраны 2 письма, оба с ошибками. «Одно Пэт, другое Лин» можно получить в двух порядках, поэтому:</p>
+      \[
+      \begin{aligned}
+      P(\text{одно Pat, одно Lyn} \mid \text{оба с ошибкой})
+        &= \frac{2 \cdot P(\text{Pat}\cap E)\cdot P(\text{Lyn}\cap E)}{\big[P(E)\big]^2} \\
+        &= \frac{2 \cdot 0.018 \cdot 0.047}{0.065^2} \\
+        &= \frac{0.001692}{0.004225} \\
+        &\approx 0.4005
+      \end{aligned}
+      \]
+    </div>
+
+    <div class="answer">
+      <h3>Ответ <span class="en">(Answer)</span></h3>
+      \[ \boxed{\text{a) } 0.0756 \quad \text{b) } 0.925 \quad \text{c) } 0.065 \quad \text{d) } 0.4005} \]
+    </div>
+  </section>
+
+  <!-- ============================ PROBLEM 10 ============================ -->
+  <section class="problem">
+    <h2>Problem 10</h2>
+
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The number of breakdowns per day of the lifts in a large block of flats is modelled by a Poisson distribution with mean 0.2.</p>
+      <p><strong>a</strong> Find, to 3 decimal places, the probability that on a particular day there will be at least one breakdown.</p>
+      <p><strong>b</strong> Find the probability that there are fewer than 2 days in a 30-day month with at least one breakdown.</p>
+      <p class="translation">Число поломок лифтов в день в большом доме моделируется распределением Пуассона со средним 0.2. <strong>a</strong> Найдите (до 3 знаков) вероятность того, что в данный день будет хотя бы одна поломка. <strong>b</strong> Найдите вероятность того, что в 30-дневном месяце окажется менее 2 дней с хотя бы одной поломкой.</p>
+    </div>
+
+    <div class="given">
+      <h3>Дано <span class="en">(Given)</span></h3>
+      <ul>
+        <li>За день \( X \sim \mathrm{Po}(0.2) \), \(X\) — число поломок за день</li>
+      </ul>
+    </div>
+
+    <div class="find">
+      <h3>Найти <span class="en">(Find)</span></h3>
+      <p><strong>a</strong> \( P(X \ge 1) \); &nbsp; <strong>b</strong> \( P(D < 2) \), где \(D\) — число «аварийных» дней из 30</p>
+    </div>
+
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+
+      <p><strong>Часть a.</strong> «At least one» означает \( X \ge 1 = 1 - P(X=0) \):</p>
+      \[ P(X \ge 1) = 1 - e^{-0.2} \approx 1 - 0.818731 = 0.181269 \approx 0.181 \]
+
+      <p style="margin-top:1.4em;"><strong>Часть b.</strong> Каждый из 30 дней независимо является «аварийным» (хотя бы одна поломка) с вероятностью \( p = 0.181269 \). Пусть \( D \) — число аварийных дней из 30: \( D \sim \mathrm{B}(30,\ 0.181269) \). «Fewer than 2» означает \( D < 2 = P(D=0) + P(D=1) \).</p>
+      <p><strong>Шаг 1.</strong> Считаем \( P(D=0) \). Поскольку \( 1 - p = e^{-0.2} \):</p>
+      \[ P(D=0) = (1-p)^{30} = \left(e^{-0.2}\right)^{30} = e^{-6} \approx 0.002479 \]
+      <p><strong>Шаг 2.</strong> Считаем \( P(D=1) \):</p>
+      \[
+      \begin{aligned}
+      P(D=1) &= \binom{30}{1}\,p\,(1-p)^{29} \\
+             &= 30 \cdot 0.181269 \cdot \left(e^{-0.2}\right)^{29} \\
+             &= 30 \cdot 0.181269 \cdot e^{-5.8} \\
+             &\approx 30 \cdot 0.181269 \cdot 0.003028 \approx 0.016464
+      \end{aligned}
+      \]
+      <p><strong>Шаг 3.</strong> Складываем:</p>
+      \[ P(D < 2) = 0.002479 + 0.016464 = 0.018943 \approx 0.0189 \]
+    </div>
+
+    <div class="answer">
+      <h3>Ответ <span class="en">(Answer)</span></h3>
+      \[ \boxed{\text{a) } P(X \ge 1) \approx 0.181 \qquad \text{b) } P(D < 2) \approx 0.0189} \]
+    </div>
+  </section>
+
+</main>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

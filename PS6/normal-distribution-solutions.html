@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Normal Distribution — Solutions</title>
+<script>try{if(localStorage.getItem('ps-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<link rel="stylesheet" href="../assets/style.css">
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(','\\)'],['$','$']], displayMath: [['\\[','\\]'],['$$','$$']], processEscapes: true, tags: 'none' },
+    svg: { fontCache: 'global' },
+    options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+</head>
+<body data-page="solutions" data-topic="PS6">
+
+<main>
+  <h1>Solutions <span class="ru-subtitle">(Решения задач)</span></h1>
+  <p class="topic-label">Тема: Normal Distribution (Нормальное распределение)</p>
+
+  <!-- PROBLEM 1 -->
+  <section class="problem">
+    <h2>Problem 1</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The heights of a large group of men are normally distributed with a mean of 178 cm and a standard deviation of 4 cm. A man is selected at random from this group.</p>
+      <p><strong>a</strong> Find the probability that he is taller than 185 cm.</p>
+      <p>A manufacturer of door frames wants to ensure that fewer than 0.005 men have to stoop to pass through the frame.</p>
+      <p><strong>b</strong> On the basis of this group, find the minimum height of a door frame.</p>
+      <p class="translation">Рост мужчин ~ N(178, 4²). <strong>a</strong> Вероятность, что рост &gt; 185 см. <strong>b</strong> Найти минимальную высоту дверной коробки, чтобы &lt; 0.005 мужчин пришлось наклоняться.</p>
+    </div>
+    <div class="given">
+      <h3>Дано <span class="en">(Given)</span></h3>
+      <ul><li>\( X \sim \mathrm{N}(178,\ 4^{2}) \)</li></ul>
+    </div>
+    <div class="find">
+      <h3>Найти <span class="en">(Find)</span></h3>
+      <p><strong>a</strong> \( P(X &gt; 185) \); &nbsp; <strong>b</strong> \( h \) такое, что \( P(X &gt; h) = 0.005 \).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>Часть a.</strong> Стандартизуем:</p>
+      \[ z = \frac{185 - 178}{4} = \frac{7}{4} = 1.75 \]
+      \[ P(X &gt; 185) = 1 - \Phi(1.75) = 1 - 0.9599 = 0.0401 \]
+
+      <figure class="diagram">
+        <svg viewBox="0 0 600 240" xmlns="http://www.w3.org/2000/svg">
+          <path class="area" d="M 380 195 C 390 192, 410 187, 440 185 C 480 188, 510 192, 540 195 L 540 195 Z"/>
+          <path class="curve" d="M 60 195 C 130 195, 180 192, 220 180 C 250 170, 270 150, 285 122 C 295 92, 300 65, 305 40 C 310 65, 315 92, 325 122 C 340 150, 360 170, 390 180 C 430 192, 480 195, 540 195"/>
+          <line class="axis" x1="40" y1="195" x2="570" y2="195"/>
+          <polygon class="axis-arrow" points="570,195 562,191 562,199"/>
+          <line class="guide" x1="305" y1="195" x2="305" y2="40"/>
+          <line class="guide" x1="395" y1="195" x2="395" y2="178"/>
+          <g class="label">
+            <text x="305" y="215" text-anchor="middle">178</text>
+            <text x="395" y="215" text-anchor="middle">185</text>
+          </g>
+          <text class="label-math" x="575" y="200">x</text>
+          <text class="label-muted" x="470" y="175" text-anchor="middle">P(X &gt; 185) ≈ 0.0401</text>
+        </svg>
+        <figcaption>Рис. 1. \( X \sim \mathrm{N}(178, 4^{2}) \); заштрихована правая «хвостовая» область \( X &gt; 185 \).</figcaption>
+      </figure>
+
+      <p style="margin-top:1.2em;"><strong>Часть b.</strong> Условие: \( P(X &gt; h) &lt; 0.005 \), то есть \( P(X \le h) \ge 0.995 \). Из таблицы критических значений: \( \Phi(z) = 0.995 \Rightarrow z = 2.5758 \).</p>
+      <p>Возвращаемся к \(X\):</p>
+      \[ h = \mu + z\sigma = 178 + 2.5758 \cdot 4 = 178 + 10.30 = 188.30 \text{ см} \]
+    </div>
+    <div class="answer">
+      <h3>Ответ <span class="en">(Answer)</span></h3>
+      \[ \boxed{\text{a) } 0.0401 \qquad \text{b) } h \approx 188.3 \text{ см}} \]
+    </div>
+  </section>
+
+  <!-- PROBLEM 2 -->
+  <section class="problem">
+    <h2>Problem 2</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The weights of steel sheets produced by a factory are known to be normally distributed with mean 32.5 kg and standard deviation 2.2 kg.</p>
+      <p><strong>a</strong> Find the percentage of sheets that weigh less than 30 kg.</p>
+      <p>Bob requires sheets that weigh between 31.6 kg and 34.8 kg.</p>
+      <p><strong>b</strong> Find the percentage of sheets produced that satisfy Bob's requirements.</p>
+      <p class="translation">Вес стальных листов ~ N(32.5, 2.2²) кг. <strong>a</strong> % листов с весом &lt; 30 кг. <strong>b</strong> % листов с весом между 31.6 и 34.8 кг.</p>
+    </div>
+    <div class="given"><h3>Дано <span class="en">(Given)</span></h3><ul><li>\( X \sim \mathrm{N}(32.5,\ 2.2^{2}) \) кг</li></ul></div>
+    <div class="find"><h3>Найти <span class="en">(Find)</span></h3><p><strong>a</strong> \( P(X &lt; 30) \); &nbsp; <strong>b</strong> \( P(31.6 &lt; X &lt; 34.8) \)</p></div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>Часть a.</strong></p>
+      \[ z = \frac{30 - 32.5}{2.2} = \frac{-2.5}{2.2} \approx -1.1364 \]
+      \[ P(X &lt; 30) = \Phi(-1.14) = 1 - \Phi(1.14) = 1 - 0.8729 = 0.1271 \]
+      <p>В процентах: <strong>≈ 12.7%</strong>.</p>
+
+      <p style="margin-top:1.2em;"><strong>Часть b.</strong></p>
+      \[ z_{1} = \frac{31.6 - 32.5}{2.2} = -0.4091 \approx -0.41, \qquad z_{2} = \frac{34.8 - 32.5}{2.2} = 1.0455 \approx 1.05 \]
+      \[
+      \begin{aligned}
+      P(31.6 &lt; X &lt; 34.8) &= \Phi(1.05) - \Phi(-0.41) \\
+        &= \Phi(1.05) - (1 - \Phi(0.41)) \\
+        &= 0.8531 - (1 - 0.6591) \\
+        &= 0.8531 - 0.3409 = 0.5122
+      \end{aligned}
+      \]
+      <p>В процентах: <strong>≈ 51.2%</strong>.</p>
+    </div>
+    <div class="answer"><h3>Ответ <span class="en">(Answer)</span></h3>\[ \boxed{\text{a) } \approx 12.7\% \qquad \text{b) } \approx 51.2\%} \]</div>
+  </section>
+
+  <!-- PROBLEM 3 -->
+  <section class="problem">
+    <h2>Problem 3</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The time a mobile phone battery lasts before needing to be recharged is assumed to be normally distributed with a mean of 48 hours and a standard deviation of 8 hours.</p>
+      <p><strong>a</strong> Find the probability that a battery will last for more than 60 hours.</p>
+      <p><strong>b</strong> Find the probability that the battery lasts less than 35 hours.</p>
+      <p class="translation">Время работы батареи ~ N(48, 8²) часов. <strong>a</strong> P(работает &gt; 60 ч); <strong>b</strong> P(работает &lt; 35 ч).</p>
+    </div>
+    <div class="given"><h3>Дано <span class="en">(Given)</span></h3><ul><li>\( X \sim \mathrm{N}(48,\ 8^{2}) \) часов</li></ul></div>
+    <div class="find"><h3>Найти <span class="en">(Find)</span></h3><p><strong>a</strong> \( P(X &gt; 60) \); &nbsp; <strong>b</strong> \( P(X &lt; 35) \)</p></div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>Часть a.</strong> \( z = \dfrac{60 - 48}{8} = 1.5 \)</p>
+      \[ P(X &gt; 60) = 1 - \Phi(1.5) = 1 - 0.9332 = 0.0668 \]
+
+      <p style="margin-top:1.2em;"><strong>Часть b.</strong> \( z = \dfrac{35 - 48}{8} = -1.625 \)</p>
+      \[ P(X &lt; 35) = \Phi(-1.625) = 1 - \Phi(1.625) \approx 1 - 0.9479 = 0.0521 \]
+    </div>
+    <div class="answer"><h3>Ответ <span class="en">(Answer)</span></h3>\[ \boxed{\text{a) } 0.0668 \qquad \text{b) } \approx 0.0521} \]</div>
+  </section>
+
+  <!-- PROBLEM 4 -->
+  <section class="problem">
+    <h2>Problem 4</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The random variable \( X \sim \mathrm{N}(24,\ \sigma^{2}) \). Given that \( P(X &gt; 30) = 0.05 \), find</p>
+      <p><strong>a</strong> the value of \( \sigma \), &nbsp; <strong>b</strong> \( P(X &lt; 20) \), &nbsp; <strong>c</strong> the value of \(d\) so that \( P(X &gt; d) = 0.01 \).</p>
+      <p class="translation">\( X \sim \mathrm{N}(24, \sigma^{2}) \), \(P(X &gt; 30) = 0.05\). <strong>a</strong> Найти \(\sigma\); <strong>b</strong> \(P(X&lt;20)\); <strong>c</strong> \(d\) такое, что \(P(X&gt;d) = 0.01\).</p>
+    </div>
+    <div class="given"><h3>Дано <span class="en">(Given)</span></h3><ul><li>\( X \sim \mathrm{N}(24,\ \sigma^{2}) \)</li><li>\( P(X &gt; 30) = 0.05 \)</li></ul></div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>Часть a.</strong> Из таблицы критических значений: \( P(Z &gt; z) = 0.05 \Rightarrow z = 1.6449 \).</p>
+      \[ \frac{30 - 24}{\sigma} = 1.6449 \;\Rightarrow\; \sigma = \frac{6}{1.6449} \approx 3.648 \]
+
+      <p style="margin-top:1.2em;"><strong>Часть b.</strong> Используем \( \sigma \approx 3.648 \):</p>
+      \[ z = \frac{20 - 24}{3.648} = \frac{-4}{3.648} \approx -1.0966 \]
+      \[ P(X &lt; 20) = 1 - \Phi(1.10) \approx 1 - 0.8643 = 0.1357 \]
+
+      <p style="margin-top:1.2em;"><strong>Часть c.</strong> \( P(Z &gt; z) = 0.01 \Rightarrow z = 2.3263 \).</p>
+      \[ d = \mu + z\sigma = 24 + 2.3263 \cdot 3.648 \approx 24 + 8.487 \approx 32.49 \]
+    </div>
+    <div class="answer"><h3>Ответ <span class="en">(Answer)</span></h3>\[ \boxed{\text{a) } \sigma \approx 3.65 \quad \text{b) } \approx 0.1357 \quad \text{c) } d \approx 32.49} \]</div>
+  </section>
+
+  <!-- PROBLEM 5 -->
+  <section class="problem">
+    <h2>Problem 5</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A machine dispenses liquid into plastic cups in such a way that the volume of liquid dispensed is normally distributed with a mean of 120 ml. The cups have a capacity of 140 ml and the probability that the machine dispenses too much liquid so that the cup overflows is 0.01.</p>
+      <p><strong>a</strong> Find the standard deviation of the volume of liquid dispensed.</p>
+      <p><strong>b</strong> Find the probability that the machine dispenses less than 110 ml.</p>
+      <p>Ten percent of customers complain that the machine has not dispensed enough liquid.</p>
+      <p><strong>c</strong> Find the largest volume of liquid that will lead to a complaint.</p>
+      <p class="translation">Объём ~ N(120, σ²). \(P(\text{переполнение}) = P(X &gt; 140) = 0.01\). <strong>a</strong> \(\sigma\); <strong>b</strong> \(P(X&lt;110)\); <strong>c</strong> 10% жалуются — наибольший объём для жалобы.</p>
+    </div>
+    <div class="given"><h3>Дано <span class="en">(Given)</span></h3><ul><li>\( X \sim \mathrm{N}(120,\ \sigma^{2}) \) мл</li><li>\( P(X &gt; 140) = 0.01 \)</li></ul></div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>Часть a.</strong> \( P(Z &gt; z) = 0.01 \Rightarrow z = 2.3263 \).</p>
+      \[ \frac{140 - 120}{\sigma} = 2.3263 \;\Rightarrow\; \sigma = \frac{20}{2.3263} \approx 8.60 \text{ мл} \]
+
+      <p style="margin-top:1.2em;"><strong>Часть b.</strong> \( z = \dfrac{110 - 120}{8.60} \approx -1.163 \).</p>
+      \[ P(X &lt; 110) = 1 - \Phi(1.16) \approx 1 - 0.8770 = 0.1230 \]
+
+      <p style="margin-top:1.2em;"><strong>Часть c.</strong> 10% жалуются на нехватку: \( P(X &lt; v) = 0.10 \).</p>
+      <p>Из таблицы: \( \Phi(z) = 0.10 \Rightarrow z = -1.2816 \).</p>
+      \[ v = 120 + (-1.2816) \cdot 8.60 \approx 120 - 11.02 \approx 108.98 \text{ мл} \]
+    </div>
+    <div class="answer"><h3>Ответ <span class="en">(Answer)</span></h3>\[ \boxed{\text{a) } \sigma \approx 8.60 \text{ мл} \quad \text{b) } \approx 0.123 \quad \text{c) } v \approx 109 \text{ мл}} \]</div>
+  </section>
+
+  <!-- PROBLEM 6 -->
+  <section class="problem">
+    <h2>Problem 6</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The random variable \( X \sim \mathrm{N}(\mu,\ \sigma^{2}) \). The lower quartile of \(X\) is 20 and the upper quartile is 40. Find \( \mu \) and \( \sigma \).</p>
+      <p class="translation">\(X \sim \mathrm{N}(\mu, \sigma^{2})\), нижний квартиль = 20, верхний квартиль = 40. Найти \(\mu, \sigma\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>По симметрии нормального распределения: \( \mu \) лежит ровно посередине между квартилями:</p>
+      \[ \mu = \frac{20 + 40}{2} = 30 \]
+      <p>Для верхнего квартиля: \( P(X &lt; 40) = 0.75 \Rightarrow z = 0.6745 \).</p>
+      \[ \frac{40 - 30}{\sigma} = 0.6745 \;\Rightarrow\; \sigma = \frac{10}{0.6745} \approx 14.83 \]
+    </div>
+    <div class="answer"><h3>Ответ <span class="en">(Answer)</span></h3>\[ \boxed{\mu = 30, \quad \sigma \approx 14.83} \]</div>
+  </section>
+
+  <!-- PROBLEM 7 -->
+  <section class="problem">
+    <h2>Problem 7</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The heights of seedlings are normally distributed. Given that 10% of the seedlings are taller than 15 cm and 5% are shorter than 4 cm, find the mean and standard deviation of the heights.</p>
+      <p class="translation">Высота саженцев ~ N(μ, σ²). 10% выше 15 см, 5% ниже 4 см. Найти \(\mu, \sigma\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>Составим систему из двух уравнений.</p>
+      <p><strong>Уравнение 1:</strong> \( P(X &gt; 15) = 0.10 \Rightarrow z_{1} = 1.2816 \):</p>
+      \[ \frac{15 - \mu}{\sigma} = 1.2816 \;\Rightarrow\; 15 - \mu = 1.2816\sigma \quad (1) \]
+
+      <p><strong>Уравнение 2:</strong> \( P(X &lt; 4) = 0.05 \Rightarrow z_{2} = -1.6449 \):</p>
+      \[ \frac{4 - \mu}{\sigma} = -1.6449 \;\Rightarrow\; \mu - 4 = 1.6449\sigma \quad (2) \]
+
+      <p>Сложим (1) и (2):</p>
+      \[ (15 - \mu) + (\mu - 4) = (1.2816 + 1.6449)\,\sigma \]
+      \[ 11 = 2.9265\,\sigma \;\Rightarrow\; \sigma = \frac{11}{2.9265} \approx 3.76 \]
+
+      <p>Подставим в (2): \( \mu = 4 + 1.6449 \cdot 3.76 \approx 4 + 6.18 \approx 10.18 \).</p>
+    </div>
+    <div class="answer"><h3>Ответ <span class="en">(Answer)</span></h3>\[ \boxed{\mu \approx 10.18 \text{ см}, \quad \sigma \approx 3.76 \text{ см}} \]</div>
+  </section>
+
+  <!-- PROBLEM 8 -->
+  <section class="problem">
+    <h2>Problem 8</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>A psychologist gives a student two different tests. The first test has a mean of 80 and a standard deviation of 10 and the student scored 85.</p>
+      <p><strong>a</strong> Find the probability of scoring 85 or more on the first test.</p>
+      <p>The second test has a mean of 100 and a standard deviation of 15. The student scored 105 on the second test.</p>
+      <p><strong>b</strong> Find the probability of a score of 105 or more on the second test.</p>
+      <p><strong>c</strong> State, giving a reason, which of the student's two test scores was better.</p>
+      <p class="translation">Тест 1: ~ N(80, 10²), результат 85. Тест 2: ~ N(100, 15²), результат 105. <strong>a</strong>/<strong>b</strong> вероятности; <strong>c</strong> какой результат лучше.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>Часть a.</strong> \( z = \dfrac{85 - 80}{10} = 0.5 \):</p>
+      \[ P(X \ge 85) = 1 - \Phi(0.5) = 1 - 0.6915 = 0.3085 \]
+
+      <p style="margin-top:1.2em;"><strong>Часть b.</strong> \( z = \dfrac{105 - 100}{15} = \dfrac{1}{3} \approx 0.33 \):</p>
+      \[ P(Y \ge 105) = 1 - \Phi(0.33) = 1 - 0.6293 = 0.3707 \]
+
+      <p style="margin-top:1.2em;"><strong>Часть c.</strong> Чем <strong>меньше вероятность</strong>, что обычный участник набрал столько же или больше, тем лучше относительный результат. \( 0.3085 &lt; 0.3707 \), значит результат на <strong>первом тесте</strong> был лучше (только 30.85% набрали бы 85+, тогда как 37.07% набрали бы 105+).</p>
+    </div>
+    <div class="answer"><h3>Ответ <span class="en">(Answer)</span></h3>\[ \boxed{\text{a) } 0.3085 \quad \text{b) } 0.3707 \quad \text{c) первый тест лучше}} \]</div>
+  </section>
+
+  <!-- PROBLEM 9 -->
+  <section class="problem">
+    <h2>Problem 9</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>Jam is sold in jars and the mean weight of the contents is 108 grams. Only 3% of jars have contents weighing less than 100 grams. Assuming that the weight of jam in a jar is normally distributed find</p>
+      <p><strong>a</strong> the standard deviation of the weight of jam in a jar,</p>
+      <p><strong>b</strong> the proportion of jars where the contents weigh more than 115 grams.</p>
+      <p class="translation">Вес джема ~ N(108, σ²) г. \(P(X&lt;100) = 0.03\). <strong>a</strong> \(\sigma\); <strong>b</strong> доля банок с весом &gt; 115 г.</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>Часть a.</strong> \( \Phi(z) = 0.03 \Rightarrow z = -1.88 \) (по таблице \( \Phi(1.88) = 0.9699 \approx 0.97 \)).</p>
+      \[ \frac{100 - 108}{\sigma} = -1.88 \;\Rightarrow\; \sigma = \frac{8}{1.88} \approx 4.255 \text{ г} \]
+
+      <p style="margin-top:1.2em;"><strong>Часть b.</strong> \( z = \dfrac{115 - 108}{4.255} \approx 1.645 \):</p>
+      \[ P(X &gt; 115) = 1 - \Phi(1.645) \approx 1 - 0.9500 = 0.0500 \]
+    </div>
+    <div class="answer"><h3>Ответ <span class="en">(Answer)</span></h3>\[ \boxed{\text{a) } \sigma \approx 4.26 \text{ г} \quad \text{b) } \approx 0.0500 \;(\text{или } 5\%)} \]</div>
+  </section>
+
+  <!-- PROBLEM 10 -->
+  <section class="problem">
+    <h2>Problem 10</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The waiting time at a doctor's surgery is assumed to be normally distributed with standard deviation of 3.8 minutes. Given that the probability of waiting more than 15 minutes is 0.0446, find</p>
+      <p><strong>a</strong> the mean waiting time, &nbsp; <strong>b</strong> the probability of waiting fewer than 5 minutes.</p>
+      <p class="translation">Время ожидания ~ N(μ, 3.8²) мин, \(P(X&gt;15) = 0.0446\). <strong>a</strong> \(\mu\); <strong>b</strong> \(P(X&lt;5)\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>Часть a.</strong> \( P(Z &gt; z) = 0.0446 \Rightarrow \Phi(z) = 0.9554 \). По таблице \( \Phi(1.70) = 0.9554 \), значит \( z = 1.70 \).</p>
+      \[ \frac{15 - \mu}{3.8} = 1.70 \;\Rightarrow\; \mu = 15 - 1.70 \cdot 3.8 = 15 - 6.46 = 8.54 \text{ мин} \]
+
+      <p style="margin-top:1.2em;"><strong>Часть b.</strong> \( z = \dfrac{5 - 8.54}{3.8} = \dfrac{-3.54}{3.8} \approx -0.93 \).</p>
+      \[ P(X &lt; 5) = 1 - \Phi(0.93) = 1 - 0.8238 = 0.1762 \]
+    </div>
+    <div class="answer"><h3>Ответ <span class="en">(Answer)</span></h3>\[ \boxed{\text{a) } \mu \approx 8.54 \text{ мин} \quad \text{b) } \approx 0.1762} \]</div>
+  </section>
+
+  <!-- PROBLEM 11 -->
+  <section class="problem">
+    <h2>Problem 11</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The thickness of some plastic shelving produced by a factory is normally distributed. As part of the production process the shelving is tested with two gauges. The first gauge is 7 mm thick and 98.61% of the shelving passes through this gauge. The second gauge is 5.2 mm thick and only 1.02% of the shelves pass through this gauge.</p>
+      <p>Find the mean and standard deviation of the thickness of the shelving.</p>
+      <p class="translation">Толщина полок ~ N(μ, σ²). Полка проходит через щель толщины 7 мм, если её толщина &lt; 7 мм; через 5.2 мм — если &lt; 5.2 мм. \(P(X&lt;7) = 0.9861\), \(P(X&lt;5.2) = 0.0102\). Найти \(\mu, \sigma\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p>Из таблицы \( \Phi \):</p>
+      <ul>
+        <li>\( \Phi(z_{1}) = 0.9861 \Rightarrow z_{1} = 2.20 \) (т.к. \( \Phi(2.20) = 0.9861 \))</li>
+        <li>\( \Phi(z_{2}) = 0.0102 \Rightarrow z_{2} = -2.32 \) (т.к. \( \Phi(2.32) = 0.9898 \), \( 1 - 0.9898 = 0.0102 \))</li>
+      </ul>
+      <p>Получаем систему:</p>
+      \[ \frac{7 - \mu}{\sigma} = 2.20 \quad (1), \qquad \frac{5.2 - \mu}{\sigma} = -2.32 \quad (2) \]
+      <p>Из (1) и (2): \( 7 - \mu = 2.20\sigma \), \( \mu - 5.2 = 2.32\sigma \).</p>
+      <p>Складываем:</p>
+      \[ 7 - 5.2 = (2.20 + 2.32)\,\sigma \;\Rightarrow\; 1.8 = 4.52\,\sigma \;\Rightarrow\; \sigma \approx 0.398 \text{ мм} \]
+      <p>Подставляем в (1):</p>
+      \[ \mu = 7 - 2.20 \cdot 0.398 \approx 7 - 0.876 \approx 6.12 \text{ мм} \]
+    </div>
+    <div class="answer"><h3>Ответ <span class="en">(Answer)</span></h3>\[ \boxed{\mu \approx 6.12 \text{ мм}, \quad \sigma \approx 0.398 \text{ мм}} \]</div>
+  </section>
+
+  <!-- PROBLEM 12 -->
+  <section class="problem">
+    <h2>Problem 12</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The random variable \( X \sim \mathrm{N}(14,\ 9) \). Find</p>
+      <p><strong>a</strong> \( P(X \ge 11) \), &nbsp; <strong>b</strong> \( P(9 &lt; X &lt; 11) \).</p>
+      <p class="translation">\(X \sim \mathrm{N}(14, 9)\) (то есть \(\sigma^{2} = 9 \Rightarrow \sigma = 3\)). <strong>a</strong> \(P(X \ge 11)\); <strong>b</strong> \(P(9 &lt; X &lt; 11)\).</p>
+    </div>
+    <div class="given"><h3>Дано <span class="en">(Given)</span></h3><ul><li>\( X \sim \mathrm{N}(14,\ 3^{2}) \), \( \mu = 14, \sigma = 3 \)</li></ul></div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>Часть a.</strong> \( z = \dfrac{11 - 14}{3} = -1 \).</p>
+      \[ P(X \ge 11) = P(Z \ge -1) = \Phi(1) = 0.8413 \]
+
+      <p style="margin-top:1.2em;"><strong>Часть b.</strong> \( z_{1} = \dfrac{9-14}{3} = -\dfrac{5}{3} \approx -1.667 \); \( z_{2} = -1 \).</p>
+      \[
+      \begin{aligned}
+      P(9 &lt; X &lt; 11) &= \Phi(-1) - \Phi(-1.667) \\
+        &= (1 - \Phi(1)) - (1 - \Phi(1.667)) \\
+        &= \Phi(1.667) - \Phi(1) \\
+        &\approx 0.9522 - 0.8413 = 0.1109
+      \end{aligned}
+      \]
+    </div>
+    <div class="answer"><h3>Ответ <span class="en">(Answer)</span></h3>\[ \boxed{\text{a) } 0.8413 \quad \text{b) } \approx 0.1109} \]</div>
+  </section>
+
+  <!-- PROBLEM 13 -->
+  <section class="problem">
+    <h2>Problem 13</h2>
+    <div class="problem-statement">
+      <h3>Условие <span class="en">(Problem statement)</span></h3>
+      <p>The random variable \( X \sim \mathrm{N}(20,\ 5^{2}) \). Find</p>
+      <p><strong>a</strong> \( P(X \le 16) \), &nbsp; <strong>b</strong> the value of \(d\) such that \( P(X &lt; d) = 0.95 \).</p>
+      <p class="translation">\(X \sim \mathrm{N}(20, 5^{2})\). <strong>a</strong> \(P(X \le 16)\); <strong>b</strong> \(d\) такое, что \(P(X&lt;d) = 0.95\).</p>
+    </div>
+    <div class="solution">
+      <h3>Решение <span class="en">(Solution)</span></h3>
+      <p><strong>Часть a.</strong> \( z = \dfrac{16 - 20}{5} = -0.8 \).</p>
+      \[ P(X \le 16) = \Phi(-0.8) = 1 - \Phi(0.8) = 1 - 0.7881 = 0.2119 \]
+
+      <p style="margin-top:1.2em;"><strong>Часть b.</strong> \( \Phi(z) = 0.95 \Rightarrow z = 1.6449 \).</p>
+      \[ d = 20 + 1.6449 \cdot 5 \approx 20 + 8.22 \approx 28.22 \]
+    </div>
+    <div class="answer"><h3>Ответ <span class="en">(Answer)</span></h3>\[ \boxed{\text{a) } 0.2119 \quad \text{b) } d \approx 28.22} \]</div>
+  </section>
+
+</main>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

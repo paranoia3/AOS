@@ -1,0 +1,505 @@
+/* ============================================================
+   Probability & Statistics — общий стиль для конспектов и решений
+   Light + Dark theme via CSS variables. Подключается во все страницы.
+   ============================================================ */
+
+:root {
+    --bg: #fafaf7;
+    --paper: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #666;
+    --accent: #2c5f8d;
+    --accent-soft: #eaf2f8;
+    --border: #d8d4cc;
+    --border-soft: #e8e5dd;
+    --warn-bg: #fdf6e3;
+    --warn-border: #d4a373;
+    --def-bg: #f4f7f5;
+    --def-border: #6a9c89;
+    --thm-bg: #f5f3f9;
+    --thm-border: #7a6fa1;
+    --key-bg: #fffefa;
+    --key-border: #1a1a1a;
+    --shadow: rgba(0,0,0,0.04);
+    --fab-bg: #ffffff;
+    --fab-border: #d8d4cc;
+}
+
+/* ---------- Тёмная тема ---------- */
+:root[data-theme="dark"] {
+    --bg: #16181c;
+    --paper: #1e2127;
+    --ink: #e6e4df;
+    --muted: #9aa0a8;
+    --accent: #6aa3d4;
+    --accent-soft: #1f3343;
+    --border: #3a4049;
+    --border-soft: #2a2f36;
+    --warn-bg: #33301f;
+    --warn-border: #c79a5b;
+    --def-bg: #1f2e29;
+    --def-border: #5fa98d;
+    --thm-bg: #2a2738;
+    --thm-border: #9a8fc0;
+    --key-bg: #20232a;
+    --key-border: #e6e4df;
+    --shadow: rgba(0,0,0,0.5);
+    --fab-bg: #23262d;
+    --fab-border: #3a4049;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+html, body { margin: 0; padding: 0; background: var(--bg); }
+
+body {
+    font-family: 'Charter', 'Georgia', 'Cambria', 'Times New Roman', serif;
+    color: var(--ink);
+    line-height: 1.65;
+    font-size: 17px;
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 60px 50px 100px;
+    background: var(--paper);
+    box-shadow: 0 0 40px var(--shadow);
+    min-height: 100vh;
+    overflow-wrap: break-word;
+    transition: background-color 0.25s ease;
+}
+
+h1 {
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0 0 0.3em;
+    padding-bottom: 0.4em;
+    border-bottom: 2px solid var(--ink);
+    letter-spacing: -0.01em;
+}
+
+h1 .ru-subtitle {
+    display: block;
+    font-size: 0.55em;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 0.3em;
+    letter-spacing: 0;
+}
+
+h2 {
+    font-size: 1.4em;
+    font-weight: 700;
+    margin-top: 2.2em;
+    margin-bottom: 0.6em;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+h3 {
+    font-size: 1.1em;
+    font-weight: 700;
+    margin-top: 1.4em;
+    margin-bottom: 0.4em;
+    color: var(--ink);
+}
+
+h3 .en {
+    font-weight: 400;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+p { margin: 0.7em 0; }
+
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.3em 0; }
+
+strong { color: var(--ink); }
+em { color: var(--muted); }
+
+a { color: var(--accent); }
+
+.en-term {
+    font-style: italic;
+    color: var(--muted);
+    font-weight: 400;
+}
+
+/* Ключевая формула */
+.key-formula {
+    border: 1.5px solid var(--key-border);
+    background: var(--key-bg);
+    padding: 18px 24px;
+    margin: 1.5em 0;
+    border-radius: 2px;
+    position: relative;
+}
+.key-formula .label {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    background: var(--paper);
+    padding: 0 8px;
+    font-size: 0.78em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+}
+.key-formula .caption {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9em;
+    margin-top: 0.5em;
+    font-style: italic;
+}
+
+/* Определение */
+.definition {
+    border-left: 4px solid var(--def-border);
+    background: var(--def-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+}
+.definition::before {
+    content: "Определение (Definition)";
+    display: block;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--def-border);
+    margin-bottom: 0.4em;
+}
+
+/* Теорема / свойство */
+.theorem {
+    border-left: 4px solid var(--thm-border);
+    background: var(--thm-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+}
+.theorem::before {
+    content: "Свойство (Property)";
+    display: block;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--thm-border);
+    margin-bottom: 0.4em;
+}
+.theorem.named::before { content: attr(data-label); }
+
+/* Примечание */
+.note {
+    border-left: 4px solid var(--warn-border);
+    background: var(--warn-bg);
+    padding: 14px 20px;
+    margin: 1.2em 0;
+    border-radius: 0 4px 4px 0;
+}
+.note::before {
+    content: "Заметка (Note)";
+    display: block;
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--warn-border);
+    margin-bottom: 0.4em;
+}
+
+/* ---------- Решения ---------- */
+.topic-label {
+    color: var(--muted);
+    font-style: italic;
+    margin-top: -0.5em;
+    margin-bottom: 2em;
+}
+
+.problem {
+    margin: 3em 0;
+    padding-top: 1em;
+    border-top: 1px solid var(--border-soft);
+}
+.problem:first-of-type { border-top: none; }
+
+.problem h2 {
+    color: var(--accent);
+    border-bottom: none;
+    margin-top: 0.5em;
+}
+
+.problem-statement {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 14px 20px;
+    margin: 1em 0 1.5em;
+    border-radius: 0 4px 4px 0;
+}
+.problem-statement h3 { margin-top: 0; color: var(--accent); }
+.problem-statement .translation {
+    margin-top: 0.8em;
+    padding-top: 0.8em;
+    border-top: 1px dashed var(--border);
+    color: var(--muted);
+    font-size: 0.95em;
+}
+
+.given, .find, .solution, .answer {
+    margin: 1.2em 0;
+}
+
+.answer {
+    border: 1.5px solid var(--ink);
+    padding: 12px 20px;
+    background: var(--key-bg);
+    border-radius: 2px;
+}
+.answer h3 { margin-top: 0; }
+
+/* Таблицы */
+table {
+    border-collapse: collapse;
+    margin: 1em 0;
+    font-size: 0.95em;
+}
+th, td {
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    text-align: center;
+}
+th { background: var(--def-bg); font-weight: 700; }
+
+/* ---------- Диаграммы (SVG) ---------- */
+figure.diagram {
+    margin: 1.8em auto;
+    text-align: center;
+    max-width: 100%;
+}
+figure.diagram svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    overflow: visible;
+}
+figure.diagram figcaption {
+    margin-top: 0.8em;
+    font-size: 0.9em;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.diagram .axis        { stroke: var(--ink); stroke-width: 1.4; fill: none; stroke-linecap: round; }
+.diagram .axis-arrow  { fill: var(--ink); stroke: none; }
+.diagram .grid        { stroke: var(--border-soft); stroke-width: 0.6; stroke-dasharray: 3 3; }
+.diagram .curve       { stroke: var(--accent); stroke-width: 2; fill: none; stroke-linejoin: round; }
+.diagram .curve-alt   { stroke: var(--thm-border); stroke-width: 2; fill: none; stroke-linejoin: round; }
+.diagram .area        { fill: var(--accent); opacity: 0.22; }
+.diagram .area-alt    { fill: var(--thm-border); opacity: 0.22; }
+.diagram .bar         { fill: var(--accent); opacity: 0.55; stroke: var(--accent); stroke-width: 1; }
+.diagram .bar-hl      { fill: var(--thm-border); opacity: 0.75; stroke: var(--thm-border); stroke-width: 1; }
+.diagram .point       { fill: var(--ink); stroke: none; }
+.diagram .point-hl    { fill: var(--accent); stroke: var(--paper); stroke-width: 2; }
+.diagram .guide       { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 3; fill: none; }
+.diagram .label       { font-family: 'Charter', 'Georgia', serif; font-size: 13px; fill: var(--ink); }
+.diagram .label-muted { font-family: 'Charter', 'Georgia', serif; font-size: 12px; fill: var(--muted); }
+.diagram .label-math  { font-family: 'Charter', 'Georgia', serif; font-style: italic; font-size: 14px; fill: var(--ink); }
+.diagram .node-box    { fill: var(--paper); stroke: var(--ink); stroke-width: 1.4; }
+.diagram .node-circle { fill: var(--def-bg); stroke: var(--def-border); stroke-width: 1.5; }
+.diagram .edge        { stroke: var(--ink); stroke-width: 1.2; fill: none; }
+
+/* MathJax */
+mjx-container { margin: 0.4em 0; color: var(--ink); }
+mjx-container[display="true"] {
+    margin: 1em 0 !important;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* ============================================================
+   Навигация по темам (вставляется скриптом сверху и снизу <main>)
+   ============================================================ */
+.ps-nav {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    margin: 0 0 2em;
+    flex-wrap: wrap;
+}
+.ps-nav.bottom { margin: 3em 0 0; }
+
+.ps-nav a, .ps-nav span.disabled {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-decoration: none;
+    font-family: 'Charter', 'Georgia', serif;
+    font-size: 0.9em;
+    line-height: 1.25;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--ink);
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+.ps-nav a:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+.ps-nav a:active { transform: translateY(1px); }
+
+.ps-nav .ps-dir {
+    font-size: 0.78em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 2px;
+}
+.ps-nav .ps-title { font-weight: 700; }
+.ps-nav .ps-home {
+    flex: 0 0 auto;
+    text-align: center;
+    align-items: center;
+    font-weight: 700;
+    color: var(--accent);
+}
+.ps-nav .ps-next { text-align: right; }
+.ps-nav span.disabled { opacity: 0.35; cursor: default; }
+
+/* ============================================================
+   Плавающие кнопки: смена темы + наверх
+   ============================================================ */
+.ps-fab {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+.ps-fab-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--fab-border);
+    background: var(--fab-bg);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    opacity: 0.55;
+    transition: opacity 0.2s ease, transform 0.15s ease, background-color 0.2s ease;
+}
+.ps-fab-btn:hover { opacity: 1; transform: translateY(-2px); }
+.ps-fab-btn svg { width: 22px; height: 22px; display: block; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ps-fab-btn.ps-theme svg .sun-core { fill: currentColor; }
+
+/* кнопка "наверх" скрыта, пока не прокрутили */
+.ps-fab-btn.ps-top {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+}
+.ps-fab-btn.ps-top.show {
+    opacity: 0.55;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+.ps-fab-btn.ps-top.show:hover { opacity: 1; transform: translateY(-2px); }
+
+/* ============================================================
+   Главная страница (index)
+   ============================================================ */
+.home-intro { color: var(--muted); margin-bottom: 2.5em; }
+
+.topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 18px;
+    margin: 1.5em 0;
+}
+.topic-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    background: var(--paper);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.topic-card:hover { border-color: var(--accent); box-shadow: 0 4px 18px var(--shadow); }
+.topic-card .num {
+    font-size: 0.78em;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+.topic-card h2 {
+    font-size: 1.15em;
+    border: none;
+    margin: 0.1em 0 0.1em;
+}
+.topic-card .ru { color: var(--muted); font-size: 0.92em; margin-bottom: 0.9em; }
+.topic-card .links { display: flex; gap: 10px; }
+.topic-card .links a {
+    flex: 1;
+    text-align: center;
+    text-decoration: none;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 0.92em;
+    font-weight: 700;
+    border: 1px solid var(--border);
+    color: var(--ink);
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.topic-card .links a.notes:hover { background: var(--def-bg); border-color: var(--def-border); }
+.topic-card .links a.sol:hover { background: var(--accent-soft); border-color: var(--accent); }
+
+/* Печать */
+@media print {
+    body { background: white; }
+    main { box-shadow: none; max-width: 100%; padding: 20px; }
+    .ps-nav, .ps-fab { display: none !important; }
+}
+
+/* Мобильные */
+@media (max-width: 720px) {
+    main { padding: 30px 18px 80px; }
+    body { font-size: 16px; }
+    h1 { font-size: 1.6em; }
+    h2 { font-size: 1.25em; }
+    .ps-nav { gap: 8px; }
+    .ps-nav a, .ps-nav span.disabled { font-size: 0.82em; padding: 8px 10px; }
+    .ps-nav .ps-home { width: 100%; flex-basis: 100%; order: -1; }
+    .topic-grid { grid-template-columns: 1fr; }
+    table { display: block; overflow-x: auto; white-space: nowrap; }
+}
+
+@media (max-width: 420px) {
+    .ps-fab-btn { width: 40px; height: 40px; }
+    .ps-fab { right: 12px; bottom: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { transition: none !important; }
+}
